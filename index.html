@@ -3,67 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Smart Campus | Wi-Fi Handshake Attendance</title>
+  <title>Ekikrit Parishkar | Smart ERP Attendance Portal</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-    :root { --anim: 0.3s; }
-    * { transition: background-color var(--anim) ease, border-color var(--anim) ease, color var(--anim) ease; box-sizing: border-box; }
-
-    /* Batman Theme (Boys) */
-    body.theme-boys {
-      font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at 50% 8%, rgba(220, 38, 38, 0.2) 0%, rgba(11, 11, 15, 0.97) 65%),
-                  linear-gradient(rgba(5, 5, 8, 0.95), rgba(5, 5, 8, 0.98)),
-                  url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
-      color: #f1f5f9;
-      min-height: 100vh;
-    }
-    .theme-boys .brand-title { font-family: 'Cinzel', serif; letter-spacing: 2px; color: #ffffff; text-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
-    .theme-boys .theme-card {
-      background: rgba(18, 18, 24, 0.9);
-      border: 1px solid rgba(220, 38, 38, 0.3);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 15px rgba(220, 38, 38, 0.12);
-      backdrop-filter: blur(14px);
-    }
-    .theme-boys .theme-input { background: rgba(10, 10, 15, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; }
-    .theme-boys .theme-input:focus { border-color: #ef4444; outline: none; }
-    .theme-boys .primary-btn {
-      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
-      box-shadow: 0 4px 18px rgba(185, 28, 28, 0.4);
-      color: #ffffff;
-      border: 1px solid rgba(239, 68, 68, 0.35);
+    :root {
+      --pcge-navy: #0e2439;
+      --pcge-blue: #1b4965;
+      --pcge-gold: #c59b27;
+      --pcge-bg: #f4f6f9;
+      --pcge-card: #ffffff;
+      --pcge-text: #1f2937;
     }
 
-    /* Kitty Pastel Theme (Girls) */
-    body.theme-girls {
-      font-family: 'Quicksand', sans-serif;
-      background: radial-gradient(circle at top, rgba(253, 242, 248, 0.85) 0%, rgba(252, 231, 243, 0.95) 75%),
-                  linear-gradient(rgba(255, 240, 245, 0.85), rgba(254, 226, 226, 0.9)),
-                  url('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
-      color: #831843;
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--pcge-bg);
+      color: var(--pcge-text);
       min-height: 100vh;
     }
-    .theme-girls .brand-title { font-family: 'Quicksand', sans-serif; font-weight: 800; color: #be185d; text-shadow: 0 2px 10px rgba(244, 114, 182, 0.35); }
-    .theme-girls .theme-card {
-      background: rgba(255, 255, 255, 0.93);
-      border: 2px solid #fbcfe8;
-      box-shadow: 0 10px 30px rgba(244, 114, 182, 0.2);
-      backdrop-filter: blur(12px);
+
+    .erp-header {
+      background: linear-gradient(135deg, #0a192f 0%, #0e2439 60%, #1b4965 100%);
+      border-bottom: 3px solid var(--pcge-gold);
     }
-    .theme-girls .theme-input { background: rgba(255, 255, 255, 0.98); border: 1.5px solid #fbcfe8; color: #831843; }
-    .theme-girls .theme-input:focus { border-color: #ec4899; outline: none; }
-    .theme-girls .primary-btn {
-      background: linear-gradient(135deg, #f472b6, #db2777);
-      box-shadow: 0 4px 18px rgba(244, 114, 182, 0.4);
+
+    .erp-card {
+      background: var(--pcge-card);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .erp-input {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+    }
+    .erp-input:focus {
+      border-color: var(--pcge-blue);
+      box-shadow: 0 0 0 3px rgba(27, 73, 101, 0.15);
+      outline: none;
+    }
+
+    .erp-btn-primary {
+      background: linear-gradient(180deg, #1b4965 0%, #0e2439 100%);
       color: #ffffff;
-      border: none;
+      border: 1px solid #0a192f;
+    }
+    .erp-btn-primary:hover {
+      background: #0e2439;
+    }
+
+    .erp-btn-gold {
+      background: linear-gradient(180deg, #d4af37 0%, #b8860b 100%);
+      color: #0e2439;
+      font-weight: 700;
     }
   </style>
 
@@ -98,26 +98,16 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const MASTER_FACULTY_PIN = "9980";
     let currentUser = null;
+    let studentProfile = { name: "Yash Sharma", scholarNo: "PCGE-2024-BCA49", course: "BCA / Semester IV" };
     let subjects = [];
-    let currentIP = "Fetching...";
+    let currentIP = "103.24.120.45";
     let targetThreshold = 75;
     let sessionListener = null;
+    let teacherCountdown = null;
 
-    // Detect Device Public IP
-    async function fetchPublicIP() {
-      try {
-        const res = await fetch("https://api.ipify.org?format=json");
-        const data = await res.json();
-        currentIP = data.ip;
-      } catch (e) {
-        currentIP = "103.24.120.45"; // Simulated campus fallback
-      }
-      document.getElementById('current-ip-chip').innerText = currentIP;
-    }
-    fetchPublicIP();
-
-    // Railway 24-hr Time
+    // Time & Date Helpers (24-Hour Railway Time)
     function getRailwayTime() {
       return new Date().toLocaleTimeString('en-GB', { hour12: false });
     }
@@ -132,41 +122,39 @@
       if (el) el.innerText = getRailwayTime() + " HRS";
     }, 1000);
 
-    // Theme Switch
-    window.setMode = (mode) => {
-      document.body.className = mode === 'girls' ? 'theme-girls' : 'theme-boys';
-      const badge = document.getElementById('edition-badge');
-      badge.innerHTML = mode === 'girls' 
-        ? '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Campus Mode' 
-        : '<i class="fa-solid fa-shield-halved mr-1 text-red-500"></i> Batman Network Mode';
-      localStorage.setItem('saved_theme', mode);
-    };
+    // View Switching with Faculty PIN Check
+    window.switchPortalView = (view) => {
+      if (view === 'teacher') {
+        const enteredPin = prompt("PCGE ERP Security: Enter Faculty Authorization PIN:");
+        if (enteredPin !== MASTER_FACULTY_PIN) {
+          alert("Access Denied! Only authorized faculty members can initiate attendance broadcasts.");
+          return;
+        }
+      }
 
-    // View Switching (Student / Teacher)
-    window.switchView = (view) => {
       const isTeacher = view === 'teacher';
-      document.getElementById('view-student').classList.toggle('hidden', isTeacher);
-      document.getElementById('view-teacher').classList.toggle('hidden', !isTeacher);
-      document.getElementById('tab-student').classList.toggle('bg-white/20', !isTeacher);
-      document.getElementById('tab-teacher').classList.toggle('bg-white/20', isTeacher);
+      document.getElementById('student-portal').classList.toggle('hidden', isTeacher);
+      document.getElementById('teacher-portal').classList.toggle('hidden', !isTeacher);
+      document.getElementById('nav-student-btn').classList.toggle('bg-white/20', !isTeacher);
+      document.getElementById('nav-teacher-btn').classList.toggle('bg-white/20', isTeacher);
     };
 
-    // Auth Handlers
-    window.switchAuthMode = (mode) => {
+    // Authentication Handlers
+    window.toggleAuthType = (mode) => {
       const isLogin = mode === 'login';
-      document.getElementById('auth-action-btn').innerText = isLogin ? 'Login to Portal' : 'Register Account';
-      document.getElementById('to-signup-link').classList.toggle('hidden', !isLogin);
-      document.getElementById('to-login-link').classList.toggle('hidden', isLogin);
+      document.getElementById('auth-submit-btn').innerText = isLogin ? 'Sign In to Ekikrit ERP' : 'Register ERP Account';
+      document.getElementById('goto-reg').classList.toggle('hidden', !isLogin);
+      document.getElementById('goto-log').classList.toggle('hidden', isLogin);
     };
 
-    window.handleAuth = async () => {
+    window.submitAuth = async () => {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
-      const isLogin = document.getElementById('auth-action-btn').innerText.includes('Login');
-      const msgBox = document.getElementById('auth-message');
+      const isLogin = document.getElementById('auth-submit-btn').innerText.includes('Sign In');
+      const msgBox = document.getElementById('auth-error');
       msgBox.innerText = '';
 
-      if (!email || !password) return (msgBox.innerText = "Provide email & password.");
+      if (!email || !password) return (msgBox.innerText = "Please provide both User ID / Email and Password.");
       try {
         if (isLogin) {
           await signInWithEmailAndPassword(auth, email, password);
@@ -178,36 +166,36 @@
       }
     };
 
-    window.handleLogout = async () => {
+    window.logoutPortal = async () => {
       await signOut(auth);
       subjects = [];
       if (sessionListener) sessionListener();
-      renderDashboard();
+      renderERP();
     };
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
-      const authBox = document.getElementById('auth-wrapper');
-      const mainApp = document.getElementById('main-app');
+      const loginCard = document.getElementById('login-section');
+      const dashboard = document.getElementById('dashboard-section');
       if (user) {
-        authBox.classList.add('hidden');
-        mainApp.classList.remove('hidden');
-        document.getElementById('user-email-chip').innerText = user.email;
+        loginCard.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        document.getElementById('user-display-email').innerText = user.email;
         loadSubjectData(user.uid);
-        listenActiveSession();
+        listenCampusSessions();
       } else {
-        authBox.classList.remove('hidden');
-        mainApp.classList.add('hidden');
+        loginCard.classList.remove('hidden');
+        dashboard.classList.add('hidden');
       }
     });
 
     async function loadSubjectData(uid) {
       try {
-        const docRef = doc(db, "attendance_records", uid);
-        const snap = await getDoc(docRef);
+        const snap = await getDoc(doc(db, "attendance_records", uid));
         if (snap.exists()) {
           subjects = snap.data().records || [];
-          renderDashboard();
+          if (snap.data().profile) studentProfile = snap.data().profile;
+          renderERP();
         }
       } catch (e) { console.error(e); }
     }
@@ -217,94 +205,99 @@
       try {
         await setDoc(doc(db, "attendance_records", currentUser.uid), { 
           records: subjects,
+          profile: studentProfile,
           lastSynced: new Date().toISOString()
         });
       } catch (e) { console.error(e); }
     }
 
-    // ---------------- TEACHER ACTIONS ----------------
-    let sessionTimer = null;
-    window.startTeacherSession = async () => {
-      const subName = document.getElementById('t-subject-select').value;
-      const networkSSID = document.getElementById('t-network-select').value;
+    // ---------------- TEACHER ACTIONS (Flexible Timer) ----------------
+    window.startTeacherBroadcast = async () => {
+      const subName = document.getElementById('t-subject').value.trim();
+      const networkSSID = document.getElementById('t-network').value;
+      const durationType = document.getElementById('t-duration').value;
       const token = Math.floor(100000 + Math.random() * 900000).toString();
 
-      await fetchPublicIP();
+      if (!subName) return alert("Please specify the course title!");
 
-      const sessionData = {
+      let expiry = 0;
+      if (durationType === "unlimited") {
+        expiry = Date.now() + (24 * 60 * 60 * 1000); // 24 hours until manually stopped
+      } else {
+        const mins = parseInt(durationType);
+        expiry = Date.now() + (mins * 60 * 1000);
+      }
+
+      const sessionPayload = {
         subject: subName,
         networkSSID: networkSSID,
-        gatewayIP: currentIP,
         token: token,
-        expiresAt: Date.now() + 60000, // 60 seconds window
+        facultyEmail: currentUser ? currentUser.email : "Authorized Faculty",
+        expiresAt: expiry,
+        isManual: durationType === "unlimited",
         active: true
       };
 
-      await setDoc(doc(db, "campus_sessions", "active_slot"), sessionData);
+      await setDoc(doc(db, "campus_sessions", "active_slot"), sessionPayload);
 
-      document.getElementById('t-token-display').innerText = token;
-      document.getElementById('t-session-box').classList.remove('hidden');
+      document.getElementById('t-broadcast-token').innerText = token;
+      document.getElementById('t-active-panel').classList.remove('hidden');
 
-      let timeLeft = 60;
-      clearInterval(sessionTimer);
-      sessionTimer = setInterval(() => {
-        timeLeft--;
-        document.getElementById('t-timer').innerText = `${timeLeft}s left`;
-        if (timeLeft <= 0) {
-          clearInterval(sessionTimer);
-          closeTeacherSession();
-        }
-      }, 1000);
+      clearInterval(teacherCountdown);
+      if (durationType !== "unlimited") {
+        let totalSecs = parseInt(durationType) * 60;
+        teacherCountdown = setInterval(() => {
+          totalSecs--;
+          const m = Math.floor(totalSecs / 60);
+          const s = totalSecs % 60;
+          document.getElementById('t-countdown-label').innerText = `${m}m ${s < 10 ? '0' : ''}${s}s remaining`;
+          if (totalSecs <= 0) {
+            clearInterval(teacherCountdown);
+            stopTeacherBroadcast();
+          }
+        }, 1000);
+      } else {
+        document.getElementById('t-countdown-label').innerText = "Session Open (Manual Stop Required)";
+      }
     };
 
-    window.closeTeacherSession = async () => {
-      clearInterval(sessionTimer);
+    window.stopTeacherBroadcast = async () => {
+      clearInterval(teacherCountdown);
       await setDoc(doc(db, "campus_sessions", "active_slot"), { active: false });
-      document.getElementById('t-session-box').classList.add('hidden');
+      document.getElementById('t-active-panel').classList.add('hidden');
     };
 
-    // ---------------- STUDENT NETWORK VERIFICATION ----------------
-    function listenActiveSession() {
+    // ---------------- STUDENT VERIFICATION ----------------
+    function listenCampusSessions() {
       sessionListener = onSnapshot(doc(db, "campus_sessions", "active_slot"), (snap) => {
-        const banner = document.getElementById('student-session-alert');
+        const box = document.getElementById('student-broadcast-bar');
         if (snap.exists() && snap.data().active && snap.data().expiresAt > Date.now()) {
           const d = snap.data();
-          banner.classList.remove('hidden');
-          document.getElementById('live-session-info').innerText = `${d.subject} (${d.networkSSID})`;
+          box.classList.remove('hidden');
+          document.getElementById('broadcast-course-name').innerText = `${d.subject} (${d.networkSSID})`;
         } else {
-          banner.classList.add('hidden');
+          box.classList.add('hidden');
         }
       });
     }
 
-    window.verifyAndMark = async () => {
-      const enteredToken = document.getElementById('s-token-input').value.trim();
-      if (!enteredToken) return alert("Enter the 6-digit session token displayed on classroom screen!");
-
-      await fetchPublicIP();
+    window.verifyStudentAttendance = async () => {
+      const code = document.getElementById('student-token-input').value.trim();
+      if (!code) return alert("Enter the 6-digit attendance code announced in the lecture!");
 
       const snap = await getDoc(doc(db, "campus_sessions", "active_slot"));
       if (!snap.exists() || !snap.data().active || snap.data().expiresAt < Date.now()) {
-        return alert("Session expired! Ask teacher to broadcast again.");
+        return alert("Attendance session is currently closed or has expired.");
       }
 
       const active = snap.data();
-
-      // 1. IP / Network Gateway Verification (Anti-Proxy)
-      if (active.gatewayIP !== currentIP) {
-        return alert(`Security Alert: Gateway Mismatch!\nYour IP: ${currentIP}\nClassroom Gateway: ${active.gatewayIP}\nConnect to ${active.networkSSID} to verify attendance.`);
+      if (active.token !== code) {
+        return alert("Invalid Handshake Code! Please check with faculty.");
       }
 
-      // 2. Token Matching
-      if (active.token !== enteredToken) {
-        return alert("Invalid 6-digit handshake code!");
-      }
-
-      // 3. Find Subject and Check Single Attendance Lock
-      let targetSubject = subjects.find(s => s.name.toLowerCase() === active.subject.toLowerCase());
-      if (!targetSubject) {
-        // Create course if not existing
-        targetSubject = {
+      let sub = subjects.find(s => s.name.toLowerCase() === active.subject.toLowerCase());
+      if (!sub) {
+        sub = {
           id: Date.now(),
           name: active.subject,
           attended: 0,
@@ -312,34 +305,33 @@
           lastMarkedDate: null,
           history: []
         };
-        subjects.push(targetSubject);
+        subjects.push(sub);
       }
 
-      if (targetSubject.lastMarkedDate === getTodayKey()) {
+      if (sub.lastMarkedDate === getTodayKey()) {
         return alert("Mhu dho ke suar kal ana ab 🫪");
       }
 
-      // Mark Present
-      targetSubject.attended += 1;
-      targetSubject.total += 1;
-      targetSubject.lastMarkedDate = getTodayKey();
-      targetSubject.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (Verified via ${active.networkSSID})`;
+      sub.attended += 1;
+      sub.total += 1;
+      sub.lastMarkedDate = getTodayKey();
+      sub.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (${active.networkSSID} Handshake)`;
 
-      document.getElementById('s-token-input').value = '';
-      alert(`Handshake Successful!\nPresent marked for ${active.subject} over ${active.networkSSID}`);
-      renderDashboard();
+      document.getElementById('student-token-input').value = '';
+      alert(`Verified Successfully!\nPresent recorded in Ekikrit ledger for ${active.subject}.`);
+      renderERP();
       syncSubjectData();
     };
 
-    // Manual Local Fallbacks
-    window.createManualSubject = () => {
-      const name = document.getElementById('subject-name').value.trim();
-      const attended = parseInt(document.getElementById('classes-attended').value);
-      const total = parseInt(document.getElementById('classes-total').value);
+    // Manual Entry for personal offline tracking
+    window.addERPSubject = () => {
+      const name = document.getElementById('new-sub-name').value.trim();
+      const attended = parseInt(document.getElementById('new-sub-att').value);
+      const total = parseInt(document.getElementById('new-sub-tot').value);
 
-      if (!name) return alert("Subject Name required!");
-      if (isNaN(attended) || isNaN(total)) return alert("Enter class numbers!");
-      if (attended > total) return alert("Attended cannot exceed Total!");
+      if (!name) return alert("Course title required!");
+      if (isNaN(attended) || isNaN(total)) return alert("Please enter numeric class values!");
+      if (attended > total) return alert("Attended classes cannot exceed total held lectures!");
 
       subjects.push({
         id: Date.now(),
@@ -348,61 +340,59 @@
         total,
         lastMarkedDate: null,
         history: [],
-        lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Initial)`
+        lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Added)`
       });
 
-      document.getElementById('subject-name').value = '';
-      document.getElementById('classes-attended').value = '';
-      document.getElementById('classes-total').value = '';
+      document.getElementById('new-sub-name').value = '';
+      document.getElementById('new-sub-att').value = '';
+      document.getElementById('new-sub-tot').value = '';
 
-      renderDashboard();
+      renderERP();
       syncSubjectData();
     };
 
-    window.markAbsentManual = (id) => {
-      const item = subjects.find(s => s.id === id);
-      if (!item) return;
-      if (item.lastMarkedDate === getTodayKey()) return alert("Mhu dho ke suar kal ana ab 🫪");
+    window.markERPManualAbsent = (id) => {
+      const sub = subjects.find(s => s.id === id);
+      if (!sub) return;
+      if (sub.lastMarkedDate === getTodayKey()) return alert("Mhu dho ke suar kal ana ab 🫪");
 
-      item.total += 1;
-      item.lastMarkedDate = getTodayKey();
-      item.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`;
-      renderDashboard();
+      sub.total += 1;
+      sub.lastMarkedDate = getTodayKey();
+      sub.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`;
+      renderERP();
       syncSubjectData();
     };
 
-    window.undoLast = (id) => {
-      const item = subjects.find(s => s.id === id);
-      if (!item || item.total === 0) return;
-      item.total -= 1;
-      if (item.attended > item.total) item.attended = item.total;
-      item.lastMarkedDate = null;
-      item.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (Undone)`;
-      renderDashboard();
+    window.undoERPAction = (id) => {
+      const sub = subjects.find(s => s.id === id);
+      if (!sub || sub.total === 0) return;
+      sub.total -= 1;
+      if (sub.attended > sub.total) sub.attended = sub.total;
+      sub.lastMarkedDate = null;
+      sub.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (Reverted)`;
+      renderERP();
       syncSubjectData();
     };
 
-    window.deleteSubject = (id) => {
-      if (confirm("Delete this subject?")) {
+    window.deleteERPSubject = (id) => {
+      if (confirm("Remove this subject from student ledger?")) {
         subjects = subjects.filter(s => s.id !== id);
-        renderDashboard();
+        renderERP();
         syncSubjectData();
       }
     };
 
-    function renderDashboard() {
-      const container = document.getElementById('subject-cards');
-      container.innerHTML = '';
+    function renderERP() {
+      const listContainer = document.getElementById('erp-subject-list');
+      listContainer.innerHTML = '';
 
-      const overallAttended = subjects.reduce((sum, s) => sum + s.attended, 0);
-      const overallTotal = subjects.reduce((sum, s) => sum + s.total, 0);
-      const overallPct = overallTotal === 0 ? 0 : Math.round((overallAttended / overallTotal) * 100);
+      const totalAtt = subjects.reduce((acc, s) => acc + s.attended, 0);
+      const totalHeld = subjects.reduce((acc, s) => acc + s.total, 0);
+      const aggregate = totalHeld === 0 ? 0 : Math.round((totalAtt / totalHeld) * 100);
 
-      document.getElementById('stat-courses').innerText = subjects.length;
-      document.getElementById('stat-percentage').innerText = `${overallPct}%`;
-      document.getElementById('stat-ratio').innerText = `${overallAttended} / ${overallTotal}`;
-
-      document.getElementById('today-date-display').innerText = getTodayFormatted();
+      document.getElementById('stat-sub-count').innerText = subjects.length;
+      document.getElementById('stat-agg-pct').innerText = `${aggregate}%`;
+      document.getElementById('stat-ratio-val').innerText = `${totalAtt} / ${totalHeld}`;
 
       const todayKey = getTodayKey();
 
@@ -411,208 +401,248 @@
         const isLocked = item.lastMarkedDate === todayKey;
 
         const card = document.createElement('div');
-        card.className = 'theme-card p-5 rounded-2xl flex flex-col gap-3';
+        card.className = 'erp-card p-4 rounded-xl flex flex-col gap-3';
         card.innerHTML = `
-          <div class="flex justify-between items-start">
+          <div class="flex justify-between items-start border-b border-slate-100 pb-2.5">
             <div>
-              <h3 class="text-lg font-bold">${item.name}</h3>
-              <p class="text-xs opacity-75 mt-0.5">Classes: <span class="font-bold text-sm">${item.attended}</span> / <span class="font-bold text-sm">${item.total}</span></p>
-              <p class="text-[11px] opacity-60 mt-1 flex items-center gap-1">
-                <i class="fa-solid fa-wifi text-[10px]"></i> Log: ${item.lastUpdated || 'None'}
-              </p>
+              <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">COURSE MODULE</span>
+              <h4 class="text-base font-bold text-slate-800">${item.name}</h4>
+              <p class="text-xs text-slate-500 mt-0.5">Lectures: <b class="text-slate-700">${item.attended}</b> Attended / <b class="text-slate-700">${item.total}</b> Held</p>
             </div>
             <div class="text-right">
-              <span class="text-2xl font-black ${pct >= targetThreshold ? 'text-emerald-500' : 'text-rose-500'}">${pct}%</span>
-              <button onclick="deleteSubject(${item.id})" class="block text-xs text-rose-400 hover:underline mt-1 font-semibold ml-auto">Delete</button>
+              <span class="text-2xl font-extrabold ${pct >= targetThreshold ? 'text-emerald-600' : 'text-rose-600'}">${pct}%</span>
+              <button onclick="deleteERPSubject(${item.id})" class="block text-[11px] text-slate-400 hover:text-rose-600 mt-1 font-semibold ml-auto">
+                <i class="fa-regular fa-trash-can mr-1"></i>Delete
+              </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-1.5 text-[11px] font-semibold ${isLocked ? 'text-amber-400' : 'text-emerald-400'}">
-            <i class="fa-solid ${isLocked ? 'fa-lock' : 'fa-lock-open'} text-[10px]"></i>
-            <span>${isLocked ? "Today's Attendance Locked" : "Pending for today"}</span>
+          <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div class="${pct >= targetThreshold ? 'bg-emerald-500' : 'bg-rose-500'} h-2 rounded-full" style="width: ${Math.min(pct, 100)}%"></div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="flex items-center gap-1.5 font-semibold ${isLocked ? 'text-amber-600' : 'text-emerald-600'}">
+              <i class="fa-solid ${isLocked ? 'fa-lock' : 'fa-lock-open'}"></i>
+              ${isLocked ? "Today's Attendance Recorded" : "Pending Today"}
+            </span>
+            <span class="text-slate-400 text-[10px] truncate max-w-[170px]">Log: ${item.lastUpdated || 'None'}</span>
           </div>
 
           <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="alert('Use Wi-Fi Handshake verification box above for present!')" class="${isLocked ? 'opacity-40' : ''} bg-emerald-700/50 hover:bg-emerald-700 text-white py-2 rounded-xl font-bold text-xs">
-              <i class="fa-solid fa-qrcode mr-1"></i> Wi-Fi Present
+            <button onclick="alert('Use the live WiFi Handshake box above to register Present for this course.')" class="${isLocked ? 'opacity-50' : ''} bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 rounded-lg text-xs border border-slate-200">
+              <i class="fa-solid fa-wifi mr-1 text-slate-500"></i> Wi-Fi Present
             </button>
-            <button onclick="markAbsentManual(${item.id})" class="${isLocked ? 'opacity-40 cursor-not-allowed' : ''} bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs">
+            <button onclick="markERPManualAbsent(${item.id})" class="${isLocked ? 'opacity-50 cursor-not-allowed' : ''} bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold py-2 rounded-lg text-xs border border-rose-200">
               +1 Absent
             </button>
           </div>
 
-          <div class="flex justify-between items-center pt-1 border-t border-white/5">
-            <span class="text-[10px] opacity-50">Campus Gateway Protected</span>
-            <button onclick="undoLast(${item.id})" class="text-[11px] opacity-60 hover:opacity-100 hover:underline">
-              <i class="fa-solid fa-rotate-left mr-1"></i>Undo
+          <div class="flex justify-end pt-1">
+            <button onclick="undoERPAction(${item.id})" class="text-[11px] text-slate-400 hover:text-slate-600 font-medium">
+              <i class="fa-solid fa-rotate-left mr-1"></i>Undo Last Change
             </button>
           </div>
         `;
-        container.appendChild(card);
+        listContainer.appendChild(card);
       });
     }
 
-    const saved = localStorage.getItem('saved_theme') || 'boys';
-    window.setMode(saved);
+    renderERP();
   </script>
 </head>
-<body class="p-4 sm:p-7 flex flex-col items-center">
-  <div class="w-full max-w-md flex flex-col gap-6">
+<body class="p-0 sm:p-4 flex flex-col items-center">
+  <div class="w-full max-w-md bg-white min-h-screen sm:min-h-0 sm:rounded-2xl shadow-xl overflow-hidden border border-slate-200 flex flex-col">
 
-    <!-- Theme Switch -->
-    <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-black/40 backdrop-blur border border-white/10">
-      <button onclick="setMode('boys')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-950/40">
-        <i class="fa-solid fa-shield-halved text-red-500"></i> Boys (Batman)
-      </button>
-      <button onclick="setMode('girls')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-pink-100/30">
-        <i class="fa-solid fa-heart text-pink-400"></i> Girls (Kitty Pink)
-      </button>
-    </div>
-
-    <!-- Header Section -->
-    <header class="text-center pt-1">
-      <h1 class="text-3xl font-black brand-title">Smart Campus</h1>
-      <p class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Wi-Fi Gateway Handshake Portal</p>
-      
-      <div class="flex flex-wrap items-center justify-center gap-2 mt-2.5">
-        <div id="edition-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold border border-current/20"></div>
-        <div class="px-3 py-0.5 rounded-full text-[11px] font-semibold bg-white/5 border border-white/10 flex items-center gap-1.5 opacity-80">
-          <i class="fa-regular fa-calendar text-[10px]"></i> <span id="today-date-display">Date</span>
-          <span class="opacity-40">|</span>
-          <i class="fa-solid fa-train text-[10px] text-amber-400"></i>
-          <span id="railway-clock" class="font-mono text-[10px]">00:00:00 HRS</span>
+    <header class="erp-header px-5 py-4 text-white">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center font-serif text-xl font-black text-amber-400">
+            P
+          </div>
+          <div>
+            <h1 class="text-sm font-extrabold uppercase tracking-wide text-white leading-tight">PARISHKAR COLLEGE</h1>
+            <p class="text-[10px] text-amber-300 font-semibold tracking-wider uppercase">OF GLOBAL EXCELLENCE (PCGE)</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="inline-block px-2 py-0.5 rounded bg-white/10 text-[9px] font-mono text-slate-200 border border-white/10">EKIKRIT ERP</span>
+          <p id="railway-clock" class="text-[10px] font-mono text-amber-300 font-bold mt-1">00:00:00 HRS</p>
         </div>
       </div>
     </header>
 
-    <!-- Network Info Banner -->
-    <div class="theme-card px-4 py-2.5 rounded-2xl flex justify-between items-center text-xs">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-wifi text-cyan-400"></i>
-        <span>Allowed: <b>PCGEA / Pcge</b></span>
+    <div class="bg-slate-50 border-b border-slate-200 px-4 py-2 flex items-center justify-between text-[11px] text-slate-600">
+      <div class="flex items-center gap-1.5 font-medium">
+        <i class="fa-solid fa-signal text-emerald-600 text-xs"></i>
+        <span>Network: <b>PCGEA / Pcge</b></span>
       </div>
-      <div class="flex items-center gap-1 opacity-70">
-        <span>IP:</span>
-        <span id="current-ip-chip" class="font-mono font-bold">Detecting...</span>
-      </div>
+      <a href="https://ekikritparishkar.cloud" target="_blank" class="text-blue-700 font-bold hover:underline flex items-center gap-1">
+        Official Portal <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+      </a>
     </div>
 
-    <!-- Auth Box -->
-    <section id="auth-wrapper" class="theme-card p-6 rounded-3xl flex flex-col gap-4">
-      <h2 class="text-base font-bold text-center">College Cloud Authentication</h2>
-      <div class="space-y-3">
-        <input id="auth-email" type="email" placeholder="student@gmail.com" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
-        <input id="auth-password" type="password" placeholder="••••••••" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
-      </div>
-      <p id="auth-message" class="text-rose-500 text-xs font-semibold text-center"></p>
-      <button id="auth-action-btn" onclick="handleAuth()" class="w-full primary-btn py-3 rounded-xl font-bold text-sm">
-        Register Account
-      </button>
-      <div class="flex justify-between text-xs opacity-75 px-1 font-semibold">
-        <span id="to-signup-link" class="hidden">New here? <button onclick="switchAuthMode('signup')" class="underline font-bold">Sign Up</button></span>
-        <span id="to-login-link">Registered? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
-      </div>
-    </section>
+    <div class="p-4 flex-1 flex flex-col gap-4">
 
-    <!-- Main Application -->
-    <main id="main-app" class="hidden flex flex-col gap-5">
-      <!-- User Ribbon & Portal Switcher -->
-      <div class="theme-card p-2 rounded-2xl flex justify-between items-center">
-        <div class="flex gap-1">
-          <button id="tab-student" onclick="switchView('student')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/20">Student View</button>
-          <button id="tab-teacher" onclick="switchView('teacher')" class="px-3 py-1.5 rounded-xl text-xs font-bold">Teacher Admin</button>
+      <section id="login-section" class="erp-card p-5 rounded-xl flex flex-col gap-4 my-auto">
+        <div class="text-center">
+          <h2 class="text-base font-bold text-slate-800">Student & Faculty ERP Login</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Enter your institutional credentials to access records</p>
         </div>
-        <div class="flex items-center gap-2 pr-2">
-          <span id="user-email-chip" class="text-[11px] font-semibold truncate max-w-[120px]"></span>
-          <button onclick="handleLogout()" class="text-xs text-rose-500 hover:underline font-bold">Logout</button>
-        </div>
-      </div>
 
-      <!-- ================= TEACHER ADMIN VIEW ================= -->
-      <section id="view-teacher" class="hidden theme-card p-5 rounded-3xl flex flex-col gap-4 border-2 border-dashed border-amber-500/40">
-        <h3 class="text-sm font-bold flex items-center gap-2 text-amber-400">
-          <i class="fa-solid fa-tower-broadcast"></i> Start Classroom Wi-Fi Session
-        </h3>
-        <div>
-          <label class="text-[11px] opacity-70 block mb-1">Target Subject</label>
-          <input id="t-subject-select" type="text" value="C Programming" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
+        <div class="space-y-3">
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1">Scholar No / Official Email</label>
+            <input id="auth-email" type="email" placeholder="student@pcge.ac.in" class="erp-input w-full rounded-lg px-3 py-2.5 text-xs">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold text-slate-600 block mb-1">ERP Password</label>
+            <input id="auth-password" type="password" placeholder="••••••••" class="erp-input w-full rounded-lg px-3 py-2.5 text-xs">
+          </div>
         </div>
-        <div>
-          <label class="text-[11px] opacity-70 block mb-1">Select Classroom Wi-Fi</label>
-          <select id="t-network-select" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
-            <option value="PCGEA">PCGEA (Academic Wing)</option>
-            <option value="Pcge">Pcge (Lab Network)</option>
-          </select>
-        </div>
-        <button onclick="startTeacherSession()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs">
-          Broadcast 60-Sec Handshake Session
+
+        <p id="auth-error" class="text-rose-600 text-xs font-semibold text-center"></p>
+
+        <button id="auth-submit-btn" onclick="submitAuth()" class="w-full erp-btn-primary py-2.5 rounded-lg text-xs font-bold tracking-wide">
+          Sign In to Ekikrit ERP
         </button>
 
-        <div id="t-session-box" class="hidden text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl">
-          <p class="text-xs opacity-75 font-semibold">Share this code with students in class:</p>
-          <h2 id="t-token-display" class="text-3xl font-mono font-black tracking-widest text-amber-400 my-1">------</h2>
-          <span id="t-timer" class="text-xs font-bold text-rose-400">60s left</span>
+        <div class="flex justify-between text-xs font-semibold text-slate-500 pt-1">
+          <span id="goto-reg">New enrollment? <button onclick="toggleAuthType('register')" class="text-blue-700 underline">Register</button></span>
+          <span id="goto-log" class="hidden">Already have account? <button onclick="toggleAuthType('login')" class="text-blue-700 underline">Login</button></span>
         </div>
       </section>
 
-      <!-- ================= STUDENT VIEW ================= -->
-      <section id="view-student" class="flex flex-col gap-4">
-        <!-- Live Session Handshake Box -->
-        <div id="student-session-alert" class="hidden theme-card p-4 rounded-2xl border border-cyan-400/50 flex flex-col gap-3">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-              </span>
-              Class Session Open: <span id="live-session-info" class="text-white ml-1 font-mono"></span>
-            </span>
-          </div>
-          <div class="flex gap-2">
-            <input id="s-token-input" type="text" placeholder="Enter 6-digit Code" maxlength="6" class="theme-input flex-1 rounded-xl px-3 py-2 text-xs font-mono text-center tracking-widest font-bold">
-            <button onclick="verifyAndMark()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-xl text-xs">
-              Verify Handshake
-            </button>
-          </div>
-          <p class="text-[10px] opacity-60">*Must be connected to college Wi-Fi (PCGEA / Pcge)</p>
-        </div>
+      <section id="dashboard-section" class="hidden flex flex-col gap-4">
 
-        <!-- Attendance Stats -->
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="theme-card p-3 rounded-2xl">
-            <p class="text-[10px] font-semibold uppercase opacity-60">Courses</p>
-            <h4 id="stat-courses" class="text-xl font-black mt-0.5">0</h4>
+        <div class="erp-card p-3.5 rounded-xl border-l-4 border-l-amber-500 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+              <i class="fa-solid fa-user-graduate text-base"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Yash Sharma</h3>
+              <p class="text-[11px] text-slate-500">Scholar: <span class="font-mono font-semibold text-slate-700">PCGE-2024-BCA49</span></p>
+              <p class="text-[10px] text-slate-400">BCA / Semester IV (2024-27)</p>
+            </div>
           </div>
-          <div class="theme-card p-3 rounded-2xl">
-            <p class="text-[10px] font-semibold uppercase opacity-60">Aggregate</p>
-            <h4 id="stat-percentage" class="text-xl font-black mt-0.5">0%</h4>
-          </div>
-          <div class="theme-card p-3 rounded-2xl">
-            <p class="text-[10px] font-semibold uppercase opacity-60">Attended</p>
-            <h4 id="stat-ratio" class="text-xs font-bold mt-2 truncate">0 / 0</h4>
-          </div>
-        </div>
-
-        <!-- Add Manual Subject -->
-        <div class="theme-card p-4 rounded-2xl flex flex-col gap-2.5">
-          <h4 class="text-xs font-bold">+ Register Course Manually</h4>
-          <input id="subject-name" type="text" placeholder="Course Name (e.g., Computer Networks)" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
-          <div class="grid grid-cols-2 gap-2">
-            <input id="classes-attended" type="number" placeholder="Attended" class="theme-input w-full rounded-xl px-3 py-1.5 text-xs">
-            <input id="classes-total" type="number" placeholder="Total" class="theme-input w-full rounded-xl px-3 py-1.5 text-xs">
-          </div>
-          <button onclick="createManualSubject()" class="w-full primary-btn py-2 rounded-xl font-bold text-xs">
-            Save Course
+          <button onclick="logoutPortal()" class="text-xs text-rose-600 hover:underline font-bold self-start">
+            Logout
           </button>
         </div>
 
-        <!-- Subject List -->
-        <div id="subject-cards" class="flex flex-col gap-3"></div>
-      </section>
-    </main>
+        <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl">
+          <button id="nav-student-btn" onclick="switchPortalView('student')" class="py-2 rounded-lg text-xs font-bold bg-white text-slate-800 shadow-sm">
+            Student Ledger
+          </button>
+          <button id="nav-teacher-btn" onclick="switchPortalView('teacher')" class="py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900">
+            <i class="fa-solid fa-lock text-[10px] mr-1 text-amber-600"></i>Faculty Admin
+          </button>
+        </div>
 
-    <footer class="text-center text-xs opacity-50 py-4 font-semibold">
-      Smart Campus Wi-Fi Protocol • Built by Yashh
+        <div id="teacher-portal" class="hidden erp-card p-4 rounded-xl border border-amber-300 bg-amber-50/30 flex flex-col gap-3.5">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-tower-broadcast"></i> Initiate Lecture Attendance Broadcast
+            </h4>
+            <span class="text-[10px] font-bold bg-amber-200/60 text-amber-800 px-2 py-0.5 rounded">PIN Verified</span>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-semibold text-slate-700 block mb-1">Select Course / Subject</label>
+            <input id="t-subject" type="text" value="C Programming & Data Structures" class="erp-input w-full rounded-lg px-3 py-2 text-xs">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[11px] font-semibold text-slate-700 block mb-1">Designated Wi-Fi</label>
+              <select id="t-network" class="erp-input w-full rounded-lg px-2.5 py-2 text-xs">
+                <option value="PCGEA">PCGEA (Academic Wing)</option>
+                <option value="Pcge">Pcge (Computer Labs)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] font-semibold text-slate-700 block mb-1">Session Duration</label>
+              <select id="t-duration" class="erp-input w-full rounded-lg px-2.5 py-2 text-xs">
+                <option value="2">2 Minutes</option>
+                <option value="5" selected>5 Minutes</option>
+                <option value="10">10 Minutes</option>
+                <option value="unlimited">Manual Stop Only</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="startTeacherBroadcast()" class="w-full erp-btn-gold py-2.5 rounded-lg text-xs tracking-wider shadow-sm">
+            Generate & Broadcast Session
+          </button>
+
+          <div id="t-active-panel" class="hidden text-center p-3.5 bg-white border border-amber-300 rounded-xl shadow-sm">
+            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Lecture OTP Code (Display on Screen)</p>
+            <h2 id="t-broadcast-token" class="text-3xl font-mono font-black text-amber-600 tracking-widest my-1">------</h2>
+            <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100 mt-2">
+              <span id="t-countdown-label" class="font-bold text-rose-600">Calculating...</span>
+              <button onclick="stopTeacherBroadcast()" class="text-rose-700 font-bold hover:underline">
+                <i class="fa-solid fa-circle-stop mr-1"></i>Stop Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="student-portal" class="flex flex-col gap-4">
+
+          <div id="student-broadcast-bar" class="hidden erp-card p-3 rounded-xl border border-blue-300 bg-blue-50/50 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Active Lecture: <b id="broadcast-course-name" class="text-slate-800"></b>
+              </span>
+            </div>
+            <div class="flex gap-2">
+              <input id="student-token-input" type="text" placeholder="Enter 6-Digit Code" maxlength="6" class="erp-input flex-1 rounded-lg px-3 py-1.5 text-xs font-mono font-bold tracking-widest text-center">
+              <button onclick="verifyStudentAttendance()" class="erp-btn-primary px-3 py-1.5 rounded-lg text-xs font-bold">
+                Verify Handshake
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-500">*Must be connected to designated campus Wi-Fi (PCGEA / Pcge)</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="erp-card p-3 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">COURSES</p>
+              <h4 id="stat-sub-count" class="text-xl font-black text-slate-800 mt-0.5">0</h4>
+            </div>
+            <div class="erp-card p-3 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">AGGREGATE</p>
+              <h4 id="stat-agg-pct" class="text-xl font-black text-slate-800 mt-0.5">0%</h4>
+            </div>
+            <div class="erp-card p-3 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL RATIO</p>
+              <h4 id="stat-ratio-val" class="text-xs font-bold text-slate-700 mt-2 truncate">0 / 0</h4>
+            </div>
+          </div>
+
+          <div class="erp-card p-3.5 rounded-xl flex flex-col gap-2.5">
+            <h4 class="text-xs font-bold text-slate-700">+ Add Subject to Personal Ledger</h4>
+            <input id="new-sub-name" type="text" placeholder="Course Name (e.g. Operating Systems)" class="erp-input w-full rounded-lg px-3 py-1.5 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+              <input id="new-sub-att" type="number" placeholder="Attended (e.g. 18)" class="erp-input w-full rounded-lg px-3 py-1.5 text-xs">
+              <input id="new-sub-tot" type="number" placeholder="Total Held (e.g. 22)" class="erp-input w-full rounded-lg px-3 py-1.5 text-xs">
+            </div>
+            <button onclick="addERPSubject()" class="erp-btn-primary py-2 rounded-lg text-xs font-bold">
+              Save Course Module
+            </button>
+          </div>
+
+          <div id="erp-subject-list" class="flex flex-col gap-3"></div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <footer class="bg-slate-50 border-t border-slate-200 py-3 text-center text-[10px] text-slate-400 font-medium">
+      Ekikrit Parishkar Portal • Designed for PCGE Jaipur
     </footer>
 
   </div>
