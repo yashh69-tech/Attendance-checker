@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Attendance Checker 75% | Cloud Sync Tracker</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* -------------------------------------------------------------
+       THEME STYLING SYSTEM
+    ------------------------------------------------------------- */
+    :root {
+      --transition-speed: 0.35s;
+    }
+
+    * {
+      transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, color var(--transition-speed) ease;
+      box-sizing: border-box;
+    }
+
+    /* 🦇 THE BATMAN NOIR THEME (BOYS) */
+    body.theme-boys {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 50% 10%, rgba(220, 38, 38, 0.15) 0%, rgba(10, 10, 14, 0.95) 60%),
+                  linear-gradient(rgba(5, 5, 8, 0.92), rgba(5, 5, 8, 0.96)),
+                  url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    .theme-boys .brand-title {
+      font-family: 'Cinzel', serif;
+      letter-spacing: 3px;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+    }
+    .theme-boys .theme-card {
+      background: rgba(18, 18, 24, 0.85);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(220, 38, 38, 0.12);
+      backdrop-filter: blur(16px);
+    }
+    .theme-boys .theme-input {
+      background: rgba(10, 10, 15, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+    .theme-boys .theme-input:focus {
+      border-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+      outline: none;
+    }
+    .theme-boys .primary-btn {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      box-shadow: 0 4px 18px rgba(185, 28, 28, 0.45);
+      color: #ffffff;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .theme-boys .primary-btn:hover {
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+    }
+
+    /* 🌸 HELLO KITTY PASTEL THEME (GIRLS) */
+    body.theme-girls {
+      font-family: 'Quicksand', sans-serif;
+      background: radial-gradient(circle at top, rgba(253, 242, 248, 0.8) 0%, rgba(252, 231, 243, 0.95) 70%),
+                  linear-gradient(rgba(255, 240, 245, 0.85), rgba(254, 226, 226, 0.9)),
+                  url('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
+      color: #831843;
+      min-height: 100vh;
+    }
+    .theme-girls .brand-title {
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 800;
+      color: #be185d;
+      text-shadow: 0 2px 10px rgba(244, 114, 182, 0.4);
+    }
+    .theme-girls .theme-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 2px solid #fbcfe8;
+      box-shadow: 0 10px 30px rgba(244, 114, 182, 0.22);
+      backdrop-filter: blur(12px);
+    }
+    .theme-girls .theme-input {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1.5px solid #fbcfe8;
+      color: #831843;
+    }
+    .theme-girls .theme-input:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.25);
+      outline: none;
+    }
+    .theme-girls .primary-btn {
+      background: linear-gradient(135deg, #f472b6, #db2777);
+      box-shadow: 0 4px 18px rgba(244, 114, 182, 0.45);
+      color: #ffffff;
+      border: none;
+    }
+    .theme-girls .primary-btn:hover {
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(150, 150, 150, 0.3);
+      border-radius: 999px;
+    }
+  </style>
+
+  <!-- Firebase Modular Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Firebase Configurations
+    const firebaseConfig = {
+      apiKey: "AIzaSyCp0yTjKG03ffLlq6wxwh40yxJ-PIyjUfw",
+      authDomain: "bunktracker-final.firebaseapp.com",
+      projectId: "bunktracker-final",
+      storageBucket: "bunktracker-final.firebasestorage.app",
+      messagingSenderId: "512504491604",
+      appId: "1:512504491604:web:79d685d482f40f154c47c1",
+      measurementId: "G-SSSJPXKDFGM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let subjects = [];
+
+    // Theme Switcher Logic
+    window.setMode = (mode) => {
+      document.body.className = mode === 'girls' ? 'theme-girls' : 'theme-boys';
+      const badge = document.getElementById('edition-badge');
+      const subTitle = document.getElementById('brand-sub');
+      
+      if (mode === 'girls') {
+        badge.innerHTML = '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Pastel Edition';
+        subTitle.innerText = "Princess Attendance Tracker";
+      } else {
+        badge.innerHTML = '<i class="fa-solid fa-bat mr-1 text-red-500"></i> The Dark Knight Edition';
+        subTitle.innerText = "Vengeance Target 75%";
+      }
+      localStorage.setItem('saved_attendance_theme', mode);
+    };
+
+    // Toggle Login / Sign Up forms
+    window.switchAuthMode = (mode) => {
+      const isLogin = mode === 'login';
+      document.getElementById('auth-action-btn').innerText = isLogin ? 'Login to Portal' : 'Create Free Account';
+      document.getElementById('to-signup-link').classList.toggle('hidden', !isLogin);
+      document.getElementById('to-login-link').classList.toggle('hidden', isLogin);
+      document.getElementById('auth-message').innerText = '';
+    };
+
+    // Authentication Handlers
+    window.handleAuth = async () => {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const isLogin = document.getElementById('auth-action-btn').innerText.includes('Login');
+      const errBox = document.getElementById('auth-message');
+      
+      errBox.innerText = '';
+      if (!email || !password) {
+        errBox.innerText = "Please provide both Email and Password.";
+        return;
+      }
+
+      try {
+        if (isLogin) {
+          await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          await createUserWithEmailAndPassword(auth, email, password);
+        }
+      } catch (err) {
+        errBox.innerText = err.message.replace("Firebase: ", "");
+      }
+    };
+
+    window.sendPasswordReset = async () => {
+      const email = document.getElementById('auth-email').value.trim();
+      const errBox = document.getElementById('auth-message');
+      if (!email) {
+        errBox.innerText = "Enter your email address first!";
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Password reset instructions sent to your email!");
+      } catch (err) {
+        errBox.innerText = err.message.replace("Firebase: ", "");
+      }
+    };
+
+    window.handleLogout = async () => {
+      await signOut(auth);
+      subjects = [];
+      renderDashboard();
+    };
+
+    // Auth State Observer
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      const authBox = document.getElementById('auth-wrapper');
+      const trackerBox = document.getElementById('tracker-wrapper');
+      const emailChip = document.getElementById('user-email-chip');
+
+      if (user) {
+        authBox.classList.add('hidden');
+        trackerBox.classList.remove('hidden');
+        emailChip.innerText = user.email;
+        loadSubjectData(user.uid);
+      } else {
+        authBox.classList.remove('hidden');
+        trackerBox.classList.add('hidden');
+      }
+    });
+
+    // Cloud Data Sync Handlers
+    async function loadSubjectData(uid) {
+      try {
+        const docRef = doc(db, "attendance_records", uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          subjects = docSnap.data().records || [];
+          renderDashboard();
+        }
+      } catch (e) {
+        console.error("Firestore Fetch Error:", e);
+      }
+    }
+
+    async function syncSubjectData() {
+      if (!currentUser) return;
+      try {
+        await setDoc(doc(db, "attendance_records", currentUser.uid), { records: subjects });
+      } catch (e) {
+        console.error("Firestore Save Error:", e);
+      }
+    }
+
+    // Attendance Management Functions
+    window.createSubject = () => {
+      const nameInput = document.getElementById('subject-name');
+      const attendedInput = document.getElementById('classes-attended');
+      const totalInput = document.getElementById('classes-total');
+
+      const name = nameInput.value.trim();
+      const attended = parseInt(attendedInput.value) || 0;
+      const total = parseInt(totalInput.value) || 0;
+
+      if (!name) return alert("Subject title is required!");
+      if (attended > total) return alert("Attended classes cannot be more than total classes!");
+
+      subjects.push({
+        id: Date.now(),
+        name,
+        attended,
+        total
+      });
+
+      nameInput.value = '';
+      attendedInput.value = '';
+      totalInput.value = '';
+
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.adjustAttendance = (id, deltaAttended, deltaTotal) => {
+      subjects = subjects.map(item => {
+        if (item.id === id) {
+          const nextAttended = Math.max(0, item.attended + deltaAttended);
+          const nextTotal = Math.max(0, item.total + deltaTotal);
+          if (nextAttended <= nextTotal) {
+            return { ...item, attended: nextAttended, total: nextTotal };
+          }
+        }
+        return item;
+      });
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.removeSubject = (id) => {
+      if (confirm("Are you sure you want to remove this subject?")) {
+        subjects = subjects.filter(s => s.id !== id);
+        renderDashboard();
+        syncSubjectData();
+      }
+    };
+
+    // Calculate Overall Summary
+    function updateSummaryStats() {
+      const overallAttended = subjects.reduce((sum, s) => sum + s.attended, 0);
+      const overallTotal = subjects.reduce((sum, s) => sum + s.total, 0);
+      const overallPercentage = overallTotal === 0 ? 0 : Math.round((overallAttended / overallTotal) * 100);
+
+      document.getElementById('stat-total-subjects').innerText = subjects.length;
+      document.getElementById('stat-overall-percentage').innerText = `${overallPercentage}%`;
+      document.getElementById('stat-total-classes').innerText = `${overallAttended} / ${overallTotal}`;
+    }
+
+    // Render Dashboard Cards
+    function renderDashboard() {
+      const listContainer = document.getElementById('subject-cards-container');
+      listContainer.innerHTML = '';
+      updateSummaryStats();
+
+      if (subjects.length === 0) {
+        listContainer.innerHTML = `
+          <div class="theme-card rounded-2xl p-8 text-center opacity-70">
+            <i class="fa-solid fa-graduation-cap text-4xl mb-3"></i>
+            <p class="text-sm font-semibold">No subjects added yet. Add your first course above!</p>
+          </div>
+        `;
+        return;
+      }
+
+      subjects.forEach(item => {
+        const pct = item.total === 0 ? 0 : Math.round((item.attended / item.total) * 100);
+        let statusText = '';
+        let badgeStyle = '';
+
+        if (pct >= 75) {
+          const bunksAllowed = Math.floor((item.attended - 0.75 * item.total) / 0.75);
+          statusText = bunksAllowed > 0 
+            ? `Safe! You can bunk ${bunksAllowed} more class${bunksAllowed > 1 ? 'es' : ''}.` 
+            : `Safe for now. Don't skip the next lecture!`;
+          badgeStyle = 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30';
+        } else {
+          const needed = Math.ceil((0.75 * item.total - item.attended) / 0.25);
+          statusText = `Short Attendance! Attend next ${needed} classes consecutively.`;
+          badgeStyle = 'bg-rose-500/10 text-rose-500 border border-rose-500/30';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'theme-card rounded-2xl p-5 flex flex-col gap-4';
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-lg font-bold tracking-tight">${item.name}</h3>
+              <p class="text-xs opacity-70 mt-0.5">Classes Attended: ${item.attended} / ${item.total}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-2xl font-black ${pct >= 75 ? 'text-emerald-500' : 'text-rose-500'}">${pct}%</span>
+              <button onclick="removeSubject(${item.id})" class="block text-xs text-rose-400 hover:underline mt-1 font-semibold ml-auto">
+                <i class="fa-regular fa-trash-can mr-1"></i>Delete
+              </button>
+            </div>
+          </div>
+
+          <!-- Status Box -->
+          <div class="px-3.5 py-2 rounded-xl text-xs font-semibold ${badgeStyle}">
+            ${statusText}
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <button onclick="adjustAttendance(${item.id}, 1, 1)" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs tracking-wider shadow transition">
+              <i class="fa-solid fa-check mr-1.5"></i>+ Present
+            </button>
+            <button onclick="adjustAttendance(${item.id}, 0, 1)" class="bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl font-bold text-xs tracking-wider shadow transition">
+              <i class="fa-solid fa-xmark mr-1.5"></i>+ Absent
+            </button>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    // Default theme initialize
+    const activeTheme = localStorage.getItem('saved_attendance_theme') || 'boys';
+    window.setMode(activeTheme);
+  </script>
+</head>
+<body class="p-4 sm:p-7 flex flex-col items-center">
+  <div class="w-full max-w-md flex flex-col gap-6">
+
+    <!-- Theme Switch Toggle -->
+    <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-black/40 backdrop-blur border border-white/10">
+      <button onclick="setMode('boys')" class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-red-950/40">
+        <i class="fa-solid fa-bat text-red-500"></i> Boys (Batman)
+      </button>
+      <button onclick="setMode('girls')" class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-pink-100/30">
+        <i class="fa-solid fa-heart text-pink-400"></i> Girls (Kitty Pink)
+      </button>
+    </div>
+
+    <!-- Header Section -->
+    <header class="text-center pt-2">
+      <h1 class="text-3xl font-black brand-title">Attendance Checker</h1>
+      <p id="brand-sub" class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Target 75% Criteria</p>
+      <div id="edition-badge" class="inline-block mt-2.5 px-3.5 py-1 rounded-full text-xs font-bold border border-current/20"></div>
+    </header>
+
+    <!-- Authentication Section -->
+    <section id="auth-wrapper" class="theme-card p-6 rounded-3xl flex flex-col gap-4">
+      <h2 class="text-base font-bold text-center tracking-wide">Sync Your Attendance Online</h2>
+      <div class="space-y-3">
+        <div>
+          <label class="text-[11px] font-semibold opacity-70 block mb-1">Email Address</label>
+          <input id="auth-email" type="email" placeholder="student@gmail.com" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold opacity-70 block mb-1">Secure Password</label>
+          <input id="auth-password" type="password" placeholder="••••••••" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
+        </div>
+      </div>
+
+      <p id="auth-message" class="text-rose-500 text-xs font-semibold text-center"></p>
+
+      <button id="auth-action-btn" onclick="handleAuth()" class="w-full primary-btn py-3 rounded-xl font-bold text-sm tracking-wider">
+        Create Free Account
+      </button>
+
+      <div class="flex justify-between items-center text-xs opacity-75 px-1 font-semibold">
+        <span id="to-signup-link" class="hidden">New student? <button onclick="switchAuthMode('signup')" class="underline font-bold">Sign Up</button></span>
+        <span id="to-login-link">Already registered? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
+        <button onclick="sendPasswordReset()" class="hover:underline">Forgot password?</button>
+      </div>
+    </section>
+
+    <!-- Main Tracker Dashboard -->
+    <main id="tracker-wrapper" class="hidden flex flex-col gap-5">
+      <!-- User Profile Ribbon -->
+      <div class="flex justify-between items-center theme-card px-4 py-3 rounded-2xl">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <i class="fa-regular fa-circle-user text-base opacity-75"></i>
+          <span id="user-email-chip" class="text-xs font-semibold truncate max-w-[190px]"></span>
+        </div>
+        <button onclick="handleLogout()" class="text-xs font-bold text-rose-500 hover:underline">
+          <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Logout
+        </button>
+      </div>
+
+      <!-- Overview Stats -->
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div class="theme-card p-3 rounded-2xl">
+          <p class="text-[10px] font-semibold uppercase opacity-60">Subjects</p>
+          <h4 id="stat-total-subjects" class="text-xl font-black mt-0.5">0</h4>
+        </div>
+        <div class="theme-card p-3 rounded-2xl">
+          <p class="text-[10px] font-semibold uppercase opacity-60">Overall</p>
+          <h4 id="stat-overall-percentage" class="text-xl font-black mt-0.5">0%</h4>
+        </div>
+        <div class="theme-card p-3 rounded-2xl">
+          <p class="text-[10px] font-semibold uppercase opacity-60">Attended</p>
+          <h4 id="stat-total-classes" class="text-xs font-bold mt-2 truncate">0 / 0</h4>
+        </div>
+      </div>
+
+      <!-- Add New Subject Form -->
+      <section class="theme-card p-5 rounded-3xl flex flex-col gap-3.5">
+        <h3 class="text-sm font-bold tracking-wide flex items-center gap-2">
+          <i class="fa-solid fa-plus text-xs"></i> Add New Subject
+        </h3>
+        <input id="subject-name" type="text" placeholder="Subject Name (e.g., Operating Systems)" class="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[10px] opacity-70 font-semibold block mb-1">Attended Classes</label>
+            <input id="classes-attended" type="number" placeholder="15" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="text-[10px] opacity-70 font-semibold block mb-1">Total Classes</label>
+            <input id="classes-total" type="number" placeholder="20" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
+          </div>
+        </div>
+        <button onclick="createSubject()" class="w-full primary-btn py-2.5 rounded-xl font-bold text-xs tracking-wider">
+          Save Course
+        </button>
+      </section>
+
+      <!-- Subject Cards List -->
+      <section id="subject-cards-container" class="flex flex-col gap-4"></section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs opacity-50 py-5 font-semibold">
+      Attendance Checker 75% • Built by Yashh
+    </footer>
+
+  </div>
+</body>
+</html>
