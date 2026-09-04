@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Attendance Checker | Academic Management Portal</title>
+  <title>Smart Campus | Wi-Fi Handshake Attendance</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -13,26 +13,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-    :root { --anim-speed: 0.3s; }
-    * { transition: background-color var(--anim-speed) ease, border-color var(--anim-speed) ease, color var(--anim-speed) ease; box-sizing: border-box; }
+    :root { --anim: 0.3s; }
+    * { transition: background-color var(--anim) ease, border-color var(--anim) ease, color var(--anim) ease; box-sizing: border-box; }
 
-    /* Boys Batman Theme */
+    /* Batman Theme (Boys) */
     body.theme-boys {
       font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at 50% 8%, rgba(220, 38, 38, 0.18) 0%, rgba(11, 11, 15, 0.96) 65%),
-                  linear-gradient(rgba(5, 5, 8, 0.94), rgba(5, 5, 8, 0.98)),
+      background: radial-gradient(circle at 50% 8%, rgba(220, 38, 38, 0.2) 0%, rgba(11, 11, 15, 0.97) 65%),
+                  linear-gradient(rgba(5, 5, 8, 0.95), rgba(5, 5, 8, 0.98)),
                   url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
       color: #f1f5f9;
       min-height: 100vh;
     }
     .theme-boys .brand-title { font-family: 'Cinzel', serif; letter-spacing: 2px; color: #ffffff; text-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
     .theme-boys .theme-card {
-      background: rgba(18, 18, 24, 0.88);
-      border: 1px solid rgba(220, 38, 38, 0.28);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(220, 38, 38, 0.1);
+      background: rgba(18, 18, 24, 0.9);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 15px rgba(220, 38, 38, 0.12);
       backdrop-filter: blur(14px);
     }
-    .theme-boys .theme-input { background: rgba(10, 10, 15, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); color: #ffffff; }
+    .theme-boys .theme-input { background: rgba(10, 10, 15, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; }
     .theme-boys .theme-input:focus { border-color: #ef4444; outline: none; }
     .theme-boys .primary-btn {
       background: linear-gradient(135deg, #b91c1c, #7f1d1d);
@@ -41,7 +41,7 @@
       border: 1px solid rgba(239, 68, 68, 0.35);
     }
 
-    /* Girls Kitty Pastel Theme */
+    /* Kitty Pastel Theme (Girls) */
     body.theme-girls {
       font-family: 'Quicksand', sans-serif;
       background: radial-gradient(circle at top, rgba(253, 242, 248, 0.85) 0%, rgba(252, 231, 243, 0.95) 75%),
@@ -52,7 +52,7 @@
     }
     .theme-girls .brand-title { font-family: 'Quicksand', sans-serif; font-weight: 800; color: #be185d; text-shadow: 0 2px 10px rgba(244, 114, 182, 0.35); }
     .theme-girls .theme-card {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.93);
       border: 2px solid #fbcfe8;
       box-shadow: 0 10px 30px rgba(244, 114, 182, 0.2);
       backdrop-filter: blur(12px);
@@ -74,14 +74,14 @@
       createUserWithEmailAndPassword, 
       signInWithEmailAndPassword, 
       signOut, 
-      onAuthStateChanged,
-      sendPasswordResetEmail
+      onAuthStateChanged 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
       getFirestore, 
       doc, 
       setDoc, 
-      getDoc 
+      getDoc, 
+      onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -100,54 +100,63 @@
 
     let currentUser = null;
     let subjects = [];
+    let currentIP = "Fetching...";
     let targetThreshold = 75;
+    let sessionListener = null;
 
-    // Exact Date Key (YYYY-MM-DD) for 24-hr lock
-    function getTodayKey() {
-      const d = new Date();
-      return d.toISOString().split('T')[0];
+    // Detect Device Public IP
+    async function fetchPublicIP() {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        currentIP = data.ip;
+      } catch (e) {
+        currentIP = "103.24.120.45"; // Simulated campus fallback
+      }
+      document.getElementById('current-ip-chip').innerText = currentIP;
     }
+    fetchPublicIP();
 
-    // Railway 24-Hour Time & Formatted String
+    // Railway 24-hr Time
     function getRailwayTime() {
-      const d = new Date();
-      return d.toLocaleTimeString('en-GB', { hour12: false });
+      return new Date().toLocaleTimeString('en-GB', { hour12: false });
     }
-
     function getTodayFormatted() {
-      const d = new Date();
-      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }
-
-    function updateLiveClock() {
+    function getTodayKey() {
+      return new Date().toISOString().split('T')[0];
+    }
+    setInterval(() => {
       const el = document.getElementById('railway-clock');
       if (el) el.innerText = getRailwayTime() + " HRS";
-    }
-    setInterval(updateLiveClock, 1000);
+    }, 1000);
 
+    // Theme Switch
     window.setMode = (mode) => {
       document.body.className = mode === 'girls' ? 'theme-girls' : 'theme-boys';
       const badge = document.getElementById('edition-badge');
-      if (mode === 'girls') {
-        badge.innerHTML = '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Pastel Mode';
-      } else {
-        badge.innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-red-500"></i> The Batman Edition';
-      }
-      localStorage.setItem('saved_attendance_theme', mode);
+      badge.innerHTML = mode === 'girls' 
+        ? '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Campus Mode' 
+        : '<i class="fa-solid fa-shield-halved mr-1 text-red-500"></i> Batman Network Mode';
+      localStorage.setItem('saved_theme', mode);
     };
 
-    window.changeTarget = (target) => {
-      targetThreshold = parseInt(target);
-      document.getElementById('criteria-label').innerText = `${targetThreshold}% Target`;
-      renderDashboard();
+    // View Switching (Student / Teacher)
+    window.switchView = (view) => {
+      const isTeacher = view === 'teacher';
+      document.getElementById('view-student').classList.toggle('hidden', isTeacher);
+      document.getElementById('view-teacher').classList.toggle('hidden', !isTeacher);
+      document.getElementById('tab-student').classList.toggle('bg-white/20', !isTeacher);
+      document.getElementById('tab-teacher').classList.toggle('bg-white/20', isTeacher);
     };
 
+    // Auth Handlers
     window.switchAuthMode = (mode) => {
       const isLogin = mode === 'login';
       document.getElementById('auth-action-btn').innerText = isLogin ? 'Login to Portal' : 'Register Account';
       document.getElementById('to-signup-link').classList.toggle('hidden', !isLogin);
       document.getElementById('to-login-link').classList.toggle('hidden', isLogin);
-      document.getElementById('auth-message').innerText = '';
     };
 
     window.handleAuth = async () => {
@@ -155,13 +164,9 @@
       const password = document.getElementById('auth-password').value;
       const isLogin = document.getElementById('auth-action-btn').innerText.includes('Login');
       const msgBox = document.getElementById('auth-message');
-      
       msgBox.innerText = '';
-      if (!email || !password) {
-        msgBox.innerText = "Please provide both Email and Password.";
-        return;
-      }
 
+      if (!email || !password) return (msgBox.innerText = "Provide email & password.");
       try {
         if (isLogin) {
           await signInWithEmailAndPassword(auth, email, password);
@@ -173,51 +178,38 @@
       }
     };
 
-    window.sendPasswordReset = async () => {
-      const email = document.getElementById('auth-email').value.trim();
-      if (!email) return alert("Enter your email address first!");
-      try {
-        await sendPasswordResetEmail(auth, email);
-        alert("Password reset instructions sent to your email!");
-      } catch (err) {
-        alert(err.message.replace("Firebase: ", ""));
-      }
-    };
-
     window.handleLogout = async () => {
       await signOut(auth);
       subjects = [];
+      if (sessionListener) sessionListener();
       renderDashboard();
     };
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       const authBox = document.getElementById('auth-wrapper');
-      const trackerBox = document.getElementById('tracker-wrapper');
-      const emailChip = document.getElementById('user-email-chip');
-
+      const mainApp = document.getElementById('main-app');
       if (user) {
         authBox.classList.add('hidden');
-        trackerBox.classList.remove('hidden');
-        emailChip.innerText = user.email;
+        mainApp.classList.remove('hidden');
+        document.getElementById('user-email-chip').innerText = user.email;
         loadSubjectData(user.uid);
+        listenActiveSession();
       } else {
         authBox.classList.remove('hidden');
-        trackerBox.classList.add('hidden');
+        mainApp.classList.add('hidden');
       }
     });
 
     async function loadSubjectData(uid) {
       try {
         const docRef = doc(db, "attendance_records", uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          subjects = docSnap.data().records || [];
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          subjects = snap.data().records || [];
           renderDashboard();
         }
-      } catch (e) {
-        console.error("Firestore Load Error:", e);
-      }
+      } catch (e) { console.error(e); }
     }
 
     async function syncSubjectData() {
@@ -227,31 +219,134 @@
           records: subjects,
           lastSynced: new Date().toISOString()
         });
-      } catch (e) {
-        console.error("Firestore Save Error:", e);
-      }
+      } catch (e) { console.error(e); }
     }
 
-    window.createSubject = () => {
+    // ---------------- TEACHER ACTIONS ----------------
+    let sessionTimer = null;
+    window.startTeacherSession = async () => {
+      const subName = document.getElementById('t-subject-select').value;
+      const networkSSID = document.getElementById('t-network-select').value;
+      const token = Math.floor(100000 + Math.random() * 900000).toString();
+
+      await fetchPublicIP();
+
+      const sessionData = {
+        subject: subName,
+        networkSSID: networkSSID,
+        gatewayIP: currentIP,
+        token: token,
+        expiresAt: Date.now() + 60000, // 60 seconds window
+        active: true
+      };
+
+      await setDoc(doc(db, "campus_sessions", "active_slot"), sessionData);
+
+      document.getElementById('t-token-display').innerText = token;
+      document.getElementById('t-session-box').classList.remove('hidden');
+
+      let timeLeft = 60;
+      clearInterval(sessionTimer);
+      sessionTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('t-timer').innerText = `${timeLeft}s left`;
+        if (timeLeft <= 0) {
+          clearInterval(sessionTimer);
+          closeTeacherSession();
+        }
+      }, 1000);
+    };
+
+    window.closeTeacherSession = async () => {
+      clearInterval(sessionTimer);
+      await setDoc(doc(db, "campus_sessions", "active_slot"), { active: false });
+      document.getElementById('t-session-box').classList.add('hidden');
+    };
+
+    // ---------------- STUDENT NETWORK VERIFICATION ----------------
+    function listenActiveSession() {
+      sessionListener = onSnapshot(doc(db, "campus_sessions", "active_slot"), (snap) => {
+        const banner = document.getElementById('student-session-alert');
+        if (snap.exists() && snap.data().active && snap.data().expiresAt > Date.now()) {
+          const d = snap.data();
+          banner.classList.remove('hidden');
+          document.getElementById('live-session-info').innerText = `${d.subject} (${d.networkSSID})`;
+        } else {
+          banner.classList.add('hidden');
+        }
+      });
+    }
+
+    window.verifyAndMark = async () => {
+      const enteredToken = document.getElementById('s-token-input').value.trim();
+      if (!enteredToken) return alert("Enter the 6-digit session token displayed on classroom screen!");
+
+      await fetchPublicIP();
+
+      const snap = await getDoc(doc(db, "campus_sessions", "active_slot"));
+      if (!snap.exists() || !snap.data().active || snap.data().expiresAt < Date.now()) {
+        return alert("Session expired! Ask teacher to broadcast again.");
+      }
+
+      const active = snap.data();
+
+      // 1. IP / Network Gateway Verification (Anti-Proxy)
+      if (active.gatewayIP !== currentIP) {
+        return alert(`Security Alert: Gateway Mismatch!\nYour IP: ${currentIP}\nClassroom Gateway: ${active.gatewayIP}\nConnect to ${active.networkSSID} to verify attendance.`);
+      }
+
+      // 2. Token Matching
+      if (active.token !== enteredToken) {
+        return alert("Invalid 6-digit handshake code!");
+      }
+
+      // 3. Find Subject and Check Single Attendance Lock
+      let targetSubject = subjects.find(s => s.name.toLowerCase() === active.subject.toLowerCase());
+      if (!targetSubject) {
+        // Create course if not existing
+        targetSubject = {
+          id: Date.now(),
+          name: active.subject,
+          attended: 0,
+          total: 0,
+          lastMarkedDate: null,
+          history: []
+        };
+        subjects.push(targetSubject);
+      }
+
+      if (targetSubject.lastMarkedDate === getTodayKey()) {
+        return alert("Mhu dho ke suar kal ana ab 🫪");
+      }
+
+      // Mark Present
+      targetSubject.attended += 1;
+      targetSubject.total += 1;
+      targetSubject.lastMarkedDate = getTodayKey();
+      targetSubject.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (Verified via ${active.networkSSID})`;
+
+      document.getElementById('s-token-input').value = '';
+      alert(`Handshake Successful!\nPresent marked for ${active.subject} over ${active.networkSSID}`);
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    // Manual Local Fallbacks
+    window.createManualSubject = () => {
       const name = document.getElementById('subject-name').value.trim();
-      const timeStart = document.getElementById('class-time-start').value;
-      const timeEnd = document.getElementById('class-time-end').value;
       const attended = parseInt(document.getElementById('classes-attended').value);
       const total = parseInt(document.getElementById('classes-total').value);
 
-      if (!name) return alert("Subject Name is required!");
-      if (isNaN(attended) || isNaN(total)) return alert("Please enter numbers for classes!");
-      if (attended > total) return alert("Attended cannot be more than Total classes!");
-
-      const timingSlot = (timeStart && timeEnd) ? `${timeStart} - ${timeEnd} (24H)` : 'Slot not set';
+      if (!name) return alert("Subject Name required!");
+      if (isNaN(attended) || isNaN(total)) return alert("Enter class numbers!");
+      if (attended > total) return alert("Attended cannot exceed Total!");
 
       subjects.push({
         id: Date.now(),
         name,
-        timeSlot: timingSlot,
         attended,
         total,
-        lastMarkedDate: null, // Stores 'YYYY-MM-DD'
+        lastMarkedDate: null,
         history: [],
         lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Initial)`
       });
@@ -264,148 +359,30 @@
       syncSubjectData();
     };
 
-    // Helper: 24-hr Lock Check
-    function checkOneAttendancePerDay(sub) {
-      const today = getTodayKey();
-      if (sub.lastMarkedDate === today) {
-        alert("Mhu dho ke suar kal ana ab 🫪");
-        return false;
-      }
-      return true;
-    }
+    window.markAbsentManual = (id) => {
+      const item = subjects.find(s => s.id === id);
+      if (!item) return;
+      if (item.lastMarkedDate === getTodayKey()) return alert("Mhu dho ke suar kal ana ab 🫪");
 
-    // 1. PRESENT: Attended +1, Total +1 (Locked for today)
-    window.markPresent = (id) => {
-      const target = subjects.find(s => s.id === id);
-      if (!target || !checkOneAttendancePerDay(target)) return;
-
-      const today = getTodayKey();
-      subjects = subjects.map(item => {
-        if (item.id === id) {
-          const history = item.history || [];
-          history.push({ 
-            attended: item.attended, 
-            total: item.total, 
-            lastUpdated: item.lastUpdated,
-            lastMarkedDate: item.lastMarkedDate
-          });
-          return {
-            ...item,
-            attended: item.attended + 1,
-            total: item.total + 1,
-            lastMarkedDate: today,
-            history: history,
-            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Present)`
-          };
-        }
-        return item;
-      });
+      item.total += 1;
+      item.lastMarkedDate = getTodayKey();
+      item.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`;
       renderDashboard();
       syncSubjectData();
     };
 
-    // 2. ABSENT: Attended +0, Total +1 (Locked for today)
-    window.markAbsent = (id) => {
-      const target = subjects.find(s => s.id === id);
-      if (!target || !checkOneAttendancePerDay(target)) return;
-
-      const today = getTodayKey();
-      subjects = subjects.map(item => {
-        if (item.id === id) {
-          const history = item.history || [];
-          history.push({ 
-            attended: item.attended, 
-            total: item.total, 
-            lastUpdated: item.lastUpdated,
-            lastMarkedDate: item.lastMarkedDate
-          });
-          return {
-            ...item,
-            total: item.total + 1,
-            lastMarkedDate: today,
-            history: history,
-            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`
-          };
-        }
-        return item;
-      });
-      renderDashboard();
-      syncSubjectData();
-    };
-
-    // 3. COLLEGE HOLIDAY / CLASS OFF (Attendance unchanged, logs note)
-    window.markHoliday = (id) => {
-      subjects = subjects.map(item => {
-        if (item.id === id) {
-          const history = item.history || [];
-          history.push({ 
-            attended: item.attended, 
-            total: item.total, 
-            lastUpdated: item.lastUpdated,
-            lastMarkedDate: item.lastMarkedDate
-          });
-          return {
-            ...item,
-            history: history,
-            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (College Holiday)`
-          };
-        }
-        return item;
-      });
-      renderDashboard();
-      syncSubjectData();
-    };
-
-    // 4. DUTY LEAVE / OD: Attended +1, Total +1 (Locked for today)
-    window.markDutyLeave = (id) => {
-      const target = subjects.find(s => s.id === id);
-      if (!target || !checkOneAttendancePerDay(target)) return;
-
-      const today = getTodayKey();
-      subjects = subjects.map(item => {
-        if (item.id === id) {
-          const history = item.history || [];
-          history.push({ 
-            attended: item.attended, 
-            total: item.total, 
-            lastUpdated: item.lastUpdated,
-            lastMarkedDate: item.lastMarkedDate
-          });
-          return {
-            ...item,
-            attended: item.attended + 1,
-            total: item.total + 1,
-            lastMarkedDate: today,
-            history: history,
-            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Duty Leave / OD)`
-          };
-        }
-        return item;
-      });
-      renderDashboard();
-      syncSubjectData();
-    };
-
-    // 5. UNDO: Reverts attendance & unlocks if marked today
     window.undoLast = (id) => {
-      subjects = subjects.map(item => {
-        if (item.id === id && item.history && item.history.length > 0) {
-          const prev = item.history.pop();
-          return {
-            ...item,
-            attended: prev.attended,
-            total: prev.total,
-            lastMarkedDate: prev.lastMarkedDate || null,
-            lastUpdated: prev.lastUpdated
-          };
-        }
-        return item;
-      });
+      const item = subjects.find(s => s.id === id);
+      if (!item || item.total === 0) return;
+      item.total -= 1;
+      if (item.attended > item.total) item.attended = item.total;
+      item.lastMarkedDate = null;
+      item.lastUpdated = `${getTodayFormatted()} ${getRailwayTime()} (Undone)`;
       renderDashboard();
       syncSubjectData();
     };
 
-    window.removeSubject = (id) => {
+    window.deleteSubject = (id) => {
       if (confirm("Delete this subject?")) {
         subjects = subjects.filter(s => s.id !== id);
         renderDashboard();
@@ -413,134 +390,70 @@
       }
     };
 
-    function updateSummaryStats() {
+    function renderDashboard() {
+      const container = document.getElementById('subject-cards');
+      container.innerHTML = '';
+
       const overallAttended = subjects.reduce((sum, s) => sum + s.attended, 0);
       const overallTotal = subjects.reduce((sum, s) => sum + s.total, 0);
-      const overallPercentage = overallTotal === 0 ? 0 : Math.round((overallAttended / overallTotal) * 100);
+      const overallPct = overallTotal === 0 ? 0 : Math.round((overallAttended / overallTotal) * 100);
 
-      document.getElementById('stat-total-subjects').innerText = subjects.length;
-      document.getElementById('stat-overall-percentage').innerText = `${overallPercentage}%`;
-      document.getElementById('stat-total-classes').innerText = `${overallAttended} / ${overallTotal}`;
-
-      const statusEl = document.getElementById('overall-status-pill');
-      if (overallTotal === 0) {
-        statusEl.innerText = "No Courses Added";
-        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-500/20 text-slate-400";
-      } else if (overallPercentage >= targetThreshold) {
-        statusEl.innerText = `Eligible for Exams (>= ${targetThreshold}%)`;
-        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-      } else {
-        statusEl.innerText = `Attendance Shortage (< ${targetThreshold}%)`;
-        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
-      }
-    }
-
-    function renderDashboard() {
-      const listContainer = document.getElementById('subject-cards-container');
-      listContainer.innerHTML = '';
-      updateSummaryStats();
+      document.getElementById('stat-courses').innerText = subjects.length;
+      document.getElementById('stat-percentage').innerText = `${overallPct}%`;
+      document.getElementById('stat-ratio').innerText = `${overallAttended} / ${overallTotal}`;
 
       document.getElementById('today-date-display').innerText = getTodayFormatted();
 
-      if (subjects.length === 0) {
-        listContainer.innerHTML = `
-          <div class="theme-card rounded-2xl p-8 text-center opacity-70">
-            <i class="fa-solid fa-graduation-cap text-4xl mb-3"></i>
-            <p class="text-sm font-semibold">No subjects registered yet. Add one above!</p>
-          </div>
-        `;
-        return;
-      }
-
-      const targetFraction = targetThreshold / 100;
       const todayKey = getTodayKey();
 
       subjects.forEach(item => {
         const pct = item.total === 0 ? 0 : Math.round((item.attended / item.total) * 100);
-        let statusMessage = '';
-        let badgeStyle = '';
-
-        if (pct >= targetThreshold) {
-          const bunksAllowed = Math.floor((item.attended - targetFraction * item.total) / targetFraction);
-          statusMessage = bunksAllowed > 0 
-            ? `<i class="fa-solid fa-circle-check mr-1.5"></i> Safe! Can bunk ${bunksAllowed} lecture${bunksAllowed > 1 ? 's' : ''}.` 
-            : `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Borderline safe! Don't miss next class.`;
-          badgeStyle = 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30';
-        } else {
-          const needed = Math.ceil((targetFraction * item.total - item.attended) / (1 - targetFraction));
-          statusMessage = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Shortage! Attend next ${needed} classes straight.`;
-          badgeStyle = 'bg-rose-500/10 text-rose-500 border border-rose-500/30';
-        }
-
-        const isMarkedToday = item.lastMarkedDate === todayKey;
+        const isLocked = item.lastMarkedDate === todayKey;
 
         const card = document.createElement('div');
-        card.className = 'theme-card rounded-2xl p-5 flex flex-col gap-3.5';
+        card.className = 'theme-card p-5 rounded-2xl flex flex-col gap-3';
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
-              <h3 class="text-lg font-bold tracking-tight">${item.name}</h3>
-              <div class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[11px] font-semibold opacity-90">
-                <i class="fa-regular fa-clock text-[10px] mr-1"></i> Slot: ${item.timeSlot || 'Timing Not Set'}
-              </div>
-              <p class="text-xs opacity-75 mt-1.5 font-medium">Classes: <span class="font-bold text-sm">${item.attended}</span> / <span class="font-bold text-sm">${item.total}</span></p>
-              <p class="text-[11px] opacity-60 mt-1 flex items-center gap-1.5">
-                <i class="fa-solid fa-train text-[10px]"></i> Log: ${item.lastUpdated}
+              <h3 class="text-lg font-bold">${item.name}</h3>
+              <p class="text-xs opacity-75 mt-0.5">Classes: <span class="font-bold text-sm">${item.attended}</span> / <span class="font-bold text-sm">${item.total}</span></p>
+              <p class="text-[11px] opacity-60 mt-1 flex items-center gap-1">
+                <i class="fa-solid fa-wifi text-[10px]"></i> Log: ${item.lastUpdated || 'None'}
               </p>
             </div>
             <div class="text-right">
               <span class="text-2xl font-black ${pct >= targetThreshold ? 'text-emerald-500' : 'text-rose-500'}">${pct}%</span>
-              <button onclick="removeSubject(${item.id})" class="block text-xs text-rose-400 hover:underline mt-1 font-semibold ml-auto">
-                <i class="fa-regular fa-trash-can mr-1"></i>Delete
-              </button>
+              <button onclick="deleteSubject(${item.id})" class="block text-xs text-rose-400 hover:underline mt-1 font-semibold ml-auto">Delete</button>
             </div>
           </div>
 
-          <!-- Status Advisory -->
-          <div class="px-3.5 py-2 rounded-xl text-xs font-semibold ${badgeStyle}">
-            ${statusMessage}
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold ${isLocked ? 'text-amber-400' : 'text-emerald-400'}">
+            <i class="fa-solid ${isLocked ? 'fa-lock' : 'fa-lock-open'} text-[10px]"></i>
+            <span>${isLocked ? "Today's Attendance Locked" : "Pending for today"}</span>
           </div>
 
-          <!-- Daily Status Indicator -->
-          <div class="flex items-center gap-1.5 text-[11px] font-semibold ${isMarkedToday ? 'text-amber-400' : 'text-emerald-400'}">
-            <i class="fa-solid ${isMarkedToday ? 'fa-lock' : 'fa-lock-open'} text-[10px]"></i>
-            <span>${isMarkedToday ? "Today's attendance recorded (Locked)" : "Pending for today"}</span>
-          </div>
-
-          <!-- Present & Absent -->
           <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="markPresent(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-check"></i> +1 Present
+            <button onclick="alert('Use Wi-Fi Handshake verification box above for present!')" class="${isLocked ? 'opacity-40' : ''} bg-emerald-700/50 hover:bg-emerald-700 text-white py-2 rounded-xl font-bold text-xs">
+              <i class="fa-solid fa-qrcode mr-1"></i> Wi-Fi Present
             </button>
-            <button onclick="markAbsent(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
-              <i class="fa-solid fa-xmark"></i> +1 Absent
-            </button>
-          </div>
-
-          <!-- Holiday & OD -->
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="markHoliday(${item.id})" class="bg-slate-700/60 hover:bg-slate-700 text-slate-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-mug-hot"></i> Class Off / Holiday
-            </button>
-            <button onclick="markDutyLeave(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-cyan-700/60 hover:bg-cyan-700 text-cyan-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
-              <i class="fa-solid fa-id-badge"></i> OD / Duty Leave
+            <button onclick="markAbsentManual(${item.id})" class="${isLocked ? 'opacity-40 cursor-not-allowed' : ''} bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs">
+              +1 Absent
             </button>
           </div>
 
           <div class="flex justify-between items-center pt-1 border-t border-white/5">
-            <span class="text-[10px] opacity-50">Limit: 1 entry/day per course</span>
-            <button onclick="undoLast(${item.id})" class="text-[11px] opacity-60 hover:opacity-100 hover:underline transition flex items-center gap-1">
-              <i class="fa-solid fa-rotate-left"></i> Undo action
+            <span class="text-[10px] opacity-50">Campus Gateway Protected</span>
+            <button onclick="undoLast(${item.id})" class="text-[11px] opacity-60 hover:opacity-100 hover:underline">
+              <i class="fa-solid fa-rotate-left mr-1"></i>Undo
             </button>
           </div>
         `;
-        listContainer.appendChild(card);
+        container.appendChild(card);
       });
     }
 
-    const savedTheme = localStorage.getItem('saved_attendance_theme') || 'boys';
-    window.setMode(savedTheme);
-    updateLiveClock();
+    const saved = localStorage.getItem('saved_theme') || 'boys';
+    window.setMode(saved);
   </script>
 </head>
 <body class="p-4 sm:p-7 flex flex-col items-center">
@@ -548,18 +461,18 @@
 
     <!-- Theme Switch -->
     <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-black/40 backdrop-blur border border-white/10">
-      <button onclick="setMode('boys')" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-red-950/40">
+      <button onclick="setMode('boys')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-red-950/40">
         <i class="fa-solid fa-shield-halved text-red-500"></i> Boys (Batman)
       </button>
-      <button onclick="setMode('girls')" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-pink-100/30">
+      <button onclick="setMode('girls')" class="py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-pink-100/30">
         <i class="fa-solid fa-heart text-pink-400"></i> Girls (Kitty Pink)
       </button>
     </div>
 
     <!-- Header Section -->
     <header class="text-center pt-1">
-      <h1 class="text-3xl font-black brand-title">Attendance Checker</h1>
-      <p class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Academic Attendance Manager</p>
+      <h1 class="text-3xl font-black brand-title">Smart Campus</h1>
+      <p class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Wi-Fi Gateway Handshake Portal</p>
       
       <div class="flex flex-wrap items-center justify-center gap-2 mt-2.5">
         <div id="edition-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold border border-current/20"></div>
@@ -572,120 +485,139 @@
       </div>
     </header>
 
-    <!-- Auth Form -->
-    <section id="auth-wrapper" class="theme-card p-6 rounded-3xl flex flex-col gap-4">
-      <h2 class="text-base font-bold text-center tracking-wide">Cloud Sync Login</h2>
-      <div class="space-y-3">
-        <div>
-          <label class="text-[11px] font-semibold opacity-70 block mb-1">Email ID</label>
-          <input id="auth-email" type="email" placeholder="student@gmail.com" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
-        </div>
-        <div>
-          <label class="text-[11px] font-semibold opacity-70 block mb-1">Password</label>
-          <input id="auth-password" type="password" placeholder="••••••••" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
-        </div>
+    <!-- Network Info Banner -->
+    <div class="theme-card px-4 py-2.5 rounded-2xl flex justify-between items-center text-xs">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-wifi text-cyan-400"></i>
+        <span>Allowed: <b>PCGEA / Pcge</b></span>
       </div>
+      <div class="flex items-center gap-1 opacity-70">
+        <span>IP:</span>
+        <span id="current-ip-chip" class="font-mono font-bold">Detecting...</span>
+      </div>
+    </div>
 
+    <!-- Auth Box -->
+    <section id="auth-wrapper" class="theme-card p-6 rounded-3xl flex flex-col gap-4">
+      <h2 class="text-base font-bold text-center">College Cloud Authentication</h2>
+      <div class="space-y-3">
+        <input id="auth-email" type="email" placeholder="student@gmail.com" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
+        <input id="auth-password" type="password" placeholder="••••••••" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
+      </div>
       <p id="auth-message" class="text-rose-500 text-xs font-semibold text-center"></p>
-
-      <button id="auth-action-btn" onclick="handleAuth()" class="w-full primary-btn py-3 rounded-xl font-bold text-sm tracking-wider">
+      <button id="auth-action-btn" onclick="handleAuth()" class="w-full primary-btn py-3 rounded-xl font-bold text-sm">
         Register Account
       </button>
-
-      <div class="flex justify-between items-center text-xs opacity-75 px-1 font-semibold">
+      <div class="flex justify-between text-xs opacity-75 px-1 font-semibold">
         <span id="to-signup-link" class="hidden">New here? <button onclick="switchAuthMode('signup')" class="underline font-bold">Sign Up</button></span>
-        <span id="to-login-link">Have an account? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
-        <button onclick="sendPasswordReset()" class="hover:underline">Forgot password?</button>
+        <span id="to-login-link">Registered? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
       </div>
     </section>
 
-    <!-- Tracker Dashboard -->
-    <main id="tracker-wrapper" class="hidden flex flex-col gap-5">
-      <div class="flex justify-between items-center theme-card px-4 py-3 rounded-2xl">
-        <div class="flex items-center gap-2 overflow-hidden">
-          <i class="fa-regular fa-circle-user text-base opacity-75"></i>
-          <span id="user-email-chip" class="text-xs font-semibold truncate max-w-[190px]"></span>
+    <!-- Main Application -->
+    <main id="main-app" class="hidden flex flex-col gap-5">
+      <!-- User Ribbon & Portal Switcher -->
+      <div class="theme-card p-2 rounded-2xl flex justify-between items-center">
+        <div class="flex gap-1">
+          <button id="tab-student" onclick="switchView('student')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/20">Student View</button>
+          <button id="tab-teacher" onclick="switchView('teacher')" class="px-3 py-1.5 rounded-xl text-xs font-bold">Teacher Admin</button>
         </div>
-        <button onclick="handleLogout()" class="text-xs font-bold text-rose-500 hover:underline">
-          <i class="fa-solid fa-arrow-right-from-bracket mr-0.5"></i> Logout
-        </button>
-      </div>
-
-      <!-- Target Selector -->
-      <div class="theme-card px-4 py-2.5 rounded-2xl flex justify-between items-center">
-        <div class="flex items-center gap-1.5">
-          <i class="fa-solid fa-bullseye text-xs opacity-70"></i>
-          <span id="criteria-label" class="text-xs font-bold">75% Target</span>
-        </div>
-        <div class="flex gap-1.5">
-          <button onclick="changeTarget(75)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">75%</button>
-          <button onclick="changeTarget(80)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">80%</button>
-          <button onclick="changeTarget(85)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">85%</button>
+        <div class="flex items-center gap-2 pr-2">
+          <span id="user-email-chip" class="text-[11px] font-semibold truncate max-w-[120px]"></span>
+          <button onclick="handleLogout()" class="text-xs text-rose-500 hover:underline font-bold">Logout</button>
         </div>
       </div>
 
-      <!-- Stats -->
-      <div class="grid grid-cols-3 gap-2 text-center">
-        <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Courses</p>
-          <h4 id="stat-total-subjects" class="text-xl font-black mt-0.5">0</h4>
-        </div>
-        <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Aggregate</p>
-          <h4 id="stat-overall-percentage" class="text-xl font-black mt-0.5">0%</h4>
-        </div>
-        <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Total Ratio</p>
-          <h4 id="stat-total-classes" class="text-xs font-bold mt-2 truncate">0 / 0</h4>
-        </div>
-      </div>
-
-      <div class="text-center">
-        <span id="overall-status-pill" class="text-[11px] font-semibold px-3 py-1 rounded-full"></span>
-      </div>
-
-      <!-- Add Course with Class Timing Form -->
-      <section class="theme-card p-5 rounded-3xl flex flex-col gap-3.5">
-        <h3 class="text-sm font-bold tracking-wide flex items-center gap-2">
-          <i class="fa-solid fa-plus text-xs"></i> Register Course & Schedule
+      <!-- ================= TEACHER ADMIN VIEW ================= -->
+      <section id="view-teacher" class="hidden theme-card p-5 rounded-3xl flex flex-col gap-4 border-2 border-dashed border-amber-500/40">
+        <h3 class="text-sm font-bold flex items-center gap-2 text-amber-400">
+          <i class="fa-solid fa-tower-broadcast"></i> Start Classroom Wi-Fi Session
         </h3>
-        <input id="subject-name" type="text" placeholder="Subject Name (e.g., C Programming, OS)" class="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm">
-        
-        <!-- Class Timings Pickers -->
         <div>
-          <label class="text-[10px] opacity-70 font-semibold block mb-1">Class Schedule (24-Hour Railway Time)</label>
-          <div class="grid grid-cols-2 gap-2">
-            <input id="class-time-start" type="time" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
-            <input id="class-time-end" type="time" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
-          </div>
+          <label class="text-[11px] opacity-70 block mb-1">Target Subject</label>
+          <input id="t-subject-select" type="text" value="C Programming" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
         </div>
-
-        <div class="grid grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-[10px] opacity-70 font-semibold block mb-1">Attended</label>
-            <input id="classes-attended" type="number" placeholder="15" min="0" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
-          </div>
-          <div>
-            <label class="text-[10px] opacity-70 font-semibold block mb-1">Total Held</label>
-            <input id="classes-total" type="number" placeholder="20" min="0" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
-          </div>
+        <div>
+          <label class="text-[11px] opacity-70 block mb-1">Select Classroom Wi-Fi</label>
+          <select id="t-network-select" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
+            <option value="PCGEA">PCGEA (Academic Wing)</option>
+            <option value="Pcge">Pcge (Lab Network)</option>
+          </select>
         </div>
-        <button onclick="createSubject()" class="w-full primary-btn py-2.5 rounded-xl font-bold text-xs tracking-wider">
-          Save Course with Schedule
+        <button onclick="startTeacherSession()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs">
+          Broadcast 60-Sec Handshake Session
         </button>
+
+        <div id="t-session-box" class="hidden text-center p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl">
+          <p class="text-xs opacity-75 font-semibold">Share this code with students in class:</p>
+          <h2 id="t-token-display" class="text-3xl font-mono font-black tracking-widest text-amber-400 my-1">------</h2>
+          <span id="t-timer" class="text-xs font-bold text-rose-400">60s left</span>
+        </div>
       </section>
 
-      <!-- Subject Cards List -->
-      <section id="subject-cards-container" class="flex flex-col gap-4"></section>
+      <!-- ================= STUDENT VIEW ================= -->
+      <section id="view-student" class="flex flex-col gap-4">
+        <!-- Live Session Handshake Box -->
+        <div id="student-session-alert" class="hidden theme-card p-4 rounded-2xl border border-cyan-400/50 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-cyan-400 flex items-center gap-1.5">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </span>
+              Class Session Open: <span id="live-session-info" class="text-white ml-1 font-mono"></span>
+            </span>
+          </div>
+          <div class="flex gap-2">
+            <input id="s-token-input" type="text" placeholder="Enter 6-digit Code" maxlength="6" class="theme-input flex-1 rounded-xl px-3 py-2 text-xs font-mono text-center tracking-widest font-bold">
+            <button onclick="verifyAndMark()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-xl text-xs">
+              Verify Handshake
+            </button>
+          </div>
+          <p class="text-[10px] opacity-60">*Must be connected to college Wi-Fi (PCGEA / Pcge)</p>
+        </div>
+
+        <!-- Attendance Stats -->
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="theme-card p-3 rounded-2xl">
+            <p class="text-[10px] font-semibold uppercase opacity-60">Courses</p>
+            <h4 id="stat-courses" class="text-xl font-black mt-0.5">0</h4>
+          </div>
+          <div class="theme-card p-3 rounded-2xl">
+            <p class="text-[10px] font-semibold uppercase opacity-60">Aggregate</p>
+            <h4 id="stat-percentage" class="text-xl font-black mt-0.5">0%</h4>
+          </div>
+          <div class="theme-card p-3 rounded-2xl">
+            <p class="text-[10px] font-semibold uppercase opacity-60">Attended</p>
+            <h4 id="stat-ratio" class="text-xs font-bold mt-2 truncate">0 / 0</h4>
+          </div>
+        </div>
+
+        <!-- Add Manual Subject -->
+        <div class="theme-card p-4 rounded-2xl flex flex-col gap-2.5">
+          <h4 class="text-xs font-bold">+ Register Course Manually</h4>
+          <input id="subject-name" type="text" placeholder="Course Name (e.g., Computer Networks)" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="classes-attended" type="number" placeholder="Attended" class="theme-input w-full rounded-xl px-3 py-1.5 text-xs">
+            <input id="classes-total" type="number" placeholder="Total" class="theme-input w-full rounded-xl px-3 py-1.5 text-xs">
+          </div>
+          <button onclick="createManualSubject()" class="w-full primary-btn py-2 rounded-xl font-bold text-xs">
+            Save Course
+          </button>
+        </div>
+
+        <!-- Subject List -->
+        <div id="subject-cards" class="flex flex-col gap-3"></div>
+      </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="text-center text-xs opacity-50 py-5 font-semibold">
-      Attendance Checker • Built by Yashh
+    <footer class="text-center text-xs opacity-50 py-4 font-semibold">
+      Smart Campus Wi-Fi Protocol • Built by Yashh
     </footer>
 
   </div>
 </body>
 </html>
+
 
 
