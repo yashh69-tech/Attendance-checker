@@ -102,7 +102,13 @@
     let subjects = [];
     let targetThreshold = 75;
 
-    // Railway 24-Hour Clock & IST Formatter
+    // Exact Date Key (YYYY-MM-DD) for 24-hr lock
+    function getTodayKey() {
+      const d = new Date();
+      return d.toISOString().split('T')[0];
+    }
+
+    // Railway 24-Hour Time & Formatted String
     function getRailwayTime() {
       const d = new Date();
       return d.toLocaleTimeString('en-GB', { hour12: false });
@@ -234,7 +240,7 @@
       const total = parseInt(document.getElementById('classes-total').value);
 
       if (!name) return alert("Subject Name is required!");
-      if (isNaN(attended) || isNaN(total)) return alert("Please enter valid numbers for classes!");
+      if (isNaN(attended) || isNaN(total)) return alert("Please enter numbers for classes!");
       if (attended > total) return alert("Attended cannot be more than Total classes!");
 
       const timingSlot = (timeStart && timeEnd) ? `${timeStart} - ${timeEnd} (24H)` : 'Slot not set';
@@ -245,6 +251,7 @@
         timeSlot: timingSlot,
         attended,
         total,
+        lastMarkedDate: null, // Stores 'YYYY-MM-DD'
         history: [],
         lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Initial)`
       });
@@ -257,15 +264,36 @@
       syncSubjectData();
     };
 
+    // Helper: 24-hr Lock Check
+    function checkOneAttendancePerDay(sub) {
+      const today = getTodayKey();
+      if (sub.lastMarkedDate === today) {
+        alert("Mhu dho ke suar kal ana ab 🫪");
+        return false;
+      }
+      return true;
+    }
+
+    // 1. PRESENT: Attended +1, Total +1 (Locked for today)
     window.markPresent = (id) => {
+      const target = subjects.find(s => s.id === id);
+      if (!target || !checkOneAttendancePerDay(target)) return;
+
+      const today = getTodayKey();
       subjects = subjects.map(item => {
         if (item.id === id) {
           const history = item.history || [];
-          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          history.push({ 
+            attended: item.attended, 
+            total: item.total, 
+            lastUpdated: item.lastUpdated,
+            lastMarkedDate: item.lastMarkedDate
+          });
           return {
             ...item,
             attended: item.attended + 1,
             total: item.total + 1,
+            lastMarkedDate: today,
             history: history,
             lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Present)`
           };
@@ -276,14 +304,25 @@
       syncSubjectData();
     };
 
+    // 2. ABSENT: Attended +0, Total +1 (Locked for today)
     window.markAbsent = (id) => {
+      const target = subjects.find(s => s.id === id);
+      if (!target || !checkOneAttendancePerDay(target)) return;
+
+      const today = getTodayKey();
       subjects = subjects.map(item => {
         if (item.id === id) {
           const history = item.history || [];
-          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          history.push({ 
+            attended: item.attended, 
+            total: item.total, 
+            lastUpdated: item.lastUpdated,
+            lastMarkedDate: item.lastMarkedDate
+          });
           return {
             ...item,
             total: item.total + 1,
+            lastMarkedDate: today,
             history: history,
             lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`
           };
@@ -294,11 +333,17 @@
       syncSubjectData();
     };
 
+    // 3. COLLEGE HOLIDAY / CLASS OFF (Attendance unchanged, logs note)
     window.markHoliday = (id) => {
       subjects = subjects.map(item => {
         if (item.id === id) {
           const history = item.history || [];
-          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          history.push({ 
+            attended: item.attended, 
+            total: item.total, 
+            lastUpdated: item.lastUpdated,
+            lastMarkedDate: item.lastMarkedDate
+          });
           return {
             ...item,
             history: history,
@@ -311,15 +356,26 @@
       syncSubjectData();
     };
 
+    // 4. DUTY LEAVE / OD: Attended +1, Total +1 (Locked for today)
     window.markDutyLeave = (id) => {
+      const target = subjects.find(s => s.id === id);
+      if (!target || !checkOneAttendancePerDay(target)) return;
+
+      const today = getTodayKey();
       subjects = subjects.map(item => {
         if (item.id === id) {
           const history = item.history || [];
-          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          history.push({ 
+            attended: item.attended, 
+            total: item.total, 
+            lastUpdated: item.lastUpdated,
+            lastMarkedDate: item.lastMarkedDate
+          });
           return {
             ...item,
             attended: item.attended + 1,
             total: item.total + 1,
+            lastMarkedDate: today,
             history: history,
             lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Duty Leave / OD)`
           };
@@ -330,6 +386,7 @@
       syncSubjectData();
     };
 
+    // 5. UNDO: Reverts attendance & unlocks if marked today
     window.undoLast = (id) => {
       subjects = subjects.map(item => {
         if (item.id === id && item.history && item.history.length > 0) {
@@ -338,6 +395,7 @@
             ...item,
             attended: prev.attended,
             total: prev.total,
+            lastMarkedDate: prev.lastMarkedDate || null,
             lastUpdated: prev.lastUpdated
           };
         }
@@ -395,6 +453,7 @@
       }
 
       const targetFraction = targetThreshold / 100;
+      const todayKey = getTodayKey();
 
       subjects.forEach(item => {
         const pct = item.total === 0 ? 0 : Math.round((item.attended / item.total) * 100);
@@ -413,6 +472,8 @@
           badgeStyle = 'bg-rose-500/10 text-rose-500 border border-rose-500/30';
         }
 
+        const isMarkedToday = item.lastMarkedDate === todayKey;
+
         const card = document.createElement('div');
         card.className = 'theme-card rounded-2xl p-5 flex flex-col gap-3.5';
         card.innerHTML = `
@@ -420,7 +481,7 @@
             <div>
               <h3 class="text-lg font-bold tracking-tight">${item.name}</h3>
               <div class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[11px] font-semibold opacity-90">
-                <i class="fa-regular fa-clock text-[10px] mr-1"></i> Class: ${item.timeSlot || 'Timing Not Set'}
+                <i class="fa-regular fa-clock text-[10px] mr-1"></i> Slot: ${item.timeSlot || 'Timing Not Set'}
               </div>
               <p class="text-xs opacity-75 mt-1.5 font-medium">Classes: <span class="font-bold text-sm">${item.attended}</span> / <span class="font-bold text-sm">${item.total}</span></p>
               <p class="text-[11px] opacity-60 mt-1 flex items-center gap-1.5">
@@ -435,30 +496,39 @@
             </div>
           </div>
 
+          <!-- Status Advisory -->
           <div class="px-3.5 py-2 rounded-xl text-xs font-semibold ${badgeStyle}">
             ${statusMessage}
           </div>
 
+          <!-- Daily Status Indicator -->
+          <div class="flex items-center gap-1.5 text-[11px] font-semibold ${isMarkedToday ? 'text-amber-400' : 'text-emerald-400'}">
+            <i class="fa-solid ${isMarkedToday ? 'fa-lock' : 'fa-lock-open'} text-[10px]"></i>
+            <span>${isMarkedToday ? "Today's attendance recorded (Locked)" : "Pending for today"}</span>
+          </div>
+
+          <!-- Present & Absent -->
           <div class="grid grid-cols-2 gap-2 pt-1">
-            <button onclick="markPresent(${item.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
+            <button onclick="markPresent(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-check"></i> +1 Present
             </button>
-            <button onclick="markAbsent(${item.id})" class="bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
+            <button onclick="markAbsent(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
               <i class="fa-solid fa-xmark"></i> +1 Absent
             </button>
           </div>
 
+          <!-- Holiday & OD -->
           <div class="grid grid-cols-2 gap-2">
             <button onclick="markHoliday(${item.id})" class="bg-slate-700/60 hover:bg-slate-700 text-slate-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
               <i class="fa-solid fa-mug-hot"></i> Class Off / Holiday
             </button>
-            <button onclick="markDutyLeave(${item.id})" class="bg-cyan-700/60 hover:bg-cyan-700 text-cyan-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
+            <button onclick="markDutyLeave(${item.id})" class="${isMarkedToday ? 'opacity-40 cursor-not-allowed' : ''} bg-cyan-700/60 hover:bg-cyan-700 text-cyan-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
               <i class="fa-solid fa-id-badge"></i> OD / Duty Leave
             </button>
           </div>
 
           <div class="flex justify-between items-center pt-1 border-t border-white/5">
-            <span class="text-[10px] opacity-50">Criteria: ${targetThreshold}% Min</span>
+            <span class="text-[10px] opacity-50">Limit: 1 entry/day per course</span>
             <button onclick="undoLast(${item.id})" class="text-[11px] opacity-60 hover:opacity-100 hover:underline transition flex items-center gap-1">
               <i class="fa-solid fa-rotate-left"></i> Undo action
             </button>
@@ -617,4 +687,5 @@
   </div>
 </body>
 </html>
+
 
