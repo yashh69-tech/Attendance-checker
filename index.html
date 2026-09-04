@@ -3,128 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Attendance Checker 75% | Cloud Sync Tracker</title>
+  <title>Attendance Checker | Academic Management Portal</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Premium Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;500;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-    /* -------------------------------------------------------------
-       THEME STYLING SYSTEM
-    ------------------------------------------------------------- */
-    :root {
-      --transition-speed: 0.35s;
-    }
+    :root { --anim-speed: 0.3s; }
+    * { transition: background-color var(--anim-speed) ease, border-color var(--anim-speed) ease, color var(--anim-speed) ease; box-sizing: border-box; }
 
-    * {
-      transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, color var(--transition-speed) ease;
-      box-sizing: border-box;
-    }
-
-    /* 🦇 THE BATMAN NOIR THEME (BOYS) */
+    /* Boys Batman Theme */
     body.theme-boys {
       font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at 50% 10%, rgba(220, 38, 38, 0.15) 0%, rgba(10, 10, 14, 0.95) 60%),
-                  linear-gradient(rgba(5, 5, 8, 0.92), rgba(5, 5, 8, 0.96)),
+      background: radial-gradient(circle at 50% 8%, rgba(220, 38, 38, 0.18) 0%, rgba(11, 11, 15, 0.96) 65%),
+                  linear-gradient(rgba(5, 5, 8, 0.94), rgba(5, 5, 8, 0.98)),
                   url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
-      color: #e2e8f0;
+      color: #f1f5f9;
       min-height: 100vh;
     }
-    .theme-boys .brand-title {
-      font-family: 'Cinzel', serif;
-      letter-spacing: 3px;
-      color: #ffffff;
-      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-    }
+    .theme-boys .brand-title { font-family: 'Cinzel', serif; letter-spacing: 2px; color: #ffffff; text-shadow: 0 0 25px rgba(239, 68, 68, 0.5); }
     .theme-boys .theme-card {
-      background: rgba(18, 18, 24, 0.85);
-      border: 1px solid rgba(220, 38, 38, 0.3);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(220, 38, 38, 0.12);
-      backdrop-filter: blur(16px);
+      background: rgba(18, 18, 24, 0.88);
+      border: 1px solid rgba(220, 38, 38, 0.28);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(220, 38, 38, 0.1);
+      backdrop-filter: blur(14px);
     }
-    .theme-boys .theme-input {
-      background: rgba(10, 10, 15, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-    }
-    .theme-boys .theme-input:focus {
-      border-color: #ef4444;
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-      outline: none;
-    }
+    .theme-boys .theme-input { background: rgba(10, 10, 15, 0.9); border: 1px solid rgba(255, 255, 255, 0.14); color: #ffffff; }
+    .theme-boys .theme-input:focus { border-color: #ef4444; outline: none; }
     .theme-boys .primary-btn {
       background: linear-gradient(135deg, #b91c1c, #7f1d1d);
-      box-shadow: 0 4px 18px rgba(185, 28, 28, 0.45);
+      box-shadow: 0 4px 18px rgba(185, 28, 28, 0.4);
       color: #ffffff;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .theme-boys .primary-btn:hover {
-      background: linear-gradient(135deg, #dc2626, #991b1b);
+      border: 1px solid rgba(239, 68, 68, 0.35);
     }
 
-    /* 🌸 HELLO KITTY PASTEL THEME (GIRLS) */
+    /* Girls Kitty Pastel Theme */
     body.theme-girls {
       font-family: 'Quicksand', sans-serif;
-      background: radial-gradient(circle at top, rgba(253, 242, 248, 0.8) 0%, rgba(252, 231, 243, 0.95) 70%),
+      background: radial-gradient(circle at top, rgba(253, 242, 248, 0.85) 0%, rgba(252, 231, 243, 0.95) 75%),
                   linear-gradient(rgba(255, 240, 245, 0.85), rgba(254, 226, 226, 0.9)),
                   url('https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1600&q=80') center/cover fixed no-repeat;
       color: #831843;
       min-height: 100vh;
     }
-    .theme-girls .brand-title {
-      font-family: 'Quicksand', sans-serif;
-      font-weight: 800;
-      color: #be185d;
-      text-shadow: 0 2px 10px rgba(244, 114, 182, 0.4);
-    }
+    .theme-girls .brand-title { font-family: 'Quicksand', sans-serif; font-weight: 800; color: #be185d; text-shadow: 0 2px 10px rgba(244, 114, 182, 0.35); }
     .theme-girls .theme-card {
       background: rgba(255, 255, 255, 0.92);
       border: 2px solid #fbcfe8;
-      box-shadow: 0 10px 30px rgba(244, 114, 182, 0.22);
+      box-shadow: 0 10px 30px rgba(244, 114, 182, 0.2);
       backdrop-filter: blur(12px);
     }
-    .theme-girls .theme-input {
-      background: rgba(255, 255, 255, 0.98);
-      border: 1.5px solid #fbcfe8;
-      color: #831843;
-    }
-    .theme-girls .theme-input:focus {
-      border-color: #ec4899;
-      box-shadow: 0 0 10px rgba(236, 72, 153, 0.25);
-      outline: none;
-    }
+    .theme-girls .theme-input { background: rgba(255, 255, 255, 0.98); border: 1.5px solid #fbcfe8; color: #831843; }
+    .theme-girls .theme-input:focus { border-color: #ec4899; outline: none; }
     .theme-girls .primary-btn {
       background: linear-gradient(135deg, #f472b6, #db2777);
-      box-shadow: 0 4px 18px rgba(244, 114, 182, 0.45);
+      box-shadow: 0 4px 18px rgba(244, 114, 182, 0.4);
       color: #ffffff;
       border: none;
     }
-    .theme-girls .primary-btn:hover {
-      background: linear-gradient(135deg, #f472b6, #ec4899);
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(150, 150, 150, 0.3);
-      border-radius: 999px;
-    }
   </style>
 
-  <!-- Firebase Modular Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -142,7 +84,6 @@
       getDoc 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Firebase Configurations
     const firebaseConfig = {
       apiKey: "AIzaSyCp0yTjKG03ffLlq6wxwh40yxJ-PIyjUfw",
       authDomain: "bunktracker-final.firebaseapp.com",
@@ -159,42 +100,59 @@
 
     let currentUser = null;
     let subjects = [];
+    let targetThreshold = 75;
 
-    // Theme Switcher Logic
+    // Railway 24-Hour Clock & IST Formatter
+    function getRailwayTime() {
+      const d = new Date();
+      return d.toLocaleTimeString('en-GB', { hour12: false });
+    }
+
+    function getTodayFormatted() {
+      const d = new Date();
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function updateLiveClock() {
+      const el = document.getElementById('railway-clock');
+      if (el) el.innerText = getRailwayTime() + " HRS";
+    }
+    setInterval(updateLiveClock, 1000);
+
     window.setMode = (mode) => {
       document.body.className = mode === 'girls' ? 'theme-girls' : 'theme-boys';
       const badge = document.getElementById('edition-badge');
-      const subTitle = document.getElementById('brand-sub');
-      
       if (mode === 'girls') {
-        badge.innerHTML = '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Pastel Edition';
-        subTitle.innerText = "Princess Attendance Tracker";
+        badge.innerHTML = '<i class="fa-solid fa-heart mr-1 text-pink-400"></i> Kitty Pastel Mode';
       } else {
-        badge.innerHTML = '<i class="fa-solid fa-bat mr-1 text-red-500"></i> The Dark Knight Edition';
-        subTitle.innerText = "Vengeance Target 75%";
+        badge.innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-red-500"></i> The Batman Edition';
       }
       localStorage.setItem('saved_attendance_theme', mode);
     };
 
-    // Toggle Login / Sign Up forms
+    window.changeTarget = (target) => {
+      targetThreshold = parseInt(target);
+      document.getElementById('criteria-label').innerText = `${targetThreshold}% Target`;
+      renderDashboard();
+    };
+
     window.switchAuthMode = (mode) => {
       const isLogin = mode === 'login';
-      document.getElementById('auth-action-btn').innerText = isLogin ? 'Login to Portal' : 'Create Free Account';
+      document.getElementById('auth-action-btn').innerText = isLogin ? 'Login to Portal' : 'Register Account';
       document.getElementById('to-signup-link').classList.toggle('hidden', !isLogin);
       document.getElementById('to-login-link').classList.toggle('hidden', isLogin);
       document.getElementById('auth-message').innerText = '';
     };
 
-    // Authentication Handlers
     window.handleAuth = async () => {
       const email = document.getElementById('auth-email').value.trim();
       const password = document.getElementById('auth-password').value;
       const isLogin = document.getElementById('auth-action-btn').innerText.includes('Login');
-      const errBox = document.getElementById('auth-message');
+      const msgBox = document.getElementById('auth-message');
       
-      errBox.innerText = '';
+      msgBox.innerText = '';
       if (!email || !password) {
-        errBox.innerText = "Please provide both Email and Password.";
+        msgBox.innerText = "Please provide both Email and Password.";
         return;
       }
 
@@ -205,22 +163,18 @@
           await createUserWithEmailAndPassword(auth, email, password);
         }
       } catch (err) {
-        errBox.innerText = err.message.replace("Firebase: ", "");
+        msgBox.innerText = err.message.replace("Firebase: ", "");
       }
     };
 
     window.sendPasswordReset = async () => {
       const email = document.getElementById('auth-email').value.trim();
-      const errBox = document.getElementById('auth-message');
-      if (!email) {
-        errBox.innerText = "Enter your email address first!";
-        return;
-      }
+      if (!email) return alert("Enter your email address first!");
       try {
         await sendPasswordResetEmail(auth, email);
         alert("Password reset instructions sent to your email!");
       } catch (err) {
-        errBox.innerText = err.message.replace("Firebase: ", "");
+        alert(err.message.replace("Firebase: ", ""));
       }
     };
 
@@ -230,7 +184,6 @@
       renderDashboard();
     };
 
-    // Auth State Observer
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       const authBox = document.getElementById('auth-wrapper');
@@ -248,7 +201,6 @@
       }
     });
 
-    // Cloud Data Sync Handlers
     async function loadSubjectData(uid) {
       try {
         const docRef = doc(db, "attendance_records", uid);
@@ -258,55 +210,136 @@
           renderDashboard();
         }
       } catch (e) {
-        console.error("Firestore Fetch Error:", e);
+        console.error("Firestore Load Error:", e);
       }
     }
 
     async function syncSubjectData() {
       if (!currentUser) return;
       try {
-        await setDoc(doc(db, "attendance_records", currentUser.uid), { records: subjects });
+        await setDoc(doc(db, "attendance_records", currentUser.uid), { 
+          records: subjects,
+          lastSynced: new Date().toISOString()
+        });
       } catch (e) {
         console.error("Firestore Save Error:", e);
       }
     }
 
-    // Attendance Management Functions
     window.createSubject = () => {
-      const nameInput = document.getElementById('subject-name');
-      const attendedInput = document.getElementById('classes-attended');
-      const totalInput = document.getElementById('classes-total');
+      const name = document.getElementById('subject-name').value.trim();
+      const timeStart = document.getElementById('class-time-start').value;
+      const timeEnd = document.getElementById('class-time-end').value;
+      const attended = parseInt(document.getElementById('classes-attended').value);
+      const total = parseInt(document.getElementById('classes-total').value);
 
-      const name = nameInput.value.trim();
-      const attended = parseInt(attendedInput.value) || 0;
-      const total = parseInt(totalInput.value) || 0;
+      if (!name) return alert("Subject Name is required!");
+      if (isNaN(attended) || isNaN(total)) return alert("Please enter valid numbers for classes!");
+      if (attended > total) return alert("Attended cannot be more than Total classes!");
 
-      if (!name) return alert("Subject title is required!");
-      if (attended > total) return alert("Attended classes cannot be more than total classes!");
+      const timingSlot = (timeStart && timeEnd) ? `${timeStart} - ${timeEnd} (24H)` : 'Slot not set';
 
       subjects.push({
         id: Date.now(),
         name,
+        timeSlot: timingSlot,
         attended,
-        total
+        total,
+        history: [],
+        lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Initial)`
       });
 
-      nameInput.value = '';
-      attendedInput.value = '';
-      totalInput.value = '';
+      document.getElementById('subject-name').value = '';
+      document.getElementById('classes-attended').value = '';
+      document.getElementById('classes-total').value = '';
 
       renderDashboard();
       syncSubjectData();
     };
 
-    window.adjustAttendance = (id, deltaAttended, deltaTotal) => {
+    window.markPresent = (id) => {
       subjects = subjects.map(item => {
         if (item.id === id) {
-          const nextAttended = Math.max(0, item.attended + deltaAttended);
-          const nextTotal = Math.max(0, item.total + deltaTotal);
-          if (nextAttended <= nextTotal) {
-            return { ...item, attended: nextAttended, total: nextTotal };
-          }
+          const history = item.history || [];
+          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          return {
+            ...item,
+            attended: item.attended + 1,
+            total: item.total + 1,
+            history: history,
+            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Present)`
+          };
+        }
+        return item;
+      });
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.markAbsent = (id) => {
+      subjects = subjects.map(item => {
+        if (item.id === id) {
+          const history = item.history || [];
+          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          return {
+            ...item,
+            total: item.total + 1,
+            history: history,
+            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (+1 Absent)`
+          };
+        }
+        return item;
+      });
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.markHoliday = (id) => {
+      subjects = subjects.map(item => {
+        if (item.id === id) {
+          const history = item.history || [];
+          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          return {
+            ...item,
+            history: history,
+            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (College Holiday)`
+          };
+        }
+        return item;
+      });
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.markDutyLeave = (id) => {
+      subjects = subjects.map(item => {
+        if (item.id === id) {
+          const history = item.history || [];
+          history.push({ attended: item.attended, total: item.total, lastUpdated: item.lastUpdated });
+          return {
+            ...item,
+            attended: item.attended + 1,
+            total: item.total + 1,
+            history: history,
+            lastUpdated: `${getTodayFormatted()} ${getRailwayTime()} (Duty Leave / OD)`
+          };
+        }
+        return item;
+      });
+      renderDashboard();
+      syncSubjectData();
+    };
+
+    window.undoLast = (id) => {
+      subjects = subjects.map(item => {
+        if (item.id === id && item.history && item.history.length > 0) {
+          const prev = item.history.pop();
+          return {
+            ...item,
+            attended: prev.attended,
+            total: prev.total,
+            lastUpdated: prev.lastUpdated
+          };
         }
         return item;
       });
@@ -315,14 +348,13 @@
     };
 
     window.removeSubject = (id) => {
-      if (confirm("Are you sure you want to remove this subject?")) {
+      if (confirm("Delete this subject?")) {
         subjects = subjects.filter(s => s.id !== id);
         renderDashboard();
         syncSubjectData();
       }
     };
 
-    // Calculate Overall Summary
     function updateSummaryStats() {
       const overallAttended = subjects.reduce((sum, s) => sum + s.attended, 0);
       const overallTotal = subjects.reduce((sum, s) => sum + s.total, 0);
@@ -331,69 +363,104 @@
       document.getElementById('stat-total-subjects').innerText = subjects.length;
       document.getElementById('stat-overall-percentage').innerText = `${overallPercentage}%`;
       document.getElementById('stat-total-classes').innerText = `${overallAttended} / ${overallTotal}`;
+
+      const statusEl = document.getElementById('overall-status-pill');
+      if (overallTotal === 0) {
+        statusEl.innerText = "No Courses Added";
+        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-500/20 text-slate-400";
+      } else if (overallPercentage >= targetThreshold) {
+        statusEl.innerText = `Eligible for Exams (>= ${targetThreshold}%)`;
+        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+      } else {
+        statusEl.innerText = `Attendance Shortage (< ${targetThreshold}%)`;
+        statusEl.className = "text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30";
+      }
     }
 
-    // Render Dashboard Cards
     function renderDashboard() {
       const listContainer = document.getElementById('subject-cards-container');
       listContainer.innerHTML = '';
       updateSummaryStats();
 
+      document.getElementById('today-date-display').innerText = getTodayFormatted();
+
       if (subjects.length === 0) {
         listContainer.innerHTML = `
           <div class="theme-card rounded-2xl p-8 text-center opacity-70">
             <i class="fa-solid fa-graduation-cap text-4xl mb-3"></i>
-            <p class="text-sm font-semibold">No subjects added yet. Add your first course above!</p>
+            <p class="text-sm font-semibold">No subjects registered yet. Add one above!</p>
           </div>
         `;
         return;
       }
 
+      const targetFraction = targetThreshold / 100;
+
       subjects.forEach(item => {
         const pct = item.total === 0 ? 0 : Math.round((item.attended / item.total) * 100);
-        let statusText = '';
+        let statusMessage = '';
         let badgeStyle = '';
 
-        if (pct >= 75) {
-          const bunksAllowed = Math.floor((item.attended - 0.75 * item.total) / 0.75);
-          statusText = bunksAllowed > 0 
-            ? `Safe! You can bunk ${bunksAllowed} more class${bunksAllowed > 1 ? 'es' : ''}.` 
-            : `Safe for now. Don't skip the next lecture!`;
+        if (pct >= targetThreshold) {
+          const bunksAllowed = Math.floor((item.attended - targetFraction * item.total) / targetFraction);
+          statusMessage = bunksAllowed > 0 
+            ? `<i class="fa-solid fa-circle-check mr-1.5"></i> Safe! Can bunk ${bunksAllowed} lecture${bunksAllowed > 1 ? 's' : ''}.` 
+            : `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Borderline safe! Don't miss next class.`;
           badgeStyle = 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/30';
         } else {
-          const needed = Math.ceil((0.75 * item.total - item.attended) / 0.25);
-          statusText = `Short Attendance! Attend next ${needed} classes consecutively.`;
+          const needed = Math.ceil((targetFraction * item.total - item.attended) / (1 - targetFraction));
+          statusMessage = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Shortage! Attend next ${needed} classes straight.`;
           badgeStyle = 'bg-rose-500/10 text-rose-500 border border-rose-500/30';
         }
 
         const card = document.createElement('div');
-        card.className = 'theme-card rounded-2xl p-5 flex flex-col gap-4';
+        card.className = 'theme-card rounded-2xl p-5 flex flex-col gap-3.5';
         card.innerHTML = `
           <div class="flex justify-between items-start">
             <div>
               <h3 class="text-lg font-bold tracking-tight">${item.name}</h3>
-              <p class="text-xs opacity-70 mt-0.5">Classes Attended: ${item.attended} / ${item.total}</p>
+              <div class="inline-block mt-0.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-[11px] font-semibold opacity-90">
+                <i class="fa-regular fa-clock text-[10px] mr-1"></i> Class: ${item.timeSlot || 'Timing Not Set'}
+              </div>
+              <p class="text-xs opacity-75 mt-1.5 font-medium">Classes: <span class="font-bold text-sm">${item.attended}</span> / <span class="font-bold text-sm">${item.total}</span></p>
+              <p class="text-[11px] opacity-60 mt-1 flex items-center gap-1.5">
+                <i class="fa-solid fa-train text-[10px]"></i> Log: ${item.lastUpdated}
+              </p>
             </div>
             <div class="text-right">
-              <span class="text-2xl font-black ${pct >= 75 ? 'text-emerald-500' : 'text-rose-500'}">${pct}%</span>
+              <span class="text-2xl font-black ${pct >= targetThreshold ? 'text-emerald-500' : 'text-rose-500'}">${pct}%</span>
               <button onclick="removeSubject(${item.id})" class="block text-xs text-rose-400 hover:underline mt-1 font-semibold ml-auto">
                 <i class="fa-regular fa-trash-can mr-1"></i>Delete
               </button>
             </div>
           </div>
 
-          <!-- Status Box -->
           <div class="px-3.5 py-2 rounded-xl text-xs font-semibold ${badgeStyle}">
-            ${statusText}
+            ${statusMessage}
           </div>
 
-          <!-- Action Buttons -->
-          <div class="grid grid-cols-2 gap-2.5 pt-1">
-            <button onclick="adjustAttendance(${item.id}, 1, 1)" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs tracking-wider shadow transition">
-              <i class="fa-solid fa-check mr-1.5"></i>+ Present
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button onclick="markPresent(${item.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-check"></i> +1 Present
             </button>
-            <button onclick="adjustAttendance(${item.id}, 0, 1)" class="bg-rose-600 hover:bg-rose-500 text-white py-2.5 rounded-xl font-bold text-xs tracking-wider shadow transition">
-              <i class="fa-solid fa-xmark mr-1.5"></i>+ Absent
+            <button onclick="markAbsent(${item.id})" class="bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-xl font-bold text-xs tracking-wider shadow transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-xmark"></i> +1 Absent
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="markHoliday(${item.id})" class="bg-slate-700/60 hover:bg-slate-700 text-slate-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-mug-hot"></i> Class Off / Holiday
+            </button>
+            <button onclick="markDutyLeave(${item.id})" class="bg-cyan-700/60 hover:bg-cyan-700 text-cyan-200 py-1.5 rounded-xl font-semibold text-[11px] transition flex items-center justify-center gap-1">
+              <i class="fa-solid fa-id-badge"></i> OD / Duty Leave
+            </button>
+          </div>
+
+          <div class="flex justify-between items-center pt-1 border-t border-white/5">
+            <span class="text-[10px] opacity-50">Criteria: ${targetThreshold}% Min</span>
+            <button onclick="undoLast(${item.id})" class="text-[11px] opacity-60 hover:opacity-100 hover:underline transition flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left"></i> Undo action
             </button>
           </div>
         `;
@@ -401,41 +468,50 @@
       });
     }
 
-    // Default theme initialize
-    const activeTheme = localStorage.getItem('saved_attendance_theme') || 'boys';
-    window.setMode(activeTheme);
+    const savedTheme = localStorage.getItem('saved_attendance_theme') || 'boys';
+    window.setMode(savedTheme);
+    updateLiveClock();
   </script>
 </head>
 <body class="p-4 sm:p-7 flex flex-col items-center">
   <div class="w-full max-w-md flex flex-col gap-6">
 
-    <!-- Theme Switch Toggle -->
+    <!-- Theme Switch -->
     <div class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-black/40 backdrop-blur border border-white/10">
-      <button onclick="setMode('boys')" class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-red-950/40">
-        <i class="fa-solid fa-bat text-red-500"></i> Boys (Batman)
+      <button onclick="setMode('boys')" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-red-950/40">
+        <i class="fa-solid fa-shield-halved text-red-500"></i> Boys (Batman)
       </button>
-      <button onclick="setMode('girls')" class="py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-pink-100/30">
+      <button onclick="setMode('girls')" class="py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 hover:bg-pink-100/30">
         <i class="fa-solid fa-heart text-pink-400"></i> Girls (Kitty Pink)
       </button>
     </div>
 
     <!-- Header Section -->
-    <header class="text-center pt-2">
+    <header class="text-center pt-1">
       <h1 class="text-3xl font-black brand-title">Attendance Checker</h1>
-      <p id="brand-sub" class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Target 75% Criteria</p>
-      <div id="edition-badge" class="inline-block mt-2.5 px-3.5 py-1 rounded-full text-xs font-bold border border-current/20"></div>
+      <p class="text-xs uppercase tracking-widest font-semibold mt-1 opacity-75">Academic Attendance Manager</p>
+      
+      <div class="flex flex-wrap items-center justify-center gap-2 mt-2.5">
+        <div id="edition-badge" class="px-3 py-0.5 rounded-full text-[11px] font-bold border border-current/20"></div>
+        <div class="px-3 py-0.5 rounded-full text-[11px] font-semibold bg-white/5 border border-white/10 flex items-center gap-1.5 opacity-80">
+          <i class="fa-regular fa-calendar text-[10px]"></i> <span id="today-date-display">Date</span>
+          <span class="opacity-40">|</span>
+          <i class="fa-solid fa-train text-[10px] text-amber-400"></i>
+          <span id="railway-clock" class="font-mono text-[10px]">00:00:00 HRS</span>
+        </div>
+      </div>
     </header>
 
-    <!-- Authentication Section -->
+    <!-- Auth Form -->
     <section id="auth-wrapper" class="theme-card p-6 rounded-3xl flex flex-col gap-4">
-      <h2 class="text-base font-bold text-center tracking-wide">Sync Your Attendance Online</h2>
+      <h2 class="text-base font-bold text-center tracking-wide">Cloud Sync Login</h2>
       <div class="space-y-3">
         <div>
-          <label class="text-[11px] font-semibold opacity-70 block mb-1">Email Address</label>
+          <label class="text-[11px] font-semibold opacity-70 block mb-1">Email ID</label>
           <input id="auth-email" type="email" placeholder="student@gmail.com" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
         </div>
         <div>
-          <label class="text-[11px] font-semibold opacity-70 block mb-1">Secure Password</label>
+          <label class="text-[11px] font-semibold opacity-70 block mb-1">Password</label>
           <input id="auth-password" type="password" placeholder="••••••••" class="theme-input w-full rounded-xl px-4 py-3 text-sm">
         </div>
       </div>
@@ -443,63 +519,89 @@
       <p id="auth-message" class="text-rose-500 text-xs font-semibold text-center"></p>
 
       <button id="auth-action-btn" onclick="handleAuth()" class="w-full primary-btn py-3 rounded-xl font-bold text-sm tracking-wider">
-        Create Free Account
+        Register Account
       </button>
 
       <div class="flex justify-between items-center text-xs opacity-75 px-1 font-semibold">
-        <span id="to-signup-link" class="hidden">New student? <button onclick="switchAuthMode('signup')" class="underline font-bold">Sign Up</button></span>
-        <span id="to-login-link">Already registered? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
+        <span id="to-signup-link" class="hidden">New here? <button onclick="switchAuthMode('signup')" class="underline font-bold">Sign Up</button></span>
+        <span id="to-login-link">Have an account? <button onclick="switchAuthMode('login')" class="underline font-bold">Login</button></span>
         <button onclick="sendPasswordReset()" class="hover:underline">Forgot password?</button>
       </div>
     </section>
 
-    <!-- Main Tracker Dashboard -->
+    <!-- Tracker Dashboard -->
     <main id="tracker-wrapper" class="hidden flex flex-col gap-5">
-      <!-- User Profile Ribbon -->
       <div class="flex justify-between items-center theme-card px-4 py-3 rounded-2xl">
         <div class="flex items-center gap-2 overflow-hidden">
           <i class="fa-regular fa-circle-user text-base opacity-75"></i>
           <span id="user-email-chip" class="text-xs font-semibold truncate max-w-[190px]"></span>
         </div>
         <button onclick="handleLogout()" class="text-xs font-bold text-rose-500 hover:underline">
-          <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Logout
+          <i class="fa-solid fa-arrow-right-from-bracket mr-0.5"></i> Logout
         </button>
       </div>
 
-      <!-- Overview Stats -->
+      <!-- Target Selector -->
+      <div class="theme-card px-4 py-2.5 rounded-2xl flex justify-between items-center">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-bullseye text-xs opacity-70"></i>
+          <span id="criteria-label" class="text-xs font-bold">75% Target</span>
+        </div>
+        <div class="flex gap-1.5">
+          <button onclick="changeTarget(75)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">75%</button>
+          <button onclick="changeTarget(80)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">80%</button>
+          <button onclick="changeTarget(85)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-white/10 hover:bg-white/20 transition">85%</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
       <div class="grid grid-cols-3 gap-2 text-center">
         <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Subjects</p>
+          <p class="text-[10px] font-semibold uppercase opacity-60">Courses</p>
           <h4 id="stat-total-subjects" class="text-xl font-black mt-0.5">0</h4>
         </div>
         <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Overall</p>
+          <p class="text-[10px] font-semibold uppercase opacity-60">Aggregate</p>
           <h4 id="stat-overall-percentage" class="text-xl font-black mt-0.5">0%</h4>
         </div>
         <div class="theme-card p-3 rounded-2xl">
-          <p class="text-[10px] font-semibold uppercase opacity-60">Attended</p>
+          <p class="text-[10px] font-semibold uppercase opacity-60">Total Ratio</p>
           <h4 id="stat-total-classes" class="text-xs font-bold mt-2 truncate">0 / 0</h4>
         </div>
       </div>
 
-      <!-- Add New Subject Form -->
+      <div class="text-center">
+        <span id="overall-status-pill" class="text-[11px] font-semibold px-3 py-1 rounded-full"></span>
+      </div>
+
+      <!-- Add Course with Class Timing Form -->
       <section class="theme-card p-5 rounded-3xl flex flex-col gap-3.5">
         <h3 class="text-sm font-bold tracking-wide flex items-center gap-2">
-          <i class="fa-solid fa-plus text-xs"></i> Add New Subject
+          <i class="fa-solid fa-plus text-xs"></i> Register Course & Schedule
         </h3>
-        <input id="subject-name" type="text" placeholder="Subject Name (e.g., Operating Systems)" class="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm">
+        <input id="subject-name" type="text" placeholder="Subject Name (e.g., C Programming, OS)" class="theme-input w-full rounded-xl px-3.5 py-2.5 text-sm">
+        
+        <!-- Class Timings Pickers -->
+        <div>
+          <label class="text-[10px] opacity-70 font-semibold block mb-1">Class Schedule (24-Hour Railway Time)</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="class-time-start" type="time" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
+            <input id="class-time-end" type="time" class="theme-input w-full rounded-xl px-3 py-2 text-xs">
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-2.5">
           <div>
-            <label class="text-[10px] opacity-70 font-semibold block mb-1">Attended Classes</label>
-            <input id="classes-attended" type="number" placeholder="15" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
+            <label class="text-[10px] opacity-70 font-semibold block mb-1">Attended</label>
+            <input id="classes-attended" type="number" placeholder="15" min="0" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
           </div>
           <div>
-            <label class="text-[10px] opacity-70 font-semibold block mb-1">Total Classes</label>
-            <input id="classes-total" type="number" placeholder="20" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
+            <label class="text-[10px] opacity-70 font-semibold block mb-1">Total Held</label>
+            <input id="classes-total" type="number" placeholder="20" min="0" class="theme-input w-full rounded-xl px-3 py-2 text-sm">
           </div>
         </div>
         <button onclick="createSubject()" class="w-full primary-btn py-2.5 rounded-xl font-bold text-xs tracking-wider">
-          Save Course
+          Save Course with Schedule
         </button>
       </section>
 
@@ -509,9 +611,10 @@
 
     <!-- Footer -->
     <footer class="text-center text-xs opacity-50 py-5 font-semibold">
-      Attendance Checker 75% • Built by Yashh
+      Attendance Checker • Built by Yashh
     </footer>
 
   </div>
 </body>
 </html>
+
