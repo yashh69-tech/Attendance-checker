@@ -1,640 +1,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ekikrit - AI Powered ERP | Parishkar</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virtual Cigarette AR Lounge</title>
+
+  <!-- MediaPipe Face Mesh CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
-    }
-    .ekikrit-sidebar {
-      background: #ffffff;
-      border-right: 1px solid #f1f5f9;
-    }
-    .ekikrit-card {
-      background: #ffffff;
-      border: 1px solid #edf2f7;
-      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-    }
-    .hero-black-card {
-      background: #000000;
+      background-color: #0b0b0f;
       color: #ffffff;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Webcam Feed (Mirrored) */
+    #webcam {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scaleX(-1);
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* AR Overlay Canvas */
+    #output-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* UI Header Overlay */
+    .top-bar {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .brand-title {
+      background: rgba(15, 15, 20, 0.65);
+      backdrop-filter: blur(12px);
+      padding: 10px 18px;
+      border-radius: 24px;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Bottom Brand Selector */
+    .selector-bar {
+      position: absolute;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 12px;
+      background: rgba(15, 15, 20, 0.75);
+      backdrop-filter: blur(16px);
+      padding: 10px 16px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      max-width: 90vw;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .selector-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .brand-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e5e5e5;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .brand-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .brand-btn.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+
+    #loading-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      z-index: 20;
     }
   </style>
+</head>
+<body>
 
-  <!-- Firebase Modular Scripts -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      createUserWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      setDoc, 
-      getDoc, 
-      onSnapshot 
-    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <div id="container">
+    <div id="loading-indicator">Initializing Camera & AR Tracking...</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCp0yTjKG03ffLlq6wxwh40yxJ-PIyjUfw",
-      authDomain: "bunktracker-final.firebaseapp.com",
-      projectId: "bunktracker-final",
-      storageBucket: "bunktracker-final.firebasestorage.app",
-      messagingSenderId: "512504491604",
-      appId: "1:512504491604:web:79d685d482f40f154c47c1",
-      measurementId: "G-SSSJPXKDFGM"
+    <!-- Live Video Feed -->
+    <video id="webcam" playsinline autoplay muted></video>
+
+    <!-- AR Canvas -->
+    <canvas id="output-canvas"></canvas>
+
+    <!-- Header Overlay -->
+    <div class="top-bar">
+      <div class="brand-title">Cigarette Lounge AR</div>
+    </div>
+
+    <!-- Cigarette Brand Selection Menu -->
+    <div class="selector-bar" id="brand-selector">
+      <button class="brand-btn active" data-type="marlboro">Marlboro Red</button>
+      <button class="brand-btn" data-type="classic">Classic Regular</button>
+      <button class="brand-btn" data-type="goldflake">Gold Flake Kings</button>
+      <button class="brand-btn" data-type="menthol">Ice Blast / Click</button>
+      <button class="brand-btn" data-type="black">Djarum Black</button>
+      <button class="brand-btn" data-type="slims">Esse Lights (Slim)</button>
+    </div>
+  </div>
+
+  <script>
+    const videoElement = document.getElementById('webcam');
+    const canvasElement = document.getElementById('output-canvas');
+    const canvasCtx = canvasElement.getContext('2d');
+    const loadingIndicator = document.getElementById('loading-indicator');
+
+    // Brand Styles Configuration
+    const CIGARETTE_TYPES = {
+      marlboro: { filterColor: '#c27b38', bodyColor: '#f7f7f7', bandColor: '#d62828', length: 110, thickness: 11 },
+      classic: { filterColor: '#b87333', bodyColor: '#f5f5f5', bandColor: '#003049', length: 115, thickness: 12 },
+      goldflake: { filterColor: '#c58b44', bodyColor: '#ffffff', bandColor: '#d4af37', length: 120, thickness: 12 },
+      menthol: { filterColor: '#2b9348', bodyColor: '#e9f5ed', bandColor: '#0077b6', length: 110, thickness: 11 },
+      black: { filterColor: '#1a1a1a', bodyColor: '#121212', bandColor: '#c49b63', length: 110, thickness: 11 },
+      slims: { filterColor: '#fdfdfd', bodyColor: '#f2f2f2', bandColor: '#90e0ef', length: 130, thickness: 7 }
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    let currentCigarette = CIGARETTE_TYPES.marlboro;
+    let smokeParticles = [];
 
-    const MASTER_FACULTY_PIN = "9980";
-    let currentUser = null;
-    let attendanceHistory = [];
-    let sessionTimer = null;
-
-    // Default Seed Ledger based on Ekikrit Parishkar Portal
-    const defaultRecords = [
-      { id: 1, course: "Computer Fundamentals & Architecture", type: "Minor", faculty: "Dimple Sharma", date: "02 Sep, 2026", time: "02:40 PM - 03:55 PM", status: "Present" },
-      { id: 2, course: "Programming in C", type: "Major", faculty: "Vaibhav Saxena", date: "02 Sep, 2026", time: "01:20 PM - 02:35 PM", status: "Present" },
-      { id: 3, course: "Understanding & Managing Self", type: "Skill Enhancement", faculty: "Shabnam Khan", date: "02 Sep, 2026", time: "12:00 PM - 01:15 PM", status: "Present" },
-      { id: 4, course: "Understanding & Managing Self", type: "Skill Enhancement", faculty: "Shabnam Khan", date: "01 Sep, 2026", time: "12:00 PM - 01:15 PM", status: "Present" }
-    ];
-
-    function getTodayFormatted() {
-      return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-    function getRailwayTime() {
-      return new Date().toLocaleTimeString('en-GB', { hour12: false });
-    }
-    function getTodayKey() {
-      return new Date().toISOString().split('T')[0];
-    }
-
-    setInterval(() => {
-      const el = document.getElementById('ist-clock');
-      if (el) el.innerText = getRailwayTime() + " HRS";
-    }, 1000);
-
-    // Tab Navigation
-    window.showTab = (tabName) => {
-      document.getElementById('view-dashboard').classList.toggle('hidden', tabName !== 'dashboard');
-      document.getElementById('view-attendance').classList.toggle('hidden', tabName !== 'attendance');
-      document.getElementById('view-progress').classList.toggle('hidden', tabName !== 'progress');
-      document.getElementById('view-teacher').classList.add('hidden');
-
-      // Update active nav button
-      ['nav-dash', 'nav-att', 'nav-prog'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) btn.classList.remove('bg-purple-50', 'text-purple-700', 'font-bold');
+    // Switch Brand Buttons
+    document.querySelectorAll('.brand-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const selected = e.target.getAttribute('data-type');
+        currentCigarette = CIGARETTE_TYPES[selected];
       });
-      if (tabName === 'dashboard') document.getElementById('nav-dash')?.classList.add('bg-purple-50', 'text-purple-700', 'font-bold');
-      if (tabName === 'attendance') document.getElementById('nav-att')?.classList.add('bg-purple-50', 'text-purple-700', 'font-bold');
-      if (tabName === 'progress') document.getElementById('nav-prog')?.classList.add('bg-purple-50', 'text-purple-700', 'font-bold');
-    };
-
-    // Faculty Protected Access
-    window.openFacultyPanel = () => {
-      const pin = prompt("Enter Master Faculty Authorization PIN:");
-      if (pin !== MASTER_FACULTY_PIN) {
-        alert("Unauthorized Access! Only faculty members can access broadcast console.");
-        return;
-      }
-      document.getElementById('view-dashboard').classList.add('hidden');
-      document.getElementById('view-attendance').classList.add('hidden');
-      document.getElementById('view-progress').classList.add('hidden');
-      document.getElementById('view-teacher').classList.remove('hidden');
-    };
-
-    // Authentication Handlers
-    window.handleAuth = async () => {
-      const email = document.getElementById('auth-email').value.trim();
-      const password = document.getElementById('auth-pass').value;
-      const isLogin = document.getElementById('btn-auth-action').innerText.includes("Login");
-      const err = document.getElementById('auth-error');
-      err.innerText = "";
-
-      if (!email || !password) return (err.innerText = "Please enter both Email and Password.");
-      try {
-        if (isLogin) {
-          await signInWithEmailAndPassword(auth, email, password);
-        } else {
-          await createUserWithEmailAndPassword(auth, email, password);
-        }
-      } catch (e) {
-        err.innerText = e.message.replace("Firebase: ", "");
-      }
-    };
-
-    window.toggleAuthView = (mode) => {
-      const isLogin = mode === 'login';
-      document.getElementById('btn-auth-action').innerText = isLogin ? 'Login to Ekikrit' : 'Register Account';
-      document.getElementById('link-register').classList.toggle('hidden', !isLogin);
-      document.getElementById('link-login').classList.toggle('hidden', isLogin);
-    };
-
-    window.logout = async () => {
-      await signOut(auth);
-    };
-
-    onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
-      const authBox = document.getElementById('auth-screen');
-      const appBox = document.getElementById('app-screen');
-
-      if (user) {
-        authBox.classList.add('hidden');
-        appBox.classList.remove('hidden');
-        loadUserData(user.uid);
-        listenActiveBroadcast();
-      } else {
-        authBox.classList.remove('hidden');
-        appBox.classList.add('hidden');
-      }
     });
 
-    async function loadUserData(uid) {
-      try {
-        const ref = doc(db, "ekikrit_students", uid);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          attendanceHistory = snap.data().records || defaultRecords;
-        } else {
-          attendanceHistory = defaultRecords;
-          await setDoc(ref, { records: defaultRecords, lastMarked: "" });
-        }
-        renderAttendanceList();
-      } catch (e) {
-        console.error("Firestore Load Error:", e);
-        attendanceHistory = defaultRecords;
-        renderAttendanceList();
-      }
+    // Resize Canvas to Screen Match
+    function resizeCanvas() {
+      canvasElement.width = window.innerWidth;
+      canvasElement.height = window.innerHeight;
     }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    async function syncToCloud() {
-      if (!currentUser) return;
-      try {
-        await setDoc(doc(db, "ekikrit_students", currentUser.uid), {
-          records: attendanceHistory,
-          lastSync: new Date().toISOString()
+    // Smoke Particle Logic
+    function updateAndDrawSmoke(tipX, tipY) {
+      if (Math.random() < 0.6) {
+        smokeParticles.push({
+          x: tipX + (Math.random() - 0.5) * 4,
+          y: tipY,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: -(Math.random() * 1.8 + 1.2),
+          radius: Math.random() * 3 + 2,
+          alpha: 0.6,
+          life: 0
         });
-      } catch (e) {
-        console.error("Cloud Sync Error:", e);
       }
-    }
 
-    // Teacher Broadcast Functions
-    window.startBroadcast = async () => {
-      const subject = document.getElementById('t-course-input').value;
-      const network = document.getElementById('t-wifi-input').value;
-      const duration = document.getElementById('t-duration-input').value;
-      const token = Math.floor(100000 + Math.random() * 900000).toString();
+      for (let i = smokeParticles.length - 1; i >= 0; i--) {
+        let p = smokeParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.radius += 0.45;
+        p.alpha -= 0.007;
+        p.life++;
 
-      let expiry = duration === "unlimited" ? Date.now() + 86400000 : Date.now() + (parseInt(duration) * 60000);
+        canvasCtx.save();
+        canvasCtx.beginPath();
+        canvasCtx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+        canvasCtx.fillStyle = `rgba(220, 220, 220, ${Math.max(p.alpha, 0)})`;
+        canvasCtx.fill();
+        canvasCtx.restore();
 
-      await setDoc(doc(db, "campus_sessions", "active_slot"), {
-        subject,
-        network,
-        token,
-        expiresAt: expiry,
-        active: true
-      });
-
-      document.getElementById('broadcast-token-box').classList.remove('hidden');
-      document.getElementById('broadcast-otp-display').innerText = token;
-
-      clearInterval(sessionTimer);
-      if (duration !== "unlimited") {
-        let secs = parseInt(duration) * 60;
-        sessionTimer = setInterval(() => {
-          secs--;
-          document.getElementById('broadcast-timer-label').innerText = `${Math.floor(secs / 60)}m ${secs % 60}s remaining`;
-          if (secs <= 0) {
-            clearInterval(sessionTimer);
-            stopBroadcast();
-          }
-        }, 1000);
-      } else {
-        document.getElementById('broadcast-timer-label').innerText = "Session Active (Manual Stop)";
-      }
-    };
-
-    window.stopBroadcast = async () => {
-      clearInterval(sessionTimer);
-      await setDoc(doc(db, "campus_sessions", "active_slot"), { active: false });
-      document.getElementById('broadcast-token-box').classList.add('hidden');
-    };
-
-    // Student Listen & Verify Live Code
-    function listenActiveBroadcast() {
-      onSnapshot(doc(db, "campus_sessions", "active_slot"), (snap) => {
-        const modal = document.getElementById('live-code-indicator');
-        if (snap.exists() && snap.data().active && snap.data().expiresAt > Date.now()) {
-          modal.classList.remove('hidden');
-        } else {
-          modal.classList.add('hidden');
+        if (p.alpha <= 0 || p.life > 90) {
+          smokeParticles.splice(i, 1);
         }
-      });
+      }
     }
 
-    window.promptEnterLiveCode = async () => {
-      const enteredCode = prompt("Ekikrit ERP: Enter Live Attendance Code announced in lecture:");
-      if (!enteredCode) return;
-
-      const snap = await getDoc(doc(db, "campus_sessions", "active_slot"));
-      if (!snap.exists() || !snap.data().active || snap.data().expiresAt < Date.now()) {
-        return alert("Session expired or no active broadcast found!");
+    // MediaPipe FaceMesh Output Callback
+    function onFaceResults(results) {
+      if (loadingIndicator.style.display !== 'none') {
+        loadingIndicator.style.display = 'none';
       }
 
-      const active = snap.data();
-      if (active.token !== enteredCode.trim()) {
-        return alert("Invalid Attendance Code! Please check with teacher.");
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+
+        // Key Lip Landmarks
+        const lipCenter = landmarks[13]; // Inner Upper Lip
+        const lipRight = landmarks[291]; // User's Left Lip Corner (Mirrored coordinate)
+        const lipLeft = landmarks[61];   // User's Right Lip Corner
+
+        // Convert Normalized Coordinates to Mirrored Screen Coordinates
+        const mouthX = (1 - lipCenter.x) * canvasElement.width;
+        const mouthY = lipCenter.y * canvasElement.height;
+
+        // Angle Calculation based on Lip orientation
+        const deltaX = ((1 - lipRight.x) - (1 - lipLeft.x)) * canvasElement.width;
+        const deltaY = (lipRight.y - lipLeft.y) * canvasElement.height;
+        const faceAngle = Math.atan2(deltaY, deltaX);
+
+        // Fixed downward angle for cigarette placement
+        const cigaretteAngle = faceAngle + (25 * Math.PI / 180);
+
+        canvasCtx.save();
+        canvasCtx.translate(mouthX, mouthY);
+        canvasCtx.rotate(cigaretteAngle);
+
+        const len = currentCigarette.length;
+        const thick = currentCigarette.thickness;
+        const filterLen = len * 0.3;
+
+        // 1. Filter section (Mouth side)
+        canvasCtx.fillStyle = currentCigarette.filterColor;
+        canvasCtx.fillRect(-5, -thick / 2, filterLen, thick);
+
+        // 2. Ring / Accent Band
+        canvasCtx.fillStyle = currentCigarette.bandColor;
+        canvasCtx.fillRect(filterLen - 5, -thick / 2, 4, thick);
+
+        // 3. Paper Body
+        canvasCtx.fillStyle = currentCigarette.bodyColor;
+        canvasCtx.fillRect(filterLen - 1, -thick / 2, len - filterLen, thick);
+
+        // 4. Burning Ember Tip
+        const emberX = len - 1;
+        canvasCtx.fillStyle = '#ff3700';
+        canvasCtx.fillRect(emberX, -thick / 2, 5, thick);
+
+        // 5. Ash Tip
+        canvasCtx.fillStyle = '#4a4a4a';
+        canvasCtx.fillRect(emberX + 5, -thick / 2 + 1, 3, thick - 2);
+
+        canvasCtx.restore();
+
+        // Calculate Burning Tip World Position for Smoke
+        const tipDistance = len + 6;
+        const tipWorldX = mouthX + Math.cos(cigaretteAngle) * tipDistance;
+        const tipWorldY = mouthY + Math.sin(cigaretteAngle) * tipDistance;
+
+        updateAndDrawSmoke(tipWorldX, tipWorldY);
       }
-
-      const today = getTodayKey();
-      const alreadyMarked = attendanceHistory.some(r => r.course === active.subject && r.logDateKey === today);
-      if (alreadyMarked) {
-        return alert("Mhu dho ke suar kal ana ab 🫪");
-      }
-
-      // Add to Ledger
-      attendanceHistory.unshift({
-        id: Date.now(),
-        course: active.subject,
-        type: "Major / Core",
-        faculty: "Verified via " + active.network,
-        date: getTodayFormatted(),
-        time: getRailwayTime() + " HRS",
-        logDateKey: today,
-        status: "Present"
-      });
-
-      alert(`Verification Successful!\nAttendance registered for ${active.subject} over ${active.network}`);
-      renderAttendanceList();
-      syncToCloud();
-    };
-
-    function renderAttendanceList() {
-      const container = document.getElementById('attendance-ledger-body');
-      if (!container) return;
-      container.innerHTML = "";
-
-      attendanceHistory.forEach(item => {
-        const row = document.createElement('div');
-        row.className = "flex items-center justify-between py-4 border-b border-slate-100";
-        row.innerHTML = `
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-200">
-              <i class="fa-solid fa-check"></i>
-            </div>
-            <div>
-              <h5 class="text-sm font-bold text-slate-800 leading-tight">${item.course}</h5>
-              <p class="text-[11px] text-slate-400 font-medium mt-0.5">${item.type} • ${item.faculty}</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <p class="text-xs font-bold text-slate-700">${item.date}</p>
-            <p class="text-[11px] text-slate-400 font-medium">${item.time}</p>
-          </div>
-        `;
-        container.appendChild(row);
-      });
     }
 
-    window.showTab('dashboard');
+    // MediaPipe Setup
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onFaceResults);
+
+    // Start Camera Stream
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await faceMesh.send({ image: videoElement });
+      },
+      width: 1280,
+      height: 720
+    });
+
+    camera.start();
   </script>
-</head>
-<body class="min-h-screen flex items-center justify-center p-0 md:p-6">
-
-  <!-- ================= AUTH SCREEN ================= -->
-  <div id="auth-screen" class="w-full max-w-sm bg-white p-6 rounded-2xl shadow-xl border border-slate-200 flex flex-col gap-4">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-blue-700 text-white flex items-center justify-center font-bold text-xl shadow">E</div>
-      <div>
-        <h2 class="text-base font-extrabold text-slate-800 tracking-tight">EKIKRIT</h2>
-        <p class="text-[10px] text-purple-700 font-bold uppercase tracking-wider">AI Powered ERP • PCGE</p>
-      </div>
-    </div>
-    <div class="space-y-3 pt-2">
-      <div>
-        <label class="text-[11px] font-bold text-slate-600 block mb-1">Student / Faculty Email</label>
-        <input id="auth-email" type="email" placeholder="student@pcge.ac.in" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-blue-600">
-      </div>
-      <div>
-        <label class="text-[11px] font-bold text-slate-600 block mb-1">Password</label>
-        <input id="auth-pass" type="password" placeholder="••••••••" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-blue-600">
-      </div>
-    </div>
-    <p id="auth-error" class="text-rose-600 text-xs font-semibold text-center"></p>
-    <button id="btn-auth-action" onclick="handleAuth()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2.5 rounded-xl text-xs shadow-md transition">
-      Login to Ekikrit
-    </button>
-    <div class="flex justify-between text-xs font-semibold text-slate-500 pt-1">
-      <span id="link-register">New enrollment? <button onclick="toggleAuthView('register')" class="text-blue-700 underline">Register</button></span>
-      <span id="link-login" class="hidden">Existing student? <button onclick="toggleAuthView('login')" class="text-blue-700 underline">Login</button></span>
-    </div>
-  </div>
-
-  <!-- ================= MAIN ERP PORTAL ================= -->
-  <div id="app-screen" class="hidden w-full max-w-5xl bg-white min-h-[90vh] md:rounded-3xl shadow-2xl border border-slate-200 flex flex-col md:flex-row overflow-hidden">
-
-    <!-- Left Sidebar -->
-    <aside class="w-full md:w-64 ekikrit-sidebar p-5 flex flex-col justify-between border-b md:border-b-0">
-      <div>
-        <!-- Brand -->
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-9 h-9 rounded-xl bg-blue-700 text-white flex items-center justify-center font-black text-lg shadow-sm">E</div>
-          <div>
-            <h1 class="text-sm font-extrabold tracking-tight text-slate-900 leading-tight">EKIKRIT</h1>
-            <p class="text-[9px] text-purple-700 font-bold uppercase tracking-wider">AI Powered ERP</p>
-          </div>
-        </div>
-
-        <p class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase mb-2">MAIN MENU</p>
-        <nav class="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-          <button id="nav-dash" onclick="showTab('dashboard')" class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50">
-            <i class="fa-solid fa-table-cells-large text-slate-400"></i> Dashboard
-          </button>
-        </nav>
-
-        <p class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase mt-5 mb-2">STUDENT OPERATIONS</p>
-        <nav class="flex flex-col gap-1 text-xs font-semibold text-slate-600">
-          <button id="nav-att" onclick="showTab('attendance')" class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50">
-            <i class="fa-regular fa-circle-check text-slate-400"></i> My Attendance
-          </button>
-          <button class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50 text-slate-400">
-            <i class="fa-regular fa-circle-check"></i> University Enrollment
-          </button>
-          <button class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50 text-slate-400">
-            <i class="fa-regular fa-id-card"></i> Semester Admission
-          </button>
-          <button class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50 text-slate-400">
-            <i class="fa-regular fa-file-lines"></i> Syllabus
-          </button>
-          <button class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50 text-slate-400">
-            <i class="fa-solid fa-book-open"></i> Course Notes
-          </button>
-          <button class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50 text-slate-400">
-            <i class="fa-regular fa-newspaper"></i> Assessments
-          </button>
-          <button id="nav-prog" onclick="showTab('progress')" class="flex items-center gap-2.5 px-3 py-2 rounded-xl transition text-left hover:bg-slate-50">
-            <i class="fa-solid fa-chart-line text-slate-400"></i> My Progress
-          </button>
-        </nav>
-      </div>
-
-      <!-- Bottom Profile / Logout -->
-      <div class="pt-5 border-t border-slate-100 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs">Y</div>
-          <div>
-            <h6 class="text-xs font-bold text-slate-800 leading-tight">Yash Kumawat</h6>
-            <span class="text-[9px] text-purple-700 font-extrabold uppercase">STUDENT</span>
-          </div>
-        </div>
-        <button onclick="logout()" title="Logout" class="text-slate-400 hover:text-rose-600 text-xs">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 p-5 md:p-8 bg-[#fbfcfd] overflow-y-auto">
-
-      <!-- Top Header Utility Bar -->
-      <div class="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
-        <div class="flex items-center gap-3">
-          <span class="text-xs font-bold text-slate-700">Student Academic Progress</span>
-          <span class="text-[11px] font-mono font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full" id="ist-clock">00:00:00 HRS</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="openFacultyPanel()" class="text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-xl border border-amber-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-lock text-[10px]"></i> Faculty Admin
-          </button>
-          <span class="text-slate-300">|</span>
-          <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-          <span class="text-xs font-bold text-slate-600">Active</span>
-        </div>
-      </div>
-
-      <!-- ================= TAB 1: DASHBOARD ================= -->
-      <div id="view-dashboard" class="flex flex-col gap-6">
-
-        <!-- Exact Black Hero Card from Ekikrit -->
-        <div class="hero-black-card rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-2xl">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-            <div>
-              <h2 class="text-2xl font-black tracking-tight text-white">Yash Kumawat</h2>
-              <p class="text-xs font-semibold text-slate-300 tracking-wider uppercase mt-1">
-                BACHELOR OF COMPUTER APPLICATIONS | ARTIFICIAL INTELLIGENCE | SEM 1
-              </p>
-
-              <!-- Tags Grid -->
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5 text-[11px] font-mono">
-                <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
-                  <span class="text-slate-400 block text-[9px]">Student ID</span>
-                  <span class="font-bold">PCGEA/2026-27/0336</span>
-                </div>
-                <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
-                  <span class="text-slate-400 block text-[9px]">Reg ID</span>
-                  <span class="font-bold">PCGEA/2026-27/354</span>
-                </div>
-                <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
-                  <span class="text-slate-400 block text-[9px]">Enrollment</span>
-                  <span class="font-bold">N/A</span>
-                </div>
-                <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 flex items-center justify-between">
-                  <div>
-                    <span class="text-slate-400 block text-[9px]">Roll No</span>
-                    <span class="font-bold">202600336</span>
-                  </div>
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 ml-2"></span>
-                </div>
-              </div>
-            </div>
-
-            <!-- PDF Button -->
-            <button class="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 self-start md:self-center transition shadow-lg">
-              <i class="fa-regular fa-file-pdf"></i> CORRECTION FORM (PDF)
-            </button>
-          </div>
-        </div>
-
-        <!-- Personal Details Grid from Screenshot -->
-        <div class="ekikrit-card rounded-2xl p-6">
-          <h4 class="text-xs font-black tracking-wider text-slate-400 uppercase mb-4">PERSONAL DETAILS</h4>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Email</span>
-              <span class="font-semibold text-slate-800">yashkumawat638@gmail.com</span>
-            </div>
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Phone Number</span>
-              <span class="font-semibold text-slate-800">7665219980</span>
-            </div>
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Gender</span>
-              <span class="font-semibold text-slate-800">Male</span>
-            </div>
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Date of Birth</span>
-              <span class="font-semibold text-slate-800">25 Aug 2004</span>
-            </div>
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Father's Name</span>
-              <span class="font-semibold text-slate-800">Nand Lal Kumawat</span>
-            </div>
-            <div>
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Mother's Name</span>
-              <span class="font-semibold text-slate-800">Prem Devi</span>
-            </div>
-            <div class="col-span-2">
-              <span class="text-slate-400 text-[10px] uppercase font-bold block">Address</span>
-              <span class="font-semibold text-slate-800">12 Anu Vihar Colony Jobner Road Phulera Haripura, Jaipur, Rajasthan - 303338</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ================= TAB 2: MY ATTENDANCE ================= -->
-      <div id="view-attendance" class="hidden flex flex-col gap-5">
-        <div class="flex items-center justify-between">
-          <div>
-            <h2 class="text-xl font-extrabold text-slate-900">My Attendance</h2>
-            <p class="text-xs text-slate-400 font-medium">View your past attendance records.</p>
-          </div>
-
-          <!-- Exact Green Button from Ekikrit Screenshot -->
-          <div class="flex items-center gap-2">
-            <span id="live-code-indicator" class="hidden flex h-2.5 w-2.5 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <button onclick="promptEnterLiveCode()" class="bg-[#2d7a5b] hover:bg-[#246249] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md transition">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span>
-              ENTER LIVE CODE <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Ledger Table List -->
-        <div class="ekikrit-card rounded-2xl p-6">
-          <div class="flex justify-between items-center text-[10px] font-extrabold tracking-wider text-slate-400 uppercase pb-3 border-b border-slate-100">
-            <span>COURSE / FACULTY</span>
-            <span>DATE & TIME</span>
-          </div>
-          <div id="attendance-ledger-body" class="flex flex-col"></div>
-        </div>
-      </div>
-
-      <!-- ================= TAB 3: MY PROGRESS ================= -->
-      <div id="view-progress" class="hidden flex flex-col gap-5">
-        <div>
-          <h2 class="text-xl font-extrabold text-slate-900">MY PROGRESS DASHBOARD</h2>
-          <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Track your growth across assessments</p>
-        </div>
-
-        <!-- Stat 4 Boxes from Screenshot -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-          <div class="ekikrit-card p-4 rounded-2xl">
-            <h3 class="text-2xl font-black text-slate-800">16</h3>
-            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Assessments Done</p>
-          </div>
-          <div class="ekikrit-card p-4 rounded-2xl">
-            <h3 class="text-2xl font-black text-emerald-600">96.1%</h3>
-            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Average Score</p>
-          </div>
-          <div class="ekikrit-card p-4 rounded-2xl">
-            <h3 class="text-2xl font-black text-slate-800">251</h3>
-            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Total Marks Earned</p>
-          </div>
-          <div class="ekikrit-card p-4 rounded-2xl">
-            <h3 class="text-2xl font-black text-slate-800">260</h3>
-            <p class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Total Max Marks</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ================= FACULTY ADMIN PANEL (Protected via PIN: 9980) ================= -->
-      <div id="view-teacher" class="hidden flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-bold text-amber-900 flex items-center gap-2">
-              <i class="fa-solid fa-tower-broadcast"></i> Faculty Live Broadcast Terminal
-            </h3>
-            <p class="text-xs text-amber-700">Broadcast temporary 6-digit attendance code to classroom students</p>
-          </div>
-          <button onclick="showTab('dashboard')" class="text-xs font-bold text-slate-500 hover:text-slate-800">
-            <i class="fa-solid fa-xmark mr-1"></i> Exit Admin
-          </button>
-        </div>
-
-        <div class="ekikrit-card p-5 rounded-2xl border-2 border-amber-300 bg-amber-50/20 flex flex-col gap-3">
-          <div>
-            <label class="text-[11px] font-bold text-slate-700 block mb-1">Select Lecture Subject</label>
-            <select id="t-course-input" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white">
-              <option value="Programming in C">Programming in C (Vaibhav Saxena)</option>
-              <option value="Computer Fundamentals & Architecture">Computer Fundamentals & Architecture (Dimple Sharma)</option>
-              <option value="Understanding & Managing Self">Understanding & Managing Self (Shabnam Khan)</option>
-            </select>
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-[11px] font-bold text-slate-700 block mb-1">Target Campus Wi-Fi</label>
-              <select id="t-wifi-input" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white">
-                <option value="PCGEA">PCGEA (Academic Wing)</option>
-                <option value="Pcge">Pcge (Lab Network)</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[11px] font-bold text-slate-700 block mb-1">Session Duration</label>
-              <select id="t-duration-input" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-xs bg-white">
-                <option value="2">2 Minutes</option>
-                <option value="5" selected>5 Minutes</option>
-                <option value="unlimited">Manual Stop Only</option>
-              </select>
-            </div>
-          </div>
-          <button onclick="startBroadcast()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition mt-1">
-            Broadcast 6-Digit Code Now
-          </button>
-
-          <!-- Broadcast Active Display -->
-          <div id="broadcast-token-box" class="hidden text-center p-4 bg-white border border-amber-300 rounded-xl shadow-sm mt-2">
-            <p class="text-[11px] font-bold text-slate-500 uppercase">Classroom Screen Code</p>
-            <h2 id="broadcast-otp-display" class="text-3xl font-mono font-black text-amber-600 tracking-widest my-1">------</h2>
-            <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100 mt-2">
-              <span id="broadcast-timer-label" class="font-bold text-rose-600">Active</span>
-              <button onclick="stopBroadcast()" class="text-rose-700 font-bold hover:underline">
-                <i class="fa-solid fa-stop mr-1"></i> Stop Broadcast
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main>
-  </div>
-
 </body>
 </html>
-
-
-
-
