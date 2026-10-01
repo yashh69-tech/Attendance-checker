@@ -1,339 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Virtual Cigarette AR Lounge</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confidence Booster // Sigma Mog Web App</title>
 
-  <!-- MediaPipe Face Mesh CDN -->
+  <!-- MediaPipe Face Mesh, Hands & TensorFlow Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd" crossorigin="anonymous"></script>
 
   <style>
+    :root {
+      --neon-green: #00ff73;
+      --neon-red: #ff0055;
+      --bg-dark: #0a0c10;
+      --panel-bg: rgba(18, 22, 31, 0.85);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      user-select: none;
     }
 
     body {
-      background-color: #0b0b0f;
-      color: #ffffff;
+      background: var(--bg-dark);
+      color: var(--neon-green);
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 15px;
+      overflow-x: hidden;
+    }
+
+    /* Sci-fi Scanlines */
+    body::before {
+      content: " ";
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 4px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    header {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border: 1px solid rgba(0, 255, 115, 0.3);
+      background: var(--panel-bg);
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 900;
+      text-shadow: 0 0 10px var(--neon-green);
+    }
+
+    .viewport-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      width: 100%;
+      max-width: 1100px;
+      height: 480px;
+    }
+
+    .monitor-box {
+      position: relative;
+      background: #000;
+      border: 2px solid var(--neon-green);
+      border-radius: 8px;
       overflow: hidden;
-      width: 100vw;
-      height: 100vh;
+      box-shadow: 0 0 20px rgba(0, 255, 115, 0.15);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .monitor-box.mogged {
+      border-color: var(--neon-red) !important;
+      box-shadow: 0 0 35px rgba(255, 0, 85, 0.5) !important;
+    }
+
+    #webcamVideo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      transition: filter 0.2s ease;
+    }
+
+    #webcamVideo.mogged-filter {
+      filter: grayscale(100%) contrast(200%) brightness(85%);
+    }
+
+    #hudCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      transform: scaleX(-1);
+    }
+
+    .meme-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: #050608;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    #container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Webcam Feed (Mirrored) */
-    #webcam {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scaleX(-1);
-      min-width: 100%;
-      min-height: 100%;
+    #memeVideo {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      z-index: 1;
-    }
-
-    /* AR Overlay Canvas */
-    #output-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* UI Header Overlay */
-    .top-bar {
-      position: absolute;
-      top: 18px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-      pointer-events: auto;
-    }
-
-    .brand-title {
-      background: rgba(15, 15, 20, 0.65);
-      backdrop-filter: blur(12px);
-      padding: 10px 18px;
-      border-radius: 24px;
-      font-size: 14px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-weight: 700;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    /* Bottom Brand Selector */
-    .selector-bar {
-      position: absolute;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      display: flex;
-      gap: 12px;
-      background: rgba(15, 15, 20, 0.75);
-      backdrop-filter: blur(16px);
-      padding: 10px 16px;
-      border-radius: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      max-width: 90vw;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .selector-bar::-webkit-scrollbar {
       display: none;
     }
 
-    .brand-btn {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #e5e5e5;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s ease;
+    .idle-meme-screen {
+      text-align: center;
+      color: rgba(0, 255, 115, 0.5);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 20px;
     }
 
-    .brand-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .idle-meme-screen .radar {
+      width: 70px;
+      height: 70px;
+      border: 2px solid var(--neon-green);
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      animation: spin 3s linear infinite;
+      position: relative;
     }
 
-    .brand-btn.active {
-      background: #ffffff;
-      color: #000000;
-      border-color: #ffffff;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-    }
-
-    #loading-indicator {
+    .idle-meme-screen .radar::after {
+      content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
-      padding: 16px 24px;
-      border-radius: 12px;
-      font-size: 15px;
+      top: 0; left: 50%; width: 50%; height: 50%;
+      background: linear-gradient(45deg, rgba(0,255,115,0.4), transparent);
+      transform-origin: 0% 100%;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .mog-badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--neon-red);
+      color: #fff;
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      display: none;
       z-index: 20;
+      box-shadow: 0 0 15px var(--neon-red);
+      animation: flash 0.3s infinite alternate;
+    }
+
+    @keyframes flash {
+      from { opacity: 0.7; }
+      to { opacity: 1; transform: scale(1.05); }
+    }
+
+    .controls {
+      width: 100%;
+      max-width: 1100px;
+      background: var(--panel-bg);
+      border: 1px solid rgba(0, 255, 115, 0.3);
+      border-radius: 6px;
+      padding: 12px 20px;
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-pill {
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-value {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      background: #121820;
+      border: 1px solid var(--neon-green);
+      color: var(--neon-green);
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--neon-green);
+      color: #000;
+      box-shadow: 0 0 10px var(--neon-green);
+    }
+
+    button.danger {
+      border-color: var(--neon-red);
+      color: var(--neon-red);
+    }
+
+    button.danger:hover {
+      background: var(--neon-red);
+      color: #fff;
+      box-shadow: 0 0 15px var(--neon-red);
     }
   </style>
 </head>
 <body>
 
-  <div id="container">
-    <div id="loading-indicator">Initializing Camera & AR Tracking...</div>
+  <header>
+    <div class="title">⚡ TARGET TRACKER // CONFIDENCE BOOSTER</div>
+    <div class="stat-pill">SYSTEM: <span class="pill-value" id="systemState">INITIALIZING...</span></div>
+  </header>
 
-    <!-- Live Video Feed -->
-    <video id="webcam" playsinline autoplay muted></video>
-
-    <!-- AR Canvas -->
-    <canvas id="output-canvas"></canvas>
-
-    <!-- Header Overlay -->
-    <div class="top-bar">
-      <div class="brand-title">Cigarette Lounge AR</div>
+  <div class="viewport-grid">
+    <div class="monitor-box" id="camBox">
+      <video id="webcamVideo" playsinline autoplay muted></video>
+      <canvas id="hudCanvas"></canvas>
     </div>
 
-    <!-- Cigarette Brand Selection Menu -->
-    <div class="selector-bar" id="brand-selector">
-      <button class="brand-btn active" data-type="marlboro">Marlboro Red</button>
-      <button class="brand-btn" data-type="classic">Classic Regular</button>
-      <button class="brand-btn" data-type="goldflake">Gold Flake Kings</button>
-      <button class="brand-btn" data-type="menthol">Ice Blast / Click</button>
-      <button class="brand-btn" data-type="black">Djarum Black</button>
-      <button class="brand-btn" data-type="slims">Esse Lights (Slim)</button>
+    <div class="monitor-box" id="memeBox">
+      <div class="mog-badge" id="mogBadge">MOGGED</div>
+      <div class="meme-container">
+        <video id="memeVideo" loop playsinline src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"></video>
+        <div class="idle-meme-screen" id="idleScreen">
+          <div class="radar"></div>
+          <div>[ STANDBY MODE ]</div>
+          <small>TURN HEAD / DRINK WATER / HAND IN HAIR</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="stat-pill">TRIGGER: <span class="pill-value" id="activeTrigger">NONE</span></div>
+    <div class="stat-pill">HAIR HAND: <span class="pill-value" id="hairStatus">NO</span></div>
+    <div class="stat-pill">BOTTLE: <span class="pill-value" id="bottleStatus">NO</span></div>
+    <div class="stat-pill">HEAD TURN: <span class="pill-value" id="yawStatus">CENTERED</span></div>
+    
+    <div class="btn-group">
+      <button id="audioEnableBtn">🔊 UNMUTE AUDIO</button>
+      <button class="danger" id="forceDropBtn">⚡ FORCE SIGMA DROP</button>
     </div>
   </div>
 
   <script>
-    const videoElement = document.getElementById('webcam');
-    const canvasElement = document.getElementById('output-canvas');
-    const canvasCtx = canvasElement.getContext('2d');
-    const loadingIndicator = document.getElementById('loading-indicator');
+    const webcamVideo = document.getElementById('webcamVideo');
+    const hudCanvas = document.getElementById('hudCanvas');
+    const ctx = hudCanvas.getContext('2d');
 
-    // Brand Styles Configuration
-    const CIGARETTE_TYPES = {
-      marlboro: { filterColor: '#c27b38', bodyColor: '#f7f7f7', bandColor: '#d62828', length: 110, thickness: 11 },
-      classic: { filterColor: '#b87333', bodyColor: '#f5f5f5', bandColor: '#003049', length: 115, thickness: 12 },
-      goldflake: { filterColor: '#c58b44', bodyColor: '#ffffff', bandColor: '#d4af37', length: 120, thickness: 12 },
-      menthol: { filterColor: '#2b9348', bodyColor: '#e9f5ed', bandColor: '#0077b6', length: 110, thickness: 11 },
-      black: { filterColor: '#1a1a1a', bodyColor: '#121212', bandColor: '#c49b63', length: 110, thickness: 11 },
-      slims: { filterColor: '#fdfdfd', bodyColor: '#f2f2f2', bandColor: '#90e0ef', length: 130, thickness: 7 }
+    const camBox = document.getElementById('camBox');
+    const memeBox = document.getElementById('memeBox');
+    const memeVideo = document.getElementById('memeVideo');
+    const idleScreen = document.getElementById('idleScreen');
+    const mogBadge = document.getElementById('mogBadge');
+
+    const systemState = document.getElementById('systemState');
+    const activeTrigger = document.getElementById('activeTrigger');
+    const hairStatus = document.getElementById('hairStatus');
+    const bottleStatus = document.getElementById('bottleStatus');
+    const yawStatus = document.getElementById('yawStatus');
+    const forceDropBtn = document.getElementById('forceDropBtn');
+    const audioEnableBtn = document.getElementById('audioEnableBtn');
+
+    let cocoModel = null;
+    let isMogging = false;
+    let bottleDetectedNearMouth = false;
+    let handInHair = false;
+    let latestForeheadPoint = null;
+    let audioContext = null;
+    let audioUnlocked = false;
+
+    // --- Web Audio Synthetic Phonk Synthesizer ---
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      audioUnlocked = true;
+      audioEnableBtn.innerText = "🔊 AUDIO ACTIVE";
+      audioEnableBtn.style.borderColor = "#fff";
+    }
+    audioEnableBtn.addEventListener('click', initAudio);
+
+    function playPhonkDrop() {
+      if (!audioUnlocked || !audioContext) return;
+      const now = audioContext.currentTime;
+
+      // Deep 808 Bass Slide
+      const osc = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      osc.type = 'sawtooth';
+
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(38, now + 0.35);
+
+      gain.gain.setValueAtTime(0.8, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+
+      // Cowbell Bell tone
+      const bell = audioContext.createOscillator();
+      const bellGain = audioContext.createGain();
+      bell.type = 'triangle';
+      bell.frequency.setValueAtTime(587.33, now);
+      bellGain.gain.setValueAtTime(0.5, now);
+      bellGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(audioContext.destination);
+
+      bell.connect(bellGain);
+      bellGain.connect(audioContext.destination);
+
+      osc.start(now);
+      bell.start(now);
+      osc.stop(now + 1.0);
+      bell.stop(now + 0.4);
+    }
+
+    // --- 3D Wireframe Cube Drawing on Face ---
+    function draw3DWireframeCube(cx, cy, size, yawAngle, pitchAngle, isTriggered) {
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      const color = isTriggered ? '#ff0055' : '#00ff73';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+
+      const s = size * 0.65;
+      const d = s * 0.7;
+      const ox = yawAngle * 35;
+      const oy = pitchAngle * 25;
+
+      const f1 = { x: -s, y: -s };
+      const f2 = { x: s, y: -s };
+      const f3 = { x: s, y: s };
+      const f4 = { x: -s, y: s };
+
+      const b1 = { x: -s + ox, y: -s + oy - d };
+      const b2 = { x: s + ox, y: -s + oy - d };
+      const b3 = { x: s + ox, y: s + oy - d };
+      const b4 = { x: -s + ox, y: s + oy - d };
+
+      // Front
+      ctx.beginPath();
+      ctx.moveTo(f1.x, f1.y); ctx.lineTo(f2.x, f2.y); ctx.lineTo(f3.x, f3.y);
+      ctx.lineTo(f4.x, f4.y); ctx.closePath();
+      ctx.stroke();
+
+      // Back
+      ctx.beginPath();
+      ctx.moveTo(b1.x, b1.y); ctx.lineTo(b2.x, b2.y); ctx.lineTo(b3.x, b3.y);
+      ctx.lineTo(b4.x, b4.y); ctx.closePath();
+      ctx.stroke();
+
+      // Connecting Corners
+      ctx.beginPath();
+      ctx.moveTo(f1.x, f1.y); ctx.lineTo(b1.x, b1.y);
+      ctx.moveTo(f2.x, f2.y); ctx.lineTo(b2.x, b2.y);
+      ctx.moveTo(f3.x, f3.y); ctx.lineTo(b3.x, b3.y);
+      ctx.moveTo(f4.x, f4.y); ctx.lineTo(b4.x, b4.y);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // --- State Switching (Mog Mode On/Off) ---
+    function setMogMode(active, triggerSource = "") {
+      if (active && !isMogging) {
+        isMogging = true;
+        camBox.classList.add('mogged');
+        memeBox.classList.add('mogged');
+        webcamVideo.classList.add('mogged-filter');
+        idleScreen.style.display = 'none';
+        memeVideo.style.display = 'block';
+        mogBadge.style.display = 'block';
+        memeVideo.currentTime = 0;
+        memeVideo.play();
+        activeTrigger.innerText = triggerSource || "MANUAL";
+        playPhonkDrop();
+      } else if (!active && isMogging) {
+        isMogging = false;
+        camBox.classList.remove('mogged');
+        memeBox.classList.remove('mogged');
+        webcamVideo.classList.remove('mogged-filter');
+        memeVideo.pause();
+        memeVideo.style.display = 'none';
+        idleScreen.style.display = 'block';
+        mogBadge.style.display = 'none';
+        activeTrigger.innerText = "NONE";
+      }
+    }
+
+    forceDropBtn.onclick = () => {
+      initAudio();
+      setMogMode(!isMogging, "FORCE BUTTON");
     };
 
-    let currentCigarette = CIGARETTE_TYPES.marlboro;
-    let smokeParticles = [];
+    // --- MediaPipe Hands Callback (Detect Hand in Hair) ---
+    function onHandsResults(results) {
+      handInHair = false;
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0 && latestForeheadPoint) {
+        for (const hand of results.multiHandLandmarks) {
+          // Check fingertips (Index: 8, Middle: 12)
+          const indexFinger = hand[8];
+          const middleFinger = hand[12];
 
-    // Switch Brand Buttons
-    document.querySelectorAll('.brand-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        const selected = e.target.getAttribute('data-type');
-        currentCigarette = CIGARETTE_TYPES[selected];
-      });
-    });
+          // Forehead se proximity check
+          const distIndex = Math.hypot(indexFinger.x - latestForeheadPoint.x, indexFinger.y - latestForeheadPoint.y);
+          const distMiddle = Math.hypot(middleFinger.x - latestForeheadPoint.x, middleFinger.y - latestForeheadPoint.y);
 
-    // Resize Canvas to Screen Match
-    function resizeCanvas() {
-      canvasElement.width = window.innerWidth;
-      canvasElement.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Smoke Particle Logic
-    function updateAndDrawSmoke(tipX, tipY) {
-      if (Math.random() < 0.6) {
-        smokeParticles.push({
-          x: tipX + (Math.random() - 0.5) * 4,
-          y: tipY,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: -(Math.random() * 1.8 + 1.2),
-          radius: Math.random() * 3 + 2,
-          alpha: 0.6,
-          life: 0
-        });
-      }
-
-      for (let i = smokeParticles.length - 1; i >= 0; i--) {
-        let p = smokeParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.radius += 0.45;
-        p.alpha -= 0.007;
-        p.life++;
-
-        canvasCtx.save();
-        canvasCtx.beginPath();
-        canvasCtx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
-        canvasCtx.fillStyle = `rgba(220, 220, 220, ${Math.max(p.alpha, 0)})`;
-        canvasCtx.fill();
-        canvasCtx.restore();
-
-        if (p.alpha <= 0 || p.life > 90) {
-          smokeParticles.splice(i, 1);
+          // Finger maathe ke pass ya uske upar (hair region) me ho
+          if (distIndex < 0.18 || distMiddle < 0.18) {
+            handInHair = true;
+            break;
+          }
         }
       }
+
+      hairStatus.innerText = handInHair ? "TOUCHING HAIR" : "NO";
     }
 
-    // MediaPipe FaceMesh Output Callback
-    function onFaceResults(results) {
-      if (loadingIndicator.style.display !== 'none') {
-        loadingIndicator.style.display = 'none';
-      }
+    // --- MediaPipe Face Tracking Callback ---
+    function onFaceMeshResults(results) {
+      hudCanvas.width = webcamVideo.videoWidth;
+      hudCanvas.height = webcamVideo.videoHeight;
+      ctx.clearRect(0, 0, hudCanvas.width, hudCanvas.height);
 
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      let headTurnTrigger = false;
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
 
-        // Key Lip Landmarks
-        const lipCenter = landmarks[13]; // Inner Upper Lip
-        const lipRight = landmarks[291]; // User's Left Lip Corner (Mirrored coordinate)
-        const lipLeft = landmarks[61];   // User's Right Lip Corner
+        const nose = landmarks[1];
+        const leftCheek = landmarks[234];
+        const rightCheek = landmarks[454];
+        const chin = landmarks[152];
+        const forehead = landmarks[10];
 
-        // Convert Normalized Coordinates to Mirrored Screen Coordinates
-        const mouthX = (1 - lipCenter.x) * canvasElement.width;
-        const mouthY = lipCenter.y * canvasElement.height;
+        latestForeheadPoint = { x: forehead.x, y: forehead.y };
 
-        // Angle Calculation based on Lip orientation
-        const deltaX = ((1 - lipRight.x) - (1 - lipLeft.x)) * canvasElement.width;
-        const deltaY = (lipRight.y - lipLeft.y) * canvasElement.height;
-        const faceAngle = Math.atan2(deltaY, deltaX);
+        const w = hudCanvas.width;
+        const h = hudCanvas.height;
 
-        // Fixed downward angle for cigarette placement
-        const cigaretteAngle = faceAngle + (25 * Math.PI / 180);
+        const cx = nose.x * w;
+        const cy = nose.y * h;
+        const faceSize = Math.abs(chin.y - forehead.y) * h;
 
-        canvasCtx.save();
-        canvasCtx.translate(mouthX, mouthY);
-        canvasCtx.rotate(cigaretteAngle);
+        // Yaw estimation
+        const distL = Math.abs(nose.x - leftCheek.x);
+        const distR = Math.abs(nose.x - rightCheek.x);
+        const ratio = distL / (distR + 0.0001);
+        const yaw = (ratio - 1.0);
 
-        const len = currentCigarette.length;
-        const thick = currentCigarette.thickness;
-        const filterLen = len * 0.3;
+        if (ratio > 2.4) {
+          yawStatus.innerText = "RIGHT PROFILE";
+          headTurnTrigger = true;
+        } else if (ratio < 0.42) {
+          yawStatus.innerText = "LEFT PROFILE";
+          headTurnTrigger = true;
+        } else {
+          yawStatus.innerText = "CENTERED";
+        }
 
-        // 1. Filter section (Mouth side)
-        canvasCtx.fillStyle = currentCigarette.filterColor;
-        canvasCtx.fillRect(-5, -thick / 2, filterLen, thick);
+        draw3DWireframeCube(cx, cy, faceSize, yaw, 0.1, isMogging);
+      } else {
+        latestForeheadPoint = null;
+      }
 
-        // 2. Ring / Accent Band
-        canvasCtx.fillStyle = currentCigarette.bandColor;
-        canvasCtx.fillRect(filterLen - 5, -thick / 2, 4, thick);
-
-        // 3. Paper Body
-        canvasCtx.fillStyle = currentCigarette.bodyColor;
-        canvasCtx.fillRect(filterLen - 1, -thick / 2, len - filterLen, thick);
-
-        // 4. Burning Ember Tip
-        const emberX = len - 1;
-        canvasCtx.fillStyle = '#ff3700';
-        canvasCtx.fillRect(emberX, -thick / 2, 5, thick);
-
-        // 5. Ash Tip
-        canvasCtx.fillStyle = '#4a4a4a';
-        canvasCtx.fillRect(emberX + 5, -thick / 2 + 1, 3, thick - 2);
-
-        canvasCtx.restore();
-
-        // Calculate Burning Tip World Position for Smoke
-        const tipDistance = len + 6;
-        const tipWorldX = mouthX + Math.cos(cigaretteAngle) * tipDistance;
-        const tipWorldY = mouthY + Math.sin(cigaretteAngle) * tipDistance;
-
-        updateAndDrawSmoke(tipWorldX, tipWorldY);
+      // Check All Triggers Priority
+      if (handInHair) {
+        setMogMode(true, "HAIR TOUCH // SIGMA");
+      } else if (bottleDetectedNearMouth) {
+        setMogMode(true, "WATER BOTTLE DRINK");
+      } else if (headTurnTrigger) {
+        setMogMode(true, "PROFILE MEWING");
+      } else if (!forceDropActiveManual()) {
+        setMogMode(false);
       }
     }
 
-    // MediaPipe Setup
-    const faceMesh = new FaceMesh({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
+    function forceDropActiveManual() {
+      return activeTrigger.innerText === "FORCE BUTTON" && isMogging;
+    }
 
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
-    });
+    // --- Real-time Bottle Detection via COCO-SSD ---
+    async function runBottleDetection() {
+      if (cocoModel && webcamVideo.readyState >= 2) {
+        try {
+          const predictions = await cocoModel.detect(webcamVideo);
+          const bottle = predictions.find(p => p.class === 'bottle' || p.class === 'cup');
 
-    faceMesh.onResults(onFaceResults);
+          if (bottle && bottle.score > 0.45) {
+            bottleDetectedNearMouth = true;
+            bottleStatus.innerText = `YES (${Math.round(bottle.score * 100)}%)`;
+          } else {
+            bottleDetectedNearMouth = false;
+            bottleStatus.innerText = "NO";
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      requestAnimationFrame(runBottleDetection);
+    }
 
-    // Start Camera Stream
-    const camera = new Camera(videoElement, {
-      onFrame: async () => {
-        await faceMesh.send({ image: videoElement });
-      },
-      width: 1280,
-      height: 720
-    });
+    // --- Main Initializer ---
+    async function init() {
+      systemState.innerText = "LOADING AI MODELS...";
 
-    camera.start();
+      // 1. Setup FaceMesh
+      const faceMesh = new FaceMesh({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+      });
+      faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+      faceMesh.onResults(onFaceMeshResults);
+
+      // 2. Setup Hands
+      const hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      });
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+      });
+      hands.onResults(onHandsResults);
+
+      // 3. Setup COCO-SSD
+      cocoModel = await cocoSsd.load();
+
+      systemState.innerText = "ACCESSING CAMERA...";
+
+      // 4. Setup Camera feed loop to both Face and Hands
+      const camera = new Camera(webcamVideo, {
+        onFrame: async () => {
+          await faceMesh.send({ image: webcamVideo });
+          await hands.send({ image: webcamVideo });
+        },
+        width: 640,
+        height: 480
+      });
+      await camera.start();
+
+      systemState.innerText = "ONLINE // ACTIVE";
+      runBottleDetection();
+    }
+
+    window.onload = init;
   </script>
 </body>
 </html>
