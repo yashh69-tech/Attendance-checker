@@ -12,6 +12,10 @@
   <!-- QR Code Generator CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -50,7 +54,7 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-      .no-print, header, nav, #admin-controls, .toast, #modal-edit {
+      .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal {
         display: none !important;
       }
       #print-area {
@@ -75,6 +79,29 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col">
 
   <!-- ========================================== -->
+  <!-- 0. ADMIN MASTER PIN LOCK MODAL -->
+  <!-- ========================================== -->
+  <div id="admin-auth-modal" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4">
+        <i data-lucide="shield-lock" class="w-7 h-7"></i>
+      </div>
+      <h2 class="text-lg font-black text-white">TapSpot Admin Access</h2>
+      <p class="text-xs text-slate-400 mt-1 mb-5">Enter master administrator PIN to manage NFC standees and cloud records.</p>
+      
+      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+        <input type="password" id="input-admin-pin" placeholder="Enter Admin PIN" maxlength="6" autofocus
+          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-lg font-mono tracking-widest text-white focus:outline-none focus:border-indigo-500">
+        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+          <i data-lucide="key" class="w-4 h-4"></i>
+          <span>Unlock Admin Studio</span>
+        </button>
+      </form>
+      <p id="admin-pin-err" class="text-[11px] text-rose-400 mt-3 hidden">Incorrect PIN! Try again.</p>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
   <!-- 1. CUSTOMER REDIRECT SCREEN (?card=ID active) -->
   <!-- ========================================== -->
   <div id="view-redirecting" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-950">
@@ -88,7 +115,7 @@
 
       <!-- Progress bar -->
       <div class="w-full bg-slate-800 rounded-full h-1.5 mt-6 overflow-hidden">
-        <div id="redirect-progress" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-1000 ease-linear w-0"></div>
+        <div id="redirect-progress" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-700 ease-linear w-0"></div>
       </div>
 
       <div class="mt-8 pt-6 border-t border-slate-800/80">
@@ -177,7 +204,7 @@
   <!-- ========================================== -->
   <!-- 4. OWNER / ADMIN PORTAL (Main View) -->
   <!-- ========================================== -->
-  <div id="view-admin" class="flex-1 flex flex-col">
+  <div id="view-admin" class="hidden flex-1 flex flex-col">
     <!-- Navbar -->
     <header class="no-print border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -188,7 +215,10 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="text-base sm:text-lg font-black text-white tracking-tight">TapSpot</span>
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-full">SYSTEM ACTIVE</span>
+              <span id="cloud-badge" class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>CLOUD SYNCED</span>
+              </span>
             </div>
             <p class="text-[11px] text-slate-400">Dynamic NFC & Review Standee Manager</p>
           </div>
@@ -207,10 +237,15 @@
           </button>
         </nav>
 
-        <button onclick="window.print()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 transition">
-          <i data-lucide="printer" class="w-4 h-4"></i>
-          <span>Print Sheet (PDF)</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 transition">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Print Sheet (PDF)</span>
+          </button>
+          <button onclick="lockAdmin()" title="Lock Admin Portal" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-xs">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -234,9 +269,7 @@
     <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
 
-      <!-- ================================= -->
       <!-- TAB 1: LIVE TAGS INVENTORY -->
-      <!-- ================================= -->
       <section id="tab-tags" class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -271,11 +304,8 @@
         </div>
       </section>
 
-      <!-- ================================= -->
       <!-- TAB 2: BATCH GENERATOR & PRINT SHEETS -->
-      <!-- ================================= -->
       <section id="tab-batch" class="hidden space-y-6">
-        <!-- Generator Controls -->
         <div class="no-print bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-800">
             <div>
@@ -283,7 +313,6 @@
               <h3 class="text-xl font-black text-white mt-0.5">Bulk Standee Batch Generator</h3>
               <p class="text-xs text-slate-400 mt-1">Har standee par unique ID, security PIN, aur Google Review QR code auto-merge hoga.</p>
             </div>
-            <!-- Quick preset buttons -->
             <div class="flex items-center gap-2 flex-wrap">
               <button onclick="setBatchQty(10)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">10 Pcs</button>
               <button onclick="setBatchQty(20)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">20 Pcs</button>
@@ -292,7 +321,6 @@
             </div>
           </div>
 
-          <!-- Batch Generator Form -->
           <form onsubmit="handleBatchGenerate(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Prefix</label>
@@ -315,7 +343,6 @@
           </form>
         </div>
 
-        <!-- Print Sheet Area -->
         <div id="print-area" class="space-y-4">
           <div class="no-print flex items-center justify-between">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
@@ -331,9 +358,7 @@
         </div>
       </section>
 
-      <!-- ================================= -->
       <!-- TAB 3: NFC / QR INTERACTIVE SIMULATOR -->
-      <!-- ================================= -->
       <section id="tab-sim" class="hidden space-y-6">
         <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
           <div class="text-center mb-6">
@@ -404,38 +429,35 @@
     </div>
   </div>
 
-  <!-- Application Logic -->
+  <!-- Application Logic & Firebase Firestore -->
   <script>
-    // Storage Key
-    const STORAGE_KEY = 'tapspot_tags_db_v1';
+    // 1. Firebase Initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyDTi4NRid5Yc72ATBfxg995GAWg1fUOBNs",
+      authDomain: "winter-arc-tracker-6544e.firebaseapp.com",
+      projectId: "winter-arc-tracker-6544e",
+      storageBucket: "winter-arc-tracker-6544e.firebasestorage.app",
+      messagingSenderId: "1076175486940",
+      appId: "1:1076175486940:web:1e3cb601ab0e71806a1919",
+      measurementId: "G-P63QXDBSQD"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const COLLECTION_NAME = 'nfcStandees'; // Dedicated collection (no collision)
+
+    // Master Admin Secret PIN (change here if desired)
+    const MASTER_ADMIN_PIN = "9413";
+
     const DOMAIN_KEY = 'tapspot_base_domain_v1';
-
     let currentEditingId = null;
-
-    // Default Seed Data
-    const defaultTags = [
-      { id: "TAP001", url: "https://maps.app.goo.gl/9ZpP4R", pin: "392019", taps: 142 },
-      { id: "TAP002", url: "", pin: "782104", taps: 0 },
-      { id: "TAP003", url: "", pin: "551928", taps: 0 },
-      { id: "TAP004", url: "https://maps.app.goo.gl/exampleCafe", pin: "902143", taps: 68 }
-    ];
-
-    // State
     let tags = [];
     let baseDomain = "";
+    let activeCardDoc = null;
 
     // Bootstrap
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. Initialize Storage
-      const rawTags = localStorage.getItem(STORAGE_KEY);
-      if (rawTags) {
-        try { tags = JSON.parse(rawTags); } catch (e) { tags = defaultTags; }
-      } else {
-        tags = defaultTags;
-        saveTags();
-      }
-
-      // 2. Base Domain setup
+      // Setup Base Domain
       const savedDomain = localStorage.getItem(DOMAIN_KEY);
       if (savedDomain) {
         baseDomain = savedDomain;
@@ -444,25 +466,79 @@
       }
       document.getElementById('cfg-domain').value = baseDomain;
 
-      // 3. Router logic: Check if URL has ?card=ID
+      // Router logic: Check if URL has ?card=ID
       const urlParams = new URLSearchParams(window.location.search);
       const cardParam = urlParams.get('card');
 
       if (cardParam) {
         handleCardRouting(cardParam.trim().toUpperCase());
       } else {
-        // Show Admin View
-        document.getElementById('view-admin').classList.remove('hidden');
-        renderTagsTable();
-        renderStandees();
-        populateSimSelect();
+        // Direct root visit -> Check Admin PIN Authentication
+        checkAdminAuth();
       }
 
       lucide.createIcons();
     });
 
-    function saveTags() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tags));
+    // ==========================================
+    // ADMIN AUTHENTICATION
+    // ==========================================
+    function checkAdminAuth() {
+      const isAuthed = sessionStorage.getItem('tapspot_admin_unlocked');
+      if (isAuthed === 'true') {
+        showAdminView();
+      } else {
+        document.getElementById('admin-auth-modal').classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const enteredPin = document.getElementById('input-admin-pin').value.trim();
+      const errEl = document.getElementById('admin-pin-err');
+
+      if (enteredPin === MASTER_ADMIN_PIN) {
+        sessionStorage.setItem('tapspot_admin_unlocked', 'true');
+        document.getElementById('admin-auth-modal').classList.add('hidden');
+        showAdminView();
+      } else {
+        errEl.classList.remove('hidden');
+        document.getElementById('input-admin-pin').value = "";
+      }
+    }
+
+    function lockAdmin() {
+      sessionStorage.removeItem('tapspot_admin_unlocked');
+      location.reload();
+    }
+
+    function showAdminView() {
+      document.getElementById('view-admin').classList.remove('hidden');
+      listenToFirebaseTags();
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // REALTIME FIRESTORE LISTENER (FOR ADMIN)
+    // ==========================================
+    function listenToFirebaseTags() {
+      db.collection(COLLECTION_NAME).onSnapshot((snapshot) => {
+        tags = [];
+        snapshot.forEach(doc => {
+          tags.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Natural sort by ID (TAP001, TAP002, etc.)
+        tags.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
+
+        renderTagsTable();
+        renderStandees();
+        populateSimSelect();
+      }, (error) => {
+        console.error("Firestore Listen Error: ", error);
+        showToast("Error loading cloud tags: " + error.message);
+      });
     }
 
     function updateSystemDomain(val) {
@@ -483,63 +559,84 @@
     }
 
     // ==========================================
-    // ROUTING ENGINE
+    // ROUTING ENGINE (TAP & REDIRECT)
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
-      const card = tags.find(t => t.id === cardId);
+      document.getElementById('admin-auth-modal').classList.add('hidden');
 
-      if (!card) {
-        // Card does not exist
-        document.getElementById('view-invalid').classList.remove('hidden');
-        return;
-      }
+      // Fetch specific card document from Firestore
+      db.collection(COLLECTION_NAME).doc(cardId).get()
+        .then((doc) => {
+          if (!doc.exists) {
+            document.getElementById('view-invalid').classList.remove('hidden');
+            lucide.createIcons();
+            return;
+          }
 
-      if (card.url && card.url.trim() !== "") {
-        // Active destination found -> Show 1-second redirect animation then open link
-        document.getElementById('view-redirecting').classList.remove('hidden');
-        document.getElementById('btn-manual-redirect').href = card.url;
+          const card = doc.data();
+          activeCardDoc = { id: doc.id, ...card };
 
-        // Increment tap counter
-        card.taps = (card.taps || 0) + 1;
-        saveTags();
+          if (card.url && card.url.trim() !== "") {
+            // Active destination found -> Show 0.8s redirect animation
+            document.getElementById('view-redirecting').classList.remove('hidden');
+            document.getElementById('btn-manual-redirect').href = card.url;
+            lucide.createIcons();
 
-        setTimeout(() => {
-          document.getElementById('redirect-progress').style.width = '100%';
-        }, 50);
+            // Increment tap counter in Cloud
+            db.collection(COLLECTION_NAME).doc(cardId).update({
+              taps: firebase.firestore.FieldValue.increment(1),
+              lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(e => console.warn(e));
 
-        setTimeout(() => {
-          window.location.href = card.url;
-        }, 1100);
-      } else {
-        // Card is not linked yet -> Show Customer Activation Screen
-        document.getElementById('view-activation').classList.remove('hidden');
-        document.getElementById('act-card-id').innerText = card.id;
-      }
+            setTimeout(() => {
+              document.getElementById('redirect-progress').style.width = '100%';
+            }, 50);
+
+            setTimeout(() => {
+              window.location.href = card.url;
+            }, 850);
+          } else {
+            // Card is unlinked -> Show Customer Activation Screen
+            document.getElementById('view-activation').classList.remove('hidden');
+            document.getElementById('act-card-id').innerText = doc.id;
+            lucide.createIcons();
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById('view-invalid').classList.remove('hidden');
+        });
     }
 
     function handleActivationSubmit(e) {
       e.preventDefault();
-      const urlParams = new URLSearchParams(window.location.search);
-      const cardId = urlParams.get('card').toUpperCase();
-      const card = tags.find(t => t.id === cardId);
-
-      if (!card) return;
+      if (!activeCardDoc) return;
 
       const enteredPin = document.getElementById('act-input-pin').value.trim();
       const enteredUrl = document.getElementById('act-input-url').value.trim();
 
-      if (enteredPin !== card.pin) {
+      if (enteredPin !== activeCardDoc.pin) {
         alert("Galat PIN! Kripya standee package par diya hua 6-digit PIN dalein.");
         return;
       }
 
-      card.url = enteredUrl;
-      card.taps = 1;
-      saveTags();
+      const submitBtn = document.getElementById('btn-activate-submit');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Saving to Cloud...";
 
-      alert("Badhai ho! Aapka review standee successfully activate ho gaya hai.");
-      window.location.href = enteredUrl;
+      db.collection(COLLECTION_NAME).doc(activeCardDoc.id).update({
+        url: enteredUrl,
+        taps: 1,
+        activatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        alert("Badhai ho! Aapka review standee successfully activate ho gaya hai.");
+        window.location.href = enteredUrl;
+      }).catch(err => {
+        alert("Activation failed: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Save & Link Standee";
+      });
     }
 
     // ==========================================
@@ -562,6 +659,11 @@
     function renderTagsTable() {
       const tbody = document.getElementById('tags-table-body');
       tbody.innerHTML = "";
+
+      if (tags.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">No tags registered yet. Generate a batch from 'Bulk Generator'.</td></tr>`;
+        return;
+      }
 
       tags.forEach(tag => {
         const isLinked = tag.url && tag.url.trim() !== "";
@@ -603,7 +705,7 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR & STANDEE PRINTS
+    // BATCH GENERATOR (DIRECT TO FIRESTORE)
     // ==========================================
     function setBatchQty(n) {
       document.getElementById('gen-qty').value = n;
@@ -615,28 +717,37 @@
       const startNum = parseInt(document.getElementById('gen-start').value, 10) || 1;
       const count = parseInt(document.getElementById('gen-qty').value, 10) || 20;
 
+      const batch = db.batch();
+      let createdCount = 0;
+
       for (let i = 0; i < count; i++) {
         const num = startNum + i;
         const padded = String(num).padStart(3, '0');
         const id = `${prefix}${padded}`;
 
-        // Skip duplicates
         if (!tags.some(t => t.id === id)) {
           const pin = Math.floor(100000 + Math.random() * 900000).toString();
-          tags.push({
-            id: id,
+          const docRef = db.collection(COLLECTION_NAME).doc(id);
+          batch.set(docRef, {
             url: "",
             pin: pin,
-            taps: 0
+            taps: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
+          createdCount++;
         }
       }
 
-      saveTags();
-      renderTagsTable();
-      renderStandees();
-      populateSimSelect();
-      showToast(`Batch of ${count} standees created!`);
+      if (createdCount === 0) {
+        showToast("Tags in this range already exist!");
+        return;
+      }
+
+      batch.commit().then(() => {
+        showToast(`Cloud Batch of ${createdCount} standees created!`);
+      }).catch(err => {
+        alert("Batch error: " + err.message);
+      });
     }
 
     function renderStandees() {
@@ -706,8 +817,6 @@
         `;
 
         container.appendChild(card);
-
-        // Render QR
         renderQR(qrId, scanUrl);
       });
     }
@@ -759,7 +868,7 @@
     }
 
     // ==========================================
-    // EDIT & DELETE ACTIONS
+    // EDIT & DELETE ACTIONS (FIRESTORE)
     // ==========================================
     function openEditModal(cardId) {
       currentEditingId = cardId;
@@ -778,41 +887,37 @@
 
     function handleEditSubmit(e) {
       e.preventDefault();
-      const card = tags.find(t => t.id === currentEditingId);
-      if (!card) return;
+      if (!currentEditingId) return;
 
-      card.url = document.getElementById('edit-input-url').value.trim();
-      card.pin = document.getElementById('edit-input-pin').value.trim() || card.pin;
+      const newUrl = document.getElementById('edit-input-url').value.trim();
+      const newPin = document.getElementById('edit-input-pin').value.trim();
 
-      saveTags();
-      renderTagsTable();
-      renderStandees();
-      populateSimSelect();
-      closeEditModal();
-      showToast(`${card.id} updated!`);
+      db.collection(COLLECTION_NAME).doc(currentEditingId).update({
+        url: newUrl,
+        pin: newPin
+      }).then(() => {
+        closeEditModal();
+        showToast(`${currentEditingId} updated in cloud!`);
+      }).catch(err => alert(err.message));
     }
 
     function unlinkActiveTag() {
-      const card = tags.find(t => t.id === currentEditingId);
-      if (!card) return;
+      if (!currentEditingId) return;
 
-      card.url = "";
-      saveTags();
-      renderTagsTable();
-      renderStandees();
-      populateSimSelect();
-      closeEditModal();
-      showToast(`${card.id} unlinked (reset to setup mode).`);
+      db.collection(COLLECTION_NAME).doc(currentEditingId).update({
+        url: ""
+      }).then(() => {
+        closeEditModal();
+        showToast(`${currentEditingId} unlinked (reset to setup mode).`);
+      }).catch(err => alert(err.message));
     }
 
     function deleteTag(cardId) {
-      if (!confirm(`Are you sure you want to delete ${cardId}?`)) return;
-      tags = tags.filter(t => t.id !== cardId);
-      saveTags();
-      renderTagsTable();
-      renderStandees();
-      populateSimSelect();
-      showToast(`${cardId} deleted.`);
+      if (!confirm(`Are you sure you want to delete ${cardId} from cloud?`)) return;
+
+      db.collection(COLLECTION_NAME).doc(cardId).delete().then(() => {
+        showToast(`${cardId} deleted from cloud.`);
+      }).catch(err => alert(err.message));
     }
 
     function showToast(msg) {
