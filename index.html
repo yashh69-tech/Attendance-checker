@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TapSpot | Dynamic NFC & Google Review Standee Studio</title>
+  <title>TapSpot | Dynamic NFC & Smart Business Standee Studio</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -50,14 +50,12 @@
         padding: 0 !important;
       }
       
-      /* Block display fixes Safari grid split bug */
       #standees-grid {
         display: block !important;
         width: 100% !important;
         text-align: center !important;
       }
       
-      /* 4 Cards per sheet (2x2) with complete page-break protection */
       .standee-card {
         display: inline-block !important;
         vertical-align: top !important;
@@ -101,30 +99,78 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 1. CUSTOMER REDIRECTING (Instant Fallback Screen) -->
+  <!-- 1. CUSTOMER 3-IN-1 SMART ACTION HUB -->
   <!-- ========================================== -->
-  <div id="view-redirecting" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-950">
-    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative">
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 animate-spin">
-        <i data-lucide="loader-2" class="w-8 h-8"></i>
+  <div id="view-smart-hub" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
+    <div class="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center relative">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white mb-3 shadow-lg shadow-indigo-600/30">
+        <i data-lucide="sparkles" class="w-7 h-7"></i>
       </div>
-      <h2 class="text-xl font-bold text-white tracking-tight">Opening Google Review...</h2>
-      <p class="text-xs text-slate-400 mt-2 hindi-text">आपको सीधे गूगल रिव्यू पेज पर भेजा जा रहा है...</p>
-      <div class="mt-6 pt-4 border-t border-slate-800/80">
-        <a id="btn-manual-redirect" href="#" class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:underline">
-          <span>Click here if review page doesn't open instantly</span>
-          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      
+      <h2 id="hub-business-title" class="text-lg font-black text-white">Connect With Us</h2>
+      <p class="text-xs text-slate-400 mt-0.5 mb-6">Choose an action below to connect instantly</p>
+
+      <div class="space-y-3" id="hub-actions-container">
+        <!-- Google Review Button -->
+        <a id="hub-btn-google" href="#" target="_blank" class="w-full p-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-blue-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white text-slate-900 flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-bold leading-tight">Rate on Google</div>
+              <div class="text-[10px] text-blue-100 flex items-center gap-0.5">★★★★★ 5-Star Review</div>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-blue-200"></i>
         </a>
+
+        <!-- Instagram Profile Button -->
+        <a id="hub-btn-insta" href="#" target="_blank" class="hidden w-full p-3.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-pink-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
+              <i data-lucide="instagram" class="w-5 h-5"></i>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-bold leading-tight">Follow on Instagram</div>
+              <div class="text-[10px] text-pink-100">See Latest Posts & Updates</div>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-pink-200"></i>
+        </a>
+
+        <!-- WhatsApp Chat Button -->
+        <a id="hub-btn-whatsapp" href="#" target="_blank" class="hidden w-full p-3.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-emerald-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
+              <i data-lucide="message-circle" class="w-5 h-5"></i>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-bold leading-tight">Chat on WhatsApp</div>
+              <div class="text-[10px] text-emerald-100">Instant Support & Orders</div>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-200"></i>
+        </a>
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800">
+        <span class="text-[10px] text-slate-500 tracking-wider uppercase font-semibold">Powered by TapSpot NFC</span>
       </div>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- 2. CUSTOMER ACTIVATION SCREEN (?card=ID unset) -->
+  <!-- 2. CUSTOMER ACTIVATION / SETUP SCREEN -->
   <!-- ========================================== -->
   <div id="view-activation" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
-      <div class="flex items-center justify-between pb-5 border-b border-slate-800">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold">
             <i data-lucide="nfc" class="w-5 h-5"></i>
@@ -137,47 +183,71 @@
         <span id="act-card-id" class="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold rounded-lg">TAP001</span>
       </div>
 
-      <div class="my-6">
-        <h2 class="text-lg font-bold text-white">Set Up Your Review Standee</h2>
-        <p class="text-xs text-slate-400 mt-1">Yeh standee abhi unlinked hai. Apna Google Map review link aur package me mila PIN dalein.</p>
+      <div class="my-4">
+        <h2 class="text-base font-bold text-white">Link Your Business Handles</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Google Review link daalna zaroori hai. Instagram aur WhatsApp optional hain.</p>
       </div>
 
-      <form id="form-activation" onsubmit="handleActivationSubmit(event)" class="space-y-4">
+      <form id="form-activation" onsubmit="handleActivationSubmit(event)" class="space-y-3.5">
+        <!-- Google Review (Mandatory) -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Google Review / Destination Link
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+            Google Review Link <span class="text-rose-400">*</span>
           </label>
           <div class="relative">
             <i data-lucide="link" class="w-4 h-4 absolute left-3.5 top-3 text-slate-500"></i>
             <input type="url" id="act-input-url" placeholder="https://maps.app.goo.gl/..." required
-              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
           </div>
-          <span class="text-[10px] text-slate-500 mt-1 block">Google Maps app se "Ask for reviews / Share" link copy karke yahan paste karein.</span>
         </div>
 
+        <!-- Instagram Profile (Optional) -->
         <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-            Card Security PIN
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+            Instagram Handle or Link <span class="text-slate-500 text-[10px]">(Optional)</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="instagram" class="w-4 h-4 absolute left-3.5 top-3 text-pink-500"></i>
+            <input type="text" id="act-input-insta" placeholder="username ya https://instagram.com/..."
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+        </div>
+
+        <!-- WhatsApp Number (Optional) -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+            WhatsApp Number <span class="text-slate-500 text-[10px]">(Optional - 10 Digits)</span>
+          </label>
+          <div class="relative">
+            <i data-lucide="phone" class="w-4 h-4 absolute left-3.5 top-3 text-emerald-500"></i>
+            <input type="tel" id="act-input-wp" placeholder="e.g. 9829012345" maxlength="12"
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
+          </div>
+        </div>
+
+        <!-- Card Security PIN (Mandatory) -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+            Card Security PIN <span class="text-rose-400">*</span>
           </label>
           <div class="relative">
             <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-3 text-slate-500"></i>
-            <input type="password" id="act-input-pin" maxlength="6" placeholder="6-digit security PIN" required
-              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono tracking-widest">
+            <input type="password" id="act-input-pin" maxlength="6" placeholder="6-digit PIN on package box" required
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono tracking-widest">
           </div>
-          <span class="text-[10px] text-slate-500 mt-1 block">Packaging box ya receipt par diya 6-digit secret PIN dalein.</span>
         </div>
 
         <button type="submit" id="btn-activate-submit"
           class="w-full mt-2 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2">
           <i data-lucide="check-circle" class="w-4 h-4"></i>
-          <span>Save & Link Standee</span>
+          <span>Save & Activate Standee</span>
         </button>
       </form>
     </div>
   </div>
 
   <!-- ========================================== -->
-  <!-- 3. INVALID / UNREGISTERED TAG NOTICE -->
+  <!-- 3. INVALID TAG NOTICE -->
   <!-- ========================================== -->
   <div id="view-invalid" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-950">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl">
@@ -185,7 +255,7 @@
         <i data-lucide="alert-triangle" class="w-8 h-8"></i>
       </div>
       <h2 class="text-xl font-bold text-white">Tag Not Found</h2>
-      <p class="text-xs text-slate-400 mt-2">Yeh NFC tag system me register nahi hai. Kripya apne supplier ya TapSpot support se sampark karein.</p>
+      <p class="text-xs text-slate-400 mt-2">Yeh NFC tag system me register nahi hai. Kripya TapSpot support se sampark karein.</p>
       <a href="index.html" class="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">
         <i data-lucide="home" class="w-3.5 h-3.5"></i>
         <span>Return to Home</span>
@@ -194,7 +264,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 4. OWNER / ADMIN PORTAL (Main View) -->
+  <!-- 4. OWNER / ADMIN PORTAL -->
   <!-- ========================================== -->
   <div id="view-admin" class="hidden flex-1 flex flex-col">
     <!-- Navbar -->
@@ -212,7 +282,7 @@
                 <span>CLOUD SYNCED</span>
               </span>
             </div>
-            <p class="text-[11px] text-slate-400">Dynamic NFC & Review Standee Manager</p>
+            <p class="text-[11px] text-slate-400">Dynamic NFC, Insta & Review Manager</p>
           </div>
         </div>
 
@@ -241,7 +311,7 @@
       </div>
     </header>
 
-    <!-- Sub-header: Live Host Domain Setting -->
+    <!-- Sub-header -->
     <div class="no-print bg-slate-900 border-b border-slate-800 py-2.5 px-4 sm:px-6">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div class="flex items-center gap-2 text-slate-400">
@@ -258,7 +328,7 @@
       </div>
     </div>
 
-    <!-- Main Content Container -->
+    <!-- Main Admin Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
 
       <!-- TAB 1: LIVE TAGS INVENTORY -->
@@ -266,7 +336,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-xl font-bold text-white">Registered Tags & Standees</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Manage target review URLs, view tap analytics, and check secret activation PINs.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Manage Google Review, Instagram handles, WhatsApp chats, and PINs.</p>
           </div>
           <button onclick="switchTab('batch')" class="self-start sm:self-auto px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -274,22 +344,21 @@
           </button>
         </div>
 
-        <!-- Table Container -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
                 <tr>
                   <th class="py-3 px-4">Card ID</th>
-                  <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4">Destination Link</th>
+                  <th class="py-3 px-4">Mode</th>
+                  <th class="py-3 px-4">Connected Handles</th>
                   <th class="py-3 px-4">Secret PIN</th>
                   <th class="py-3 px-4 text-center">Taps</th>
                   <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="tags-table-body" class="divide-y divide-slate-800/60 font-mono">
-                <!-- Dynamically generated table rows -->
+                <!-- Injected via JS -->
               </tbody>
             </table>
           </div>
@@ -358,7 +427,7 @@
               <i data-lucide="smartphone" class="w-7 h-7"></i>
             </div>
             <h3 class="text-xl font-bold text-white">NFC Phone Tap Simulator</h3>
-            <p class="text-xs text-slate-400 mt-1">Test exactly what the shopkeeper or customer sees when they tap their phone.</p>
+            <p class="text-xs text-slate-400 mt-1">Test whether it opens Direct Google Review or 3-in-1 Hub.</p>
           </div>
 
           <div class="space-y-4">
@@ -380,7 +449,7 @@
     </main>
   </div>
 
-  <!-- Edit Tag Modal -->
+  <!-- Edit Tag Modal (3-in-1 Compatible) -->
   <div id="modal-edit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 text-white shadow-2xl relative">
       <button onclick="closeEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
@@ -389,18 +458,27 @@
 
       <div class="mb-4">
         <span id="edit-modal-id" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-mono text-xs font-bold">TAP001</span>
-        <h4 class="text-base font-bold mt-2">Edit Tag Target Link</h4>
+        <h4 class="text-base font-bold mt-2">Edit Tag Destinations</h4>
       </div>
 
       <form onsubmit="handleEditSubmit(event)" class="space-y-3">
         <div>
-          <label class="block text-[11px] font-bold text-slate-400 uppercase">Target Review Link</label>
-          <input type="url" id="edit-input-url" placeholder="https://..." class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+          <label class="block text-[11px] font-bold text-slate-400 uppercase">Google Review Link</label>
+          <input type="url" id="edit-input-url" placeholder="https://maps.app.goo.gl/..." class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase">Instagram Profile / Handle</label>
+          <input type="text" id="edit-input-insta" placeholder="username or URL" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase">WhatsApp Number</label>
+          <input type="tel" id="edit-input-wp" placeholder="10-digit phone number" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
         </div>
         <div>
           <label class="block text-[11px] font-bold text-slate-400 uppercase">Security PIN</label>
           <input type="text" id="edit-input-pin" maxlength="6" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
         </div>
+
         <div class="pt-2 flex items-center gap-2">
           <button type="submit" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold">
             Update Tag
@@ -548,7 +626,7 @@
     }
 
     // ==========================================
-    // SMART PRINT TRIGGER
+    // SMART PRINT TRIGGER (SAFARI SAFE)
     // ==========================================
     function triggerPrintSheet() {
       switchTab('batch');
@@ -559,7 +637,7 @@
     }
 
     // ==========================================
-    // ROUTING ENGINE (INSTANT REDIRECT)
+    // HYBRID ROUTING ENGINE (DIRECT OR 3-IN-1 HUB)
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
@@ -577,14 +655,25 @@
           activeCardDoc = { id: doc.id, ...card };
 
           if (card.url && card.url.trim() !== "") {
+            // Background count update
             db.collection(COLLECTION_NAME).doc(cardId).update({
               taps: firebase.firestore.FieldValue.increment(1),
               lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
             }).catch(e => console.warn(e));
 
-            // Instant zero-delay redirect
-            window.location.replace(card.url);
+            const hasInsta = card.insta && card.insta.trim() !== "";
+            const hasWp = card.whatsapp && card.whatsapp.trim() !== "";
+
+            // Agar sirf Google Review hai -> Instant Zero-Delay Direct Redirect
+            if (!hasInsta && !hasWp) {
+              window.location.replace(card.url);
+              return;
+            }
+
+            // Agar Insta ya WhatsApp bhi hai -> Show 3-in-1 Hub
+            renderSmartHub(card);
           } else {
+            // Standee is unlinked -> Setup Screen
             document.getElementById('view-activation').classList.remove('hidden');
             document.getElementById('act-card-id').innerText = doc.id;
             lucide.createIcons();
@@ -597,12 +686,47 @@
         });
     }
 
+    function renderSmartHub(card) {
+      document.getElementById('view-smart-hub').classList.remove('hidden');
+
+      // 1. Google Link
+      document.getElementById('hub-btn-google').href = card.url;
+
+      // 2. Instagram Link
+      const btnInsta = document.getElementById('hub-btn-insta');
+      if (card.insta && card.insta.trim() !== "") {
+        let instaLink = card.insta.trim();
+        if (!instaLink.startsWith('http')) {
+          instaLink = `https://instagram.com/${instaLink.replace('@', '')}`;
+        }
+        btnInsta.href = instaLink;
+        btnInsta.classList.remove('hidden');
+      } else {
+        btnInsta.classList.add('hidden');
+      }
+
+      // 3. WhatsApp Link
+      const btnWp = document.getElementById('hub-btn-whatsapp');
+      if (card.whatsapp && card.whatsapp.trim() !== "") {
+        let cleanNum = card.whatsapp.replace(/[^0-9]/g, '');
+        if (cleanNum.length === 10) cleanNum = "91" + cleanNum;
+        btnWp.href = `https://wa.me/${cleanNum}?text=Hello!%20I%20found%20you%20via%20TapSpot`;
+        btnWp.classList.remove('hidden');
+      } else {
+        btnWp.classList.add('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
     function handleActivationSubmit(e) {
       e.preventDefault();
       if (!activeCardDoc) return;
 
       const enteredPin = document.getElementById('act-input-pin').value.trim();
       const enteredUrl = document.getElementById('act-input-url').value.trim();
+      const enteredInsta = document.getElementById('act-input-insta').value.trim();
+      const enteredWp = document.getElementById('act-input-wp').value.trim();
 
       if (enteredPin !== activeCardDoc.pin) {
         alert("Galat PIN! Kripya standee package par diya hua 6-digit PIN dalein.");
@@ -611,19 +735,21 @@
 
       const submitBtn = document.getElementById('btn-activate-submit');
       submitBtn.disabled = true;
-      submitBtn.innerText = "Linking to Google...";
+      submitBtn.innerText = "Linking Handles...";
 
       db.collection(COLLECTION_NAME).doc(activeCardDoc.id).update({
         url: enteredUrl,
+        insta: enteredInsta,
+        whatsapp: enteredWp,
         taps: 1,
         activatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
-        alert("Badhai ho! Standee successfully link ho gaya hai.");
-        window.location.replace(enteredUrl);
+        alert("Badhai ho! Standee successfully activate ho gaya hai.");
+        location.reload();
       }).catch(err => {
         alert("Activation failed: " + err.message);
         submitBtn.disabled = false;
-        submitBtn.innerText = "Save & Link Standee";
+        submitBtn.innerText = "Save & Activate Standee";
       });
     }
 
@@ -655,7 +781,18 @@
 
       tags.forEach(tag => {
         const isLinked = tag.url && tag.url.trim() !== "";
+        const hasInsta = tag.insta && tag.insta.trim() !== "";
+        const hasWp = tag.whatsapp && tag.whatsapp.trim() !== "";
         const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
+
+        let modeBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">UNLINKED</span>`;
+        if (isLinked) {
+          if (hasInsta || hasWp) {
+            modeBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-500/10 text-violet-300 border border-violet-500/20">3-IN-1 HUB</span>`;
+          } else {
+            modeBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">DIRECT REVIEW</span>`;
+          }
+        }
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
@@ -664,13 +801,13 @@
             <span class="w-2 h-2 rounded-full ${isLinked ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
             <span>${tag.id}</span>
           </td>
-          <td class="py-3 px-4">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isLinked ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
-              ${isLinked ? 'ACTIVE' : 'UNLINKED'}
-            </span>
-          </td>
-          <td class="py-3 px-4 max-w-[220px] truncate text-slate-400">
-            ${isLinked ? `<a href="${tag.url}" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1">${tag.url}</a>` : '<span class="text-slate-600 italic">Not set</span>'}
+          <td class="py-3 px-4">${modeBadge}</td>
+          <td class="py-3 px-4 max-w-[240px] truncate text-slate-400">
+            <div class="flex items-center gap-2">
+              <span title="${tag.url || 'No Google Review'}" class="${tag.url ? 'text-blue-400' : 'text-slate-600'}">★ Review</span>
+              <span title="${tag.insta || 'No Instagram'}" class="${hasInsta ? 'text-pink-400' : 'text-slate-600'}">● Insta</span>
+              <span title="${tag.whatsapp || 'No WhatsApp'}" class="${hasWp ? 'text-emerald-400' : 'text-slate-600'}">● WhatsApp</span>
+            </div>
           </td>
           <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
           <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
@@ -693,7 +830,7 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR (DIRECT TO FIRESTORE)
+    // BATCH GENERATOR
     // ==========================================
     function setBatchQty(n) {
       document.getElementById('gen-qty').value = n;
@@ -718,6 +855,8 @@
           const docRef = db.collection(COLLECTION_NAME).doc(id);
           batch.set(docRef, {
             url: "",
+            insta: "",
+            whatsapp: "",
             pin: pin,
             taps: 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -739,7 +878,7 @@
     }
 
     // ==========================================
-    // EXACT REFERENCE STANDEE CARD RENDERER
+    // CLEAN STANDEE CARD RENDERER
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -757,7 +896,6 @@
         card.innerHTML = `
           <!-- Blue Curved Wave Header -->
           <div class="w-full bg-[#1e2f97] pt-4 pb-7 px-4 text-white relative flex flex-col items-center" style="border-radius: 26px 26px 50% 50% / 26px 26px 26px 26px;">
-            <!-- 5 Golden Review Stars -->
             <div class="flex items-center gap-1 text-[#f59e0b] text-base mb-1">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
             </div>
@@ -778,7 +916,6 @@
 
           <!-- Mid Section: Tap (Left) vs Scan QR (Right) -->
           <div class="w-full px-5 py-2 flex items-center justify-between">
-            <!-- Left: Tap Your Phone -->
             <div class="flex-1 flex flex-col items-center">
               <svg class="w-10 h-10 text-[#1e2f97] mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 2a10 10 0 0 1 0 14"/>
@@ -790,10 +927,8 @@
               <div class="w-5 h-0.5 bg-[#1e2f97] rounded-full mt-1"></div>
             </div>
 
-            <!-- Middle: OR divider -->
             <span class="text-[10px] font-bold text-slate-400 px-1">OR</span>
 
-            <!-- Right: QR Code Frame -->
             <div class="flex-1 flex flex-col items-center">
               <div class="p-1 border border-slate-300 rounded-lg bg-white shadow-sm">
                 <div id="${qrId}" class="w-[84px] h-[84px]"></div>
@@ -846,9 +981,13 @@
       select.innerHTML = "";
 
       tags.forEach(t => {
+        const hasInsta = t.insta && t.insta.trim() !== "";
+        const hasWp = t.whatsapp && t.whatsapp.trim() !== "";
+        const type = !t.url ? 'Unlinked (Setup Screen)' : (hasInsta || hasWp ? '3-in-1 Smart Hub' : 'Direct Google Review');
+
         const opt = document.createElement('option');
         opt.value = t.id;
-        opt.innerText = `${t.id} - ${t.url ? 'Configured (' + t.url + ')' : 'Unlinked (Shows Activation)'}`;
+        opt.innerText = `${t.id} - ${type}`;
         select.appendChild(opt);
       });
     }
@@ -871,6 +1010,8 @@
 
       document.getElementById('edit-modal-id').innerText = card.id;
       document.getElementById('edit-input-url').value = card.url || "";
+      document.getElementById('edit-input-insta').value = card.insta || "";
+      document.getElementById('edit-input-wp').value = card.whatsapp || "";
       document.getElementById('edit-input-pin').value = card.pin;
       document.getElementById('modal-edit').classList.remove('hidden');
     }
@@ -884,14 +1025,18 @@
       if (!currentEditingId) return;
 
       const newUrl = document.getElementById('edit-input-url').value.trim();
+      const newInsta = document.getElementById('edit-input-insta').value.trim();
+      const newWp = document.getElementById('edit-input-wp').value.trim();
       const newPin = document.getElementById('edit-input-pin').value.trim();
 
       db.collection(COLLECTION_NAME).doc(currentEditingId).update({
         url: newUrl,
+        insta: newInsta,
+        whatsapp: newWp,
         pin: newPin
       }).then(() => {
         closeEditModal();
-        showToast(`${currentEditingId} updated in cloud!`);
+        showToast(`${currentEditingId} destinations updated!`);
       }).catch(err => alert(err.message));
     }
 
@@ -899,7 +1044,9 @@
       if (!currentEditingId) return;
 
       db.collection(COLLECTION_NAME).doc(currentEditingId).update({
-        url: ""
+        url: "",
+        insta: "",
+        whatsapp: ""
       }).then(() => {
         closeEditModal();
         showToast(`${currentEditingId} unlinked (reset to setup mode).`);
