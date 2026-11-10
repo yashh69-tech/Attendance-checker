@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TapSpot Studio | Review & Digital Menu Ecosystem</title>
+  <title>TapSpot Studio | Dynamic NFC & Smart Standee Ecosystem</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,7 @@
       font-family: 'Playfair Display', serif;
     }
 
-    /* Print sheet formatting - Optimized for Safari & Laser Cutters (No Page Breaks) */
+    /* Print sheet formatting - Optimized for iPad Safari & Laser Cutting (Zero breaks) */
     @media print {
       @page {
         size: auto;
@@ -102,7 +102,7 @@
   <div id="view-smart-hub" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center relative select-none">
       
-      <!-- SECRET TRIPLE TAP ZONE -->
+      <!-- SECRET TRIPLE TAP ZONE (FOR OWNER) -->
       <div onclick="handleSecretTripleTap()" class="cursor-pointer group">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white mb-3 shadow-lg shadow-indigo-600/30 transition-transform active:scale-95">
           <i data-lucide="sparkles" class="w-7 h-7"></i>
@@ -225,7 +225,7 @@
           </label>
           <div class="relative">
             <i data-lucide="link" class="w-4 h-4 absolute left-3.5 top-3 text-slate-500"></i>
-            <input type="url" id="act-input-url" placeholder="https://maps.app.goo.gl/..." required
+            <input type="url" id="act-input-url" placeholder="https://..." required
               class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-mono">
           </div>
         </div>
@@ -363,9 +363,9 @@
             <h2 class="text-xl font-bold text-white">Review & Social Standees (TAP Series)</h2>
             <p class="text-xs text-slate-400 mt-0.5">Supports instant review redirect & 3-in-1 Hub with Triple-Tap edit.</p>
           </div>
-          <button onclick="switchTab('batch')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+          <button onclick="setReviewBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Add Batch</span>
+            <span>Add Review Batch</span>
           </button>
         </div>
 
@@ -394,7 +394,7 @@
       <section id="tab-menu-tags" class="hidden space-y-6">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold text-amber-300">Table Digital Menu Tiles (MNU Series)</h2>
+            <h2 class="text-xl font-bold text-amber-300">Digital Menu Tiles (MNU Series)</h2>
             <p class="text-xs text-slate-400 mt-0.5">Direct PDF / Zomato / Swiggy menu tiles for dining tables.</p>
           </div>
           <button onclick="setMenuBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
@@ -408,8 +408,8 @@
             <table class="w-full text-left text-xs">
               <thead class="bg-slate-950/80 text-amber-400/80 font-bold uppercase tracking-wider border-b border-slate-800">
                 <tr>
-                  <th class="py-3 px-4">Tile ID</th>
-                  <th class="py-3 px-4">Table / Title</th>
+                  <th class="py-3 px-4">Unique ID</th>
+                  <th class="py-3 px-4">Card Label</th>
                   <th class="py-3 px-4">Menu PDF / URL</th>
                   <th class="py-3 px-4">PIN</th>
                   <th class="py-3 px-4 text-center">Scans</th>
@@ -434,7 +434,7 @@
               <p class="text-xs text-slate-400 mt-1">Review Cards (Blue/White) ya Menu Tiles (Dark Gold) select karke generate karein.</p>
             </div>
             <div class="flex items-center gap-2">
-              <select id="gen-type" onchange="renderStandees()" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
+              <select id="gen-type" onchange="handleGenTypeChange(this.value)" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
                 <option value="review">Review Standees (TAP)</option>
                 <option value="menu">Digital Menu Tiles (MNU)</option>
               </select>
@@ -679,12 +679,10 @@
 
       if (tapCount >= 3) {
         tapCount = 0;
-        // Prompt for Merchant PIN
         document.getElementById('input-merchant-pin').value = "";
         document.getElementById('merchant-pin-err').classList.add('hidden');
         document.getElementById('modal-merchant-pin').classList.remove('hidden');
       } else {
-        // Reset counter if not clicked 3 times within 900ms
         tapResetTimeout = setTimeout(() => {
           tapCount = 0;
         }, 900);
@@ -702,7 +700,6 @@
       if (!activeCardDoc) return;
 
       if (enteredPin === activeCardDoc.pin || enteredPin === MASTER_ADMIN_PIN) {
-        // Correct PIN! Close modal & open customer setup view in edit mode
         closeMerchantPinModal();
         document.getElementById('view-smart-hub').classList.add('hidden');
         document.getElementById('view-activation').classList.remove('hidden');
@@ -738,7 +735,6 @@
           const card = doc.data();
           activeCardDoc = { id: doc.id, ...card };
 
-          // Count scan
           db.collection(COLLECTION_NAME).doc(cardId).update({
             taps: firebase.firestore.FieldValue.increment(1),
             lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -746,7 +742,6 @@
 
           if (card.url && card.url.trim() !== "") {
             if (isMenuCard) {
-              // Direct Menu Link (PDF or Zomato)
               window.location.replace(card.url);
               return;
             }
@@ -754,16 +749,13 @@
             const hasInsta = card.insta && card.insta.trim() !== "";
             const hasWp = card.whatsapp && card.whatsapp.trim() !== "";
 
-            // If only Google review -> Instant Direct
             if (!hasInsta && !hasWp) {
               window.location.replace(card.url);
               return;
             }
 
-            // Otherwise show 3-in-1 Smart Hub
             renderSmartHub(card);
           } else {
-            // Unlinked -> Setup screen
             document.getElementById('view-activation').classList.remove('hidden');
             document.getElementById('act-card-id').innerText = doc.id;
             if (isMenuCard) {
@@ -861,9 +853,24 @@
       lucide.createIcons();
     }
 
+    function setReviewBatchDefaults() {
+      document.getElementById('gen-type').value = 'review';
+      document.getElementById('gen-prefix').value = 'TAP';
+    }
+
     function setMenuBatchDefaults() {
       document.getElementById('gen-type').value = 'menu';
       document.getElementById('gen-prefix').value = 'MNU';
+    }
+
+    function handleGenTypeChange(val) {
+      const prefixInput = document.getElementById('gen-prefix');
+      if (val === 'menu') {
+        prefixInput.value = 'MNU';
+      } else {
+        prefixInput.value = 'TAP';
+      }
+      renderStandees();
     }
 
     function renderTagsTable() {
@@ -942,8 +949,8 @@
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
         tr.innerHTML = `
-          <td class="py-3 px-4 font-bold text-amber-300">${tag.id}</td>
-          <td class="py-3 px-4 text-slate-300 font-medium">${tag.title || 'Table Card'}</td>
+          <td class="py-3 px-4 font-bold text-amber-300 font-mono">${tag.id}</td>
+          <td class="py-3 px-4 text-slate-300 font-mono font-bold">${tag.id}</td>
           <td class="py-3 px-4 max-w-[200px] truncate text-slate-400 font-mono">${tag.url || '<span class="text-amber-500/70 font-sans">Not Linked</span>'}</td>
           <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
           <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
@@ -965,14 +972,17 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR
+    // BULLETPROOF BATCH GENERATOR (UNIQUE ID TITLE)
     // ==========================================
     function handleBatchGenerate(e) {
       e.preventDefault();
-      const type = document.getElementById('gen-type').value;
-      const prefix = document.getElementById('gen-prefix').value.trim().toUpperCase() || (type === 'menu' ? "MNU" : "TAP");
+      const typeSelect = document.getElementById('gen-type').value;
+      const prefix = (document.getElementById('gen-prefix').value.trim().toUpperCase()) || (typeSelect === 'menu' ? "MNU" : "TAP");
       const startNum = parseInt(document.getElementById('gen-start').value, 10) || 1;
       const count = parseInt(document.getElementById('gen-qty').value, 10) || 20;
+
+      // Prefix ke hisaab se determine karo
+      const isMenu = prefix.startsWith('MNU') || typeSelect === 'menu';
 
       const batch = db.batch();
       let createdCount = 0;
@@ -985,12 +995,13 @@
         if (!tags.some(t => t.id === id)) {
           const pin = Math.floor(100000 + Math.random() * 900000).toString();
           const docRef = db.collection(COLLECTION_NAME).doc(id);
+          
           batch.set(docRef, {
             url: "",
             insta: "",
             whatsapp: "",
-            title: type === 'menu' ? `Table ${num}` : "Review Stand",
-            type: type,
+            title: id, // Har menu card ka title ab uska unique ID hoga (e.g. MNU001)
+            type: isMenu ? "menu" : "review",
             pin: pin,
             taps: 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1005,12 +1016,12 @@
       }
 
       batch.commit().then(() => {
-        showToast(`Cloud Batch of ${createdCount} cards generated!`);
+        showToast(`Batch of ${createdCount} cards generated!`);
       }).catch(err => alert("Error: " + err.message));
     }
 
     // ==========================================
-    // STANDEE PRINT RENDERER (DUAL DESIGN)
+    // STANDEE PRINT RENDERER (UNIQUE ID PRINTED)
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -1028,7 +1039,7 @@
 
         if (isMenu) {
           // ==============================
-          // ELEGANT DARK/GOLD DIGITAL MENU TILE
+          // ELEGANT DARK/GOLD DIGITAL MENU TILE (UNIQUE ID)
           // ==============================
           card.className = "menu-card bg-slate-950 text-amber-100 rounded-[26px] border-2 border-amber-600/40 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
           card.style.width = "270px";
@@ -1045,7 +1056,7 @@
             </div>
 
             <div class="w-full pb-3.5 pt-1 px-4 flex flex-col items-center">
-              <span class="text-[11px] font-mono font-bold text-amber-400 tracking-wider">${item.title || item.id}</span>
+              <span class="text-[12px] font-mono font-black text-amber-400 tracking-widest uppercase">${item.id}</span>
               <p class="text-[9px] text-slate-400 mt-0.5">Tap or Scan camera to browse food & drinks</p>
             </div>
           `;
