@@ -27,7 +27,7 @@
       font-family: 'Tiro Devanagari Hindi', 'Inter', sans-serif;
     }
 
-    /* Print sheet formatting for UV Printers & Laser Cutters */
+    /* Print sheet formatting for PDF & UV Cutters */
     @media print {
       body {
         background: white !important;
@@ -35,20 +35,29 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-      .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal {
+      .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal, #tab-tags, #tab-sim {
         display: none !important;
       }
-      #print-area {
+      #tab-batch, #print-area {
         display: block !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
       }
+      #standees-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+        justify-items: center !important;
+      }
       .standee-card {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
         box-shadow: none !important;
-        border: 1px dashed #cbd5e1 !important;
-        margin-bottom: 20px !important;
+        border: 1px dashed #94a3b8 !important;
+        margin-bottom: 24px !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
     }
   </style>
@@ -208,7 +217,7 @@
         </nav>
 
         <div class="flex items-center gap-2">
-          <button onclick="window.print()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 transition">
+          <button onclick="triggerPrintSheet()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 transition">
             <i data-lucide="printer" class="w-4 h-4"></i>
             <span class="hidden sm:inline">Print Sheet (PDF)</span>
           </button>
@@ -281,7 +290,7 @@
             <div>
               <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production</span>
               <h3 class="text-xl font-black text-white mt-0.5">Bulk Standee Batch Generator</h3>
-              <p class="text-xs text-slate-400 mt-1">Har standee par unique ID aur QR code auto-merge hokar clean design me ready hoga.</p>
+              <p class="text-xs text-slate-400 mt-1">Har standee par unique ID aur QR code auto-merge hokar ready hoga.</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
               <button onclick="setBatchQty(10)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">10 Pcs</button>
@@ -319,7 +328,7 @@
               <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-400"></i>
               <span>Ready-To-Cut Standee Layouts</span>
             </h4>
-            <span class="text-xs text-slate-500">Press <strong>Ctrl + P</strong> to save PDF for UV Printing / Laser Cut</span>
+            <span class="text-xs text-slate-500">Press <strong>Ctrl + P</strong> or click top button to save PDF</span>
           </div>
 
           <div id="standees-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
@@ -416,7 +425,7 @@
     const db = firebase.firestore();
     const COLLECTION_NAME = 'nfcStandees';
 
-    // Master Admin PIN for Studio
+    // Master Admin PIN
     const MASTER_ADMIN_PIN = "9413";
 
     const DOMAIN_KEY = 'tapspot_base_domain_v1';
@@ -427,7 +436,6 @@
 
     // Bootstrap
     window.addEventListener('DOMContentLoaded', () => {
-      // Setup Base Domain
       const savedDomain = localStorage.getItem(DOMAIN_KEY);
       if (savedDomain) {
         baseDomain = savedDomain;
@@ -443,7 +451,6 @@
       if (cardParam) {
         handleCardRouting(cardParam.trim().toUpperCase());
       } else {
-        // Direct root visit -> Check Admin PIN Authentication
         checkAdminAuth();
       }
 
@@ -490,7 +497,7 @@
     }
 
     // ==========================================
-    // REALTIME FIRESTORE LISTENER (FOR ADMIN)
+    // REALTIME FIRESTORE LISTENER
     // ==========================================
     function listenToFirebaseTags() {
       db.collection(COLLECTION_NAME).onSnapshot((snapshot) => {
@@ -499,7 +506,6 @@
           tags.push({ id: doc.id, ...doc.data() });
         });
 
-        // Natural sort by ID
         tags.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
 
         renderTagsTable();
@@ -529,13 +535,23 @@
     }
 
     // ==========================================
-    // ROUTING ENGINE (INSTANT ZERO-DELAY REDIRECT)
+    // SMART PRINT TRIGGER
+    // ==========================================
+    function triggerPrintSheet() {
+      switchTab('batch');
+      renderStandees();
+      setTimeout(() => {
+        window.print();
+      }, 300);
+    }
+
+    // ==========================================
+    // ROUTING ENGINE (INSTANT REDIRECT)
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
       document.getElementById('admin-auth-modal').classList.add('hidden');
 
-      // Fetch card from Firestore
       db.collection(COLLECTION_NAME).doc(cardId).get()
         .then((doc) => {
           if (!doc.exists) {
@@ -548,16 +564,14 @@
           activeCardDoc = { id: doc.id, ...card };
 
           if (card.url && card.url.trim() !== "") {
-            // Background count update without blocking redirect
             db.collection(COLLECTION_NAME).doc(cardId).update({
               taps: firebase.firestore.FieldValue.increment(1),
               lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
             }).catch(e => console.warn(e));
 
-            // Instant zero-delay direct redirect to Google Review
+            // Instant redirect
             window.location.replace(card.url);
           } else {
-            // Standee is unlinked -> Show Customer Setup Screen
             document.getElementById('view-activation').classList.remove('hidden');
             document.getElementById('act-card-id').innerText = doc.id;
             lucide.createIcons();
@@ -712,7 +726,7 @@
     }
 
     // ==========================================
-    // CLEAN STANDEE CARD RENDERER (NO PIN ON CARD)
+    // CLEAN STANDEE CARD RENDERER
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
