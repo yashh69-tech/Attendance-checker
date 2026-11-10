@@ -16,25 +16,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca'
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap');
 
@@ -67,12 +48,8 @@
         page-break-inside: avoid;
         box-shadow: none !important;
         border: 1px dashed #cbd5e1 !important;
-        margin-bottom: 24px !important;
+        margin-bottom: 20px !important;
       }
-    }
-
-    .acrylic-surface {
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     }
   </style>
 </head>
@@ -102,25 +79,18 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 1. CUSTOMER REDIRECT SCREEN (?card=ID active) -->
+  <!-- 1. CUSTOMER REDIRECTING (Instant Fallback Screen) -->
   <!-- ========================================== -->
   <div id="view-redirecting" class="hidden min-h-screen flex items-center justify-center p-6 bg-slate-950">
-    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
-      <div class="w-20 h-20 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6 animate-pulse">
-        <i data-lucide="radio" class="w-10 h-10"></i>
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 animate-spin">
+        <i data-lucide="loader-2" class="w-8 h-8"></i>
       </div>
-      <h2 class="text-2xl font-black text-white tracking-tight">Tap Verified!</h2>
-      <p class="text-sm text-slate-400 mt-2 hindi-text">आपको गूगल रिव्यू पेज पर ले जाया जा रहा है...</p>
-      <p class="text-xs text-indigo-400 font-mono mt-1">Redirecting to Google Business Profile...</p>
-
-      <!-- Progress bar -->
-      <div class="w-full bg-slate-800 rounded-full h-1.5 mt-6 overflow-hidden">
-        <div id="redirect-progress" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-700 ease-linear w-0"></div>
-      </div>
-
-      <div class="mt-8 pt-6 border-t border-slate-800/80">
-        <a id="btn-manual-redirect" href="#" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition">
-          <span>Click here if not redirected automatically</span>
+      <h2 class="text-xl font-bold text-white tracking-tight">Opening Google Review...</h2>
+      <p class="text-xs text-slate-400 mt-2 hindi-text">आपको सीधे गूगल रिव्यू पेज पर भेजा जा रहा है...</p>
+      <div class="mt-6 pt-4 border-t border-slate-800/80">
+        <a id="btn-manual-redirect" href="#" class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:underline">
+          <span>Click here if review page doesn't open instantly</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
         </a>
       </div>
@@ -274,7 +244,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-xl font-bold text-white">Registered Tags & Standees</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Manage target review URLs, view tap analytics, and copy customer activation links.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Manage target review URLs, view tap analytics, and check secret activation PINs.</p>
           </div>
           <button onclick="switchTab('batch')" class="self-start sm:self-auto px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
@@ -291,7 +261,7 @@
                   <th class="py-3 px-4">Card ID</th>
                   <th class="py-3 px-4">Status</th>
                   <th class="py-3 px-4">Destination Link</th>
-                  <th class="py-3 px-4">PIN</th>
+                  <th class="py-3 px-4">Secret PIN</th>
                   <th class="py-3 px-4 text-center">Taps</th>
                   <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
@@ -311,13 +281,13 @@
             <div>
               <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production</span>
               <h3 class="text-xl font-black text-white mt-0.5">Bulk Standee Batch Generator</h3>
-              <p class="text-xs text-slate-400 mt-1">Har standee par unique ID, security PIN, aur Google Review QR code auto-merge hoga.</p>
+              <p class="text-xs text-slate-400 mt-1">Har standee par unique ID aur QR code auto-merge hokar clean design me ready hoga.</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
               <button onclick="setBatchQty(10)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">10 Pcs</button>
               <button onclick="setBatchQty(20)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">20 Pcs</button>
-              <button onclick="setBatchQty(40)" class="px-3 py-1.5 rounded-xl border border-indigo-500/40 bg-indigo-950/40 text-xs font-bold text-indigo-300">40 Pcs</button>
-              <button onclick="setBatchQty(100)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">100 Pcs</button>
+              <button onclick="setBatchQty(50)" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-xs font-bold text-slate-300 hover:text-white">50 Pcs</button>
+              <button onclick="setBatchQty(100)" class="px-3 py-1.5 rounded-xl border border-indigo-500/40 bg-indigo-950/40 text-xs font-bold text-indigo-300">100 Pcs</button>
             </div>
           </div>
 
@@ -332,7 +302,7 @@
             </div>
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Quantity</label>
-              <input type="number" id="gen-qty" value="20" min="1" max="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-indigo-300 focus:outline-none focus:border-indigo-500">
+              <input type="number" id="gen-qty" value="20" min="1" max="200" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-indigo-300 focus:outline-none focus:border-indigo-500">
             </div>
             <div class="flex items-end">
               <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
@@ -349,10 +319,10 @@
               <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-400"></i>
               <span>Ready-To-Cut Standee Layouts</span>
             </h4>
-            <span class="text-xs text-slate-500">Press <strong>Ctrl + P</strong> to save PDF for UV Printing</span>
+            <span class="text-xs text-slate-500">Press <strong>Ctrl + P</strong> to save PDF for UV Printing / Laser Cut</span>
           </div>
 
-          <div id="standees-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div id="standees-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             <!-- Standee Badges injected here -->
           </div>
         </div>
@@ -431,7 +401,7 @@
 
   <!-- Application Logic & Firebase Firestore -->
   <script>
-    // 1. Firebase Initialization
+    // 1. Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDTi4NRid5Yc72ATBfxg995GAWg1fUOBNs",
       authDomain: "winter-arc-tracker-6544e.firebaseapp.com",
@@ -444,9 +414,9 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const COLLECTION_NAME = 'nfcStandees'; // Dedicated collection (no collision)
+    const COLLECTION_NAME = 'nfcStandees';
 
-    // Master Admin Secret PIN (change here if desired)
+    // Master Admin PIN for Studio
     const MASTER_ADMIN_PIN = "9413";
 
     const DOMAIN_KEY = 'tapspot_base_domain_v1';
@@ -466,7 +436,7 @@
       }
       document.getElementById('cfg-domain').value = baseDomain;
 
-      // Router logic: Check if URL has ?card=ID
+      // Router check: ?card=ID
       const urlParams = new URLSearchParams(window.location.search);
       const cardParam = urlParams.get('card');
 
@@ -529,7 +499,7 @@
           tags.push({ id: doc.id, ...doc.data() });
         });
 
-        // Natural sort by ID (TAP001, TAP002, etc.)
+        // Natural sort by ID
         tags.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
 
         renderTagsTable();
@@ -559,13 +529,13 @@
     }
 
     // ==========================================
-    // ROUTING ENGINE (TAP & REDIRECT)
+    // ROUTING ENGINE (INSTANT ZERO-DELAY REDIRECT)
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
       document.getElementById('admin-auth-modal').classList.add('hidden');
 
-      // Fetch specific card document from Firestore
+      // Fetch card from Firestore
       db.collection(COLLECTION_NAME).doc(cardId).get()
         .then((doc) => {
           if (!doc.exists) {
@@ -578,26 +548,16 @@
           activeCardDoc = { id: doc.id, ...card };
 
           if (card.url && card.url.trim() !== "") {
-            // Active destination found -> Show 0.8s redirect animation
-            document.getElementById('view-redirecting').classList.remove('hidden');
-            document.getElementById('btn-manual-redirect').href = card.url;
-            lucide.createIcons();
-
-            // Increment tap counter in Cloud
+            // Background count update without blocking redirect
             db.collection(COLLECTION_NAME).doc(cardId).update({
               taps: firebase.firestore.FieldValue.increment(1),
               lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
             }).catch(e => console.warn(e));
 
-            setTimeout(() => {
-              document.getElementById('redirect-progress').style.width = '100%';
-            }, 50);
-
-            setTimeout(() => {
-              window.location.href = card.url;
-            }, 850);
+            // Instant zero-delay direct redirect to Google Review
+            window.location.replace(card.url);
           } else {
-            // Card is unlinked -> Show Customer Activation Screen
+            // Standee is unlinked -> Show Customer Setup Screen
             document.getElementById('view-activation').classList.remove('hidden');
             document.getElementById('act-card-id').innerText = doc.id;
             lucide.createIcons();
@@ -606,6 +566,7 @@
         .catch(err => {
           console.error(err);
           document.getElementById('view-invalid').classList.remove('hidden');
+          lucide.createIcons();
         });
     }
 
@@ -623,15 +584,15 @@
 
       const submitBtn = document.getElementById('btn-activate-submit');
       submitBtn.disabled = true;
-      submitBtn.innerText = "Saving to Cloud...";
+      submitBtn.innerText = "Linking to Google...";
 
       db.collection(COLLECTION_NAME).doc(activeCardDoc.id).update({
         url: enteredUrl,
         taps: 1,
         activatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => {
-        alert("Badhai ho! Aapka review standee successfully activate ho gaya hai.");
-        window.location.href = enteredUrl;
+        alert("Badhai ho! Standee successfully link ho gaya hai.");
+        window.location.replace(enteredUrl);
       }).catch(err => {
         alert("Activation failed: " + err.message);
         submitBtn.disabled = false;
@@ -684,7 +645,7 @@
           <td class="py-3 px-4 max-w-[220px] truncate text-slate-400">
             ${isLinked ? `<a href="${tag.url}" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1">${tag.url}</a>` : '<span class="text-slate-600 italic">Not set</span>'}
           </td>
-          <td class="py-3 px-4 font-mono text-slate-300 font-bold">${tag.pin}</td>
+          <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
           <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
           <td class="py-3 px-4 text-right space-x-2">
             <a href="${tagRouteUrl}" target="_blank" title="Test Tap Link" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white inline-block">
@@ -750,6 +711,9 @@
       });
     }
 
+    // ==========================================
+    // CLEAN STANDEE CARD RENDERER (NO PIN ON CARD)
+    // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
       container.innerHTML = "";
@@ -759,60 +723,63 @@
         const scanUrl = `${baseDomain}?card=${item.id}`;
 
         const card = document.createElement('div');
-        card.className = "standee-card acrylic-surface text-slate-900 rounded-[28px] p-5 border-2 border-slate-300 shadow-2xl relative flex flex-col justify-between items-center text-center overflow-hidden";
-        card.style.minHeight = "440px";
+        card.className = "standee-card bg-white text-slate-900 rounded-[28px] border-2 border-slate-200 shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden";
+        card.style.width = "300px";
+        card.style.minHeight = "340px";
 
         card.innerHTML = `
-          <!-- Cut Marks Guide -->
-          <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-slate-400"></div>
-          <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-slate-400"></div>
-          <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-slate-400"></div>
-          <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-slate-400"></div>
-
-          <!-- Top Brand Header: Official Google G Logo -->
-          <div class="pt-2 flex flex-col items-center">
-            <div class="w-11 h-11 flex items-center justify-center">
-              <svg class="w-10 h-10 drop-shadow-sm" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-            </div>
-            
-            <h4 class="hindi-text text-base font-extrabold text-slate-900 mt-1">हमें गूगल पर रिव्यू करें!</h4>
-            <span class="text-xs font-black tracking-wider text-slate-800 uppercase">REVIEW US ON GOOGLE!</span>
-
+          <!-- Blue Curved Wave Header -->
+          <div class="w-full bg-[#1e2f97] pt-4 pb-7 px-4 text-white relative flex flex-col items-center" style="border-radius: 26px 26px 50% 50% / 26px 26px 26px 26px;">
             <!-- 5 Golden Review Stars -->
-            <div class="flex items-center gap-1 mt-1 text-amber-400 text-sm">
+            <div class="flex items-center gap-1 text-[#f59e0b] text-base mb-1">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
             </div>
+            <p class="text-[11px] font-black tracking-wider uppercase leading-tight">
+              WE WOULD APPRECIATE<br>YOUR GOOGLE REVIEW
+            </p>
           </div>
 
-          <!-- NFC Contactless Tap Wave Badge -->
-          <div class="my-2.5 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center gap-2 shadow-sm">
-            <span class="text-xs font-bold">((●))</span>
-            <span class="text-[11px] font-black uppercase tracking-wider">Tap Phone Here / NFC</span>
+          <!-- Central Google 'G' Logo Badge -->
+          <div class="relative -mt-6 z-10 w-14 h-14 bg-white rounded-full p-2.5 shadow-md border border-slate-100 flex items-center justify-center">
+            <svg class="w-full h-full" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
           </div>
 
-          <!-- Dynamic QR Code Frame -->
-          <div class="relative bg-white p-2.5 rounded-2xl border-2 border-slate-200 shadow-sm">
-            <div id="${qrId}" class="flex items-center justify-center min-w-[130px] min-h-[130px]"></div>
-          </div>
-
-          <!-- Standee Footer -->
-          <div class="w-full mt-2.5 pt-2 border-t border-slate-200 flex flex-col items-center">
-            <div class="flex items-center justify-between w-full px-2">
-              <span class="text-[9px] font-mono font-bold text-slate-400 uppercase">STAND ID</span>
-              <span class="text-xs font-mono font-black text-slate-900 bg-slate-200/90 px-2 py-0.5 rounded tracking-wider">${item.id}</span>
+          <!-- Mid Section: Tap (Left) vs Scan QR (Right) -->
+          <div class="w-full px-5 py-2 flex items-center justify-between">
+            <!-- Left: Tap Your Phone -->
+            <div class="flex-1 flex flex-col items-center">
+              <svg class="w-10 h-10 text-[#1e2f97] mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 2a10 10 0 0 1 0 14"/>
+                <path d="M8 5a6 6 0 0 1 0 8"/>
+                <rect x="9" y="5" width="10" height="15" rx="2"/>
+                <path d="M14 17h.01"/>
+              </svg>
+              <span class="text-[10px] font-black uppercase text-[#1e2f97] leading-tight">TAP<br><span class="text-slate-600 font-semibold text-[9px]">your phone</span></span>
+              <div class="w-5 h-0.5 bg-[#1e2f97] rounded-full mt-1"></div>
             </div>
-            <span class="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-wider">OR SCAN QR CODE</span>
 
-            <!-- PIN Slip for Merchant -->
-            <div class="w-full mt-2 pt-1 border-t border-dashed border-slate-300 text-[10px] text-slate-500 flex items-center justify-between px-2">
-              <span>Setup Secret PIN:</span>
-              <span class="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">${item.pin}</span>
+            <!-- Middle: OR divider -->
+            <span class="text-[10px] font-bold text-slate-400 px-1">OR</span>
+
+            <!-- Right: QR Code Frame -->
+            <div class="flex-1 flex flex-col items-center">
+              <div class="p-1 border border-slate-300 rounded-lg bg-white shadow-sm">
+                <div id="${qrId}" class="w-[84px] h-[84px]"></div>
+              </div>
+              <span class="text-[10px] font-black uppercase text-[#1e2f97] leading-tight mt-1">SCAN<br><span class="text-slate-600 font-semibold text-[9px]">the QR code</span></span>
+              <div class="w-5 h-0.5 bg-[#1e2f97] rounded-full mt-1"></div>
             </div>
+          </div>
+
+          <!-- Standee Bottom: Only Stand ID (NO PIN) -->
+          <div class="w-full pb-3 pt-1 flex flex-col items-center">
+            <span class="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-widest">${item.id}</span>
+            <span class="text-[9px] font-extrabold text-[#1e2f97] uppercase tracking-wider mt-0.5">TAP TO RATE YOUR EXPERIENCE</span>
           </div>
         `;
 
@@ -829,17 +796,17 @@
       try {
         new QRCode(container, {
           text: text,
-          width: 130,
-          height: 130,
-          colorDark: "#0f172a",
+          width: 84,
+          height: 84,
+          colorDark: "#1e2f97",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
       } catch (err) {
         const encoded = encodeURIComponent(text);
         const img = document.createElement("img");
-        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=${encoded}&margin=2`;
-        img.className = "w-[130px] h-[130px] object-contain";
+        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=84x84&data=${encoded}&margin=1`;
+        img.className = "w-[84px] h-[84px] object-contain";
         container.appendChild(img);
       }
     }
