@@ -27,13 +27,18 @@
       font-family: 'Tiro Devanagari Hindi', 'Inter', sans-serif;
     }
 
-    /* Print sheet formatting for PDF & UV Cutters */
+    /* Print sheet formatting - Optimized for iPad Safari & A4 / Letter (Zero Page Cuts) */
     @media print {
-      body {
-        background: white !important;
-        color: black !important;
+      @page {
+        size: auto;
+        margin: 10mm;
+      }
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
         margin: 0 !important;
         padding: 0 !important;
+        width: 100% !important;
       }
       .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal, #tab-tags, #tab-sim {
         display: none !important;
@@ -44,18 +49,26 @@
         margin: 0 !important;
         padding: 0 !important;
       }
+      
+      /* Block display fixes Safari grid split bug */
       #standees-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 20px !important;
-        justify-items: center !important;
+        display: block !important;
+        width: 100% !important;
+        text-align: center !important;
       }
+      
+      /* 4 Cards per sheet (2x2) with complete page-break protection */
       .standee-card {
+        display: inline-block !important;
+        vertical-align: top !important;
+        width: 45% !important;
+        min-height: 320px !important;
+        margin: 8px 2% !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: auto !important;
         box-shadow: none !important;
         border: 1px dashed #94a3b8 !important;
-        margin-bottom: 24px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
@@ -331,7 +344,7 @@
             <span class="text-xs text-slate-500">Press <strong>Ctrl + P</strong> or click top button to save PDF</span>
           </div>
 
-          <div id="standees-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
+          <div id="standees-grid" class="w-full text-center">
             <!-- Standee Badges injected here -->
           </div>
         </div>
@@ -542,7 +555,7 @@
       renderStandees();
       setTimeout(() => {
         window.print();
-      }, 300);
+      }, 350);
     }
 
     // ==========================================
@@ -569,7 +582,7 @@
               lastTapAt: firebase.firestore.FieldValue.serverTimestamp()
             }).catch(e => console.warn(e));
 
-            // Instant redirect
+            // Instant zero-delay redirect
             window.location.replace(card.url);
           } else {
             document.getElementById('view-activation').classList.remove('hidden');
@@ -726,7 +739,7 @@
     }
 
     // ==========================================
-    // CLEAN STANDEE CARD RENDERER
+    // EXACT REFERENCE STANDEE CARD RENDERER
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -737,9 +750,9 @@
         const scanUrl = `${baseDomain}?card=${item.id}`;
 
         const card = document.createElement('div');
-        card.className = "standee-card bg-white text-slate-900 rounded-[28px] border-2 border-slate-200 shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden";
-        card.style.width = "300px";
-        card.style.minHeight = "340px";
+        card.className = "standee-card bg-white text-slate-900 rounded-[28px] border-2 border-slate-200 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
+        card.style.width = "280px";
+        card.style.minHeight = "330px";
 
         card.innerHTML = `
           <!-- Blue Curved Wave Header -->
@@ -790,7 +803,7 @@
             </div>
           </div>
 
-          <!-- Standee Bottom: Only Stand ID (NO PIN) -->
+          <!-- Standee Bottom: Only Stand ID (NO PIN ON CARD) -->
           <div class="w-full pb-3 pt-1 flex flex-col items-center">
             <span class="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-widest">${item.id}</span>
             <span class="text-[9px] font-extrabold text-[#1e2f97] uppercase tracking-wider mt-0.5">TAP TO RATE YOUR EXPERIENCE</span>
