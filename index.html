@@ -1000,7 +1000,7 @@
             url: "",
             insta: "",
             whatsapp: "",
-            title: id, // Har menu card ka title ab uska unique ID hoga (e.g. MNU001)
+            title: id,
             type: isMenu ? "menu" : "review",
             pin: pin,
             taps: 0,
@@ -1021,7 +1021,7 @@
     }
 
     // ==========================================
-    // STANDEE PRINT RENDERER (UNIQUE ID PRINTED)
+    // STANDEE PRINT RENDERER (POWERED BY YASHH ADDED)
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -1039,7 +1039,7 @@
 
         if (isMenu) {
           // ==============================
-          // ELEGANT DARK/GOLD DIGITAL MENU TILE (UNIQUE ID)
+          // ELEGANT DARK/GOLD DIGITAL MENU TILE
           // ==============================
           card.className = "menu-card bg-slate-950 text-amber-100 rounded-[26px] border-2 border-amber-600/40 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
           card.style.width = "270px";
@@ -1058,6 +1058,7 @@
             <div class="w-full pb-3.5 pt-1 px-4 flex flex-col items-center">
               <span class="text-[12px] font-mono font-black text-amber-400 tracking-widest uppercase">${item.id}</span>
               <p class="text-[9px] text-slate-400 mt-0.5">Tap or Scan camera to browse food & drinks</p>
+              <span class="text-[7.5px] font-semibold tracking-wider text-amber-500/80 uppercase mt-1">Powered by Yashh</span>
             </div>
           `;
         } else {
@@ -1107,8 +1108,9 @@
               </div>
             </div>
 
-            <div class="w-full pb-3 pt-0.5 flex flex-col items-center">
+            <div class="w-full pb-2.5 pt-0.5 flex flex-col items-center">
               <span class="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-widest">${item.id}</span>
+              <span class="text-[7.5px] font-semibold tracking-wider text-slate-500 uppercase mt-0.5">Powered by Yashh</span>
             </div>
           `;
         }
