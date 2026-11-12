@@ -97,7 +97,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 1. CUSTOMER SMART ACTION HUB + AI REVIEWS -->
+  <!-- 1. CUSTOMER SMART ACTION HUB (BASIC + AI PRO) -->
   <!-- ========================================== -->
   <div id="view-smart-hub" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl text-center relative select-none">
@@ -107,38 +107,39 @@
         <div class="w-13 h-13 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white mb-2 shadow-lg shadow-indigo-600/30 transition-transform active:scale-95">
           <i data-lucide="sparkles" class="w-6 h-6"></i>
         </div>
-        <h2 id="hub-business-title" class="text-base font-black text-white transition group-active:text-indigo-400">Rate Your Experience</h2>
+        <h2 id="hub-business-title" class="text-base font-black text-white transition group-active:text-indigo-400">Connect With Us</h2>
       </div>
 
-      <p class="text-[11px] text-slate-400 mt-0.5 mb-4">Tap any AI suggestion to copy & post to Google instantly:</p>
+      <p id="hub-subtitle" class="text-[11px] text-slate-400 mt-0.5 mb-5">Choose an action below to connect instantly</p>
 
-      <!-- AI LOADING INDICATOR -->
-      <div id="ai-loading-box" class="py-6 text-center">
-        <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-        <span class="text-[11px] text-indigo-300 font-medium" id="ai-loading-status">Generating fresh review ideas...</span>
-      </div>
+      <!-- AI SECTION WRAPPER (ONLY VISIBLE WHEN AI IS ENABLED BY ADMIN) -->
+      <div id="ai-feature-wrapper" class="hidden">
+        <!-- AI LOADING INDICATOR -->
+        <div id="ai-loading-box" class="py-6 text-center">
+          <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <span class="text-[11px] text-indigo-300 font-medium">Generating fresh review ideas...</span>
+        </div>
 
-      <!-- AI GENERATED REVIEW CHIPS -->
-      <div id="ai-reviews-container" class="space-y-2 mb-3 hidden text-left">
-        <!-- Rendered by JS -->
-      </div>
+        <!-- AI GENERATED REVIEW CHIPS -->
+        <div id="ai-reviews-container" class="space-y-2 mb-3 hidden text-left"></div>
 
-      <!-- GENERATE MORE REVIEWS BUTTON -->
-      <div id="ai-more-box" class="hidden mb-4">
-        <button type="button" onclick="handleGenerateMore()" 
-          class="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 hover:border-indigo-500 rounded-xl text-[11px] font-bold text-indigo-300 hover:text-white transition flex items-center justify-center gap-2 active:scale-98 shadow-sm">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          <span>Generate More Reviews</span>
-        </button>
+        <!-- GENERATE MORE REVIEWS BUTTON -->
+        <div id="ai-more-box" class="hidden mb-4">
+          <button type="button" onclick="handleGenerateMore()" 
+            class="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 hover:border-indigo-500 rounded-xl text-[11px] font-bold text-indigo-300 hover:text-white transition flex items-center justify-center gap-2 active:scale-98 shadow-sm">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Generate More Reviews</span>
+          </button>
+        </div>
       </div>
 
       <!-- DIRECT ACTIONS CONTAINER -->
       <div class="space-y-2.5" id="hub-actions-container">
-        <!-- Google Review Button (Direct fallback/write custom) -->
-        <a id="hub-btn-google" href="#" target="_blank" class="w-full p-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-blue-600/20 transition active:scale-98">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-white text-slate-900 flex items-center justify-center font-bold">
-              <svg class="w-4 h-4" viewBox="0 0 24 24">
+        <!-- Google Review Button -->
+        <a id="hub-btn-google" href="#" target="_blank" class="w-full p-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-blue-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white text-slate-900 flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -146,43 +147,43 @@
               </svg>
             </div>
             <div class="text-left">
-              <div class="text-xs font-bold leading-tight">Write Your Own Review</div>
-              <div class="text-[9.5px] text-blue-100">★★★★★ Open Google Review Form</div>
+              <div id="hub-google-title" class="text-xs font-bold leading-tight">Rate on Google</div>
+              <div class="text-[10px] text-blue-100">★★★★★ 5-Star Google Review</div>
             </div>
           </div>
           <i data-lucide="chevron-right" class="w-4 h-4 text-blue-200"></i>
         </a>
 
         <!-- Instagram Profile Button -->
-        <a id="hub-btn-insta" href="#" target="_blank" class="hidden w-full p-2.5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-pink-600/20 transition active:scale-98">
-          <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
+        <a id="hub-btn-insta" href="#" target="_blank" class="hidden w-full p-3 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-pink-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
               <i data-lucide="instagram" class="w-4 h-4"></i>
             </div>
             <div class="text-left">
-              <div class="text-[11px] font-bold leading-tight">Instagram Profile</div>
-              <div class="text-[9px] text-pink-100">See Updates & Posts</div>
+              <div class="text-xs font-bold leading-tight">Follow on Instagram</div>
+              <div class="text-[9.5px] text-pink-100">See Latest Posts & Updates</div>
             </div>
           </div>
-          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-pink-200"></i>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-pink-200"></i>
         </a>
 
         <!-- WhatsApp Chat Button -->
-        <a id="hub-btn-whatsapp" href="#" target="_blank" class="hidden w-full p-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-emerald-600/20 transition active:scale-98">
-          <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
+        <a id="hub-btn-whatsapp" href="#" target="_blank" class="hidden w-full p-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white rounded-2xl flex items-center justify-between shadow-lg shadow-emerald-600/20 transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center text-white font-bold">
               <i data-lucide="message-circle" class="w-4 h-4"></i>
             </div>
             <div class="text-left">
-              <div class="text-[11px] font-bold leading-tight">WhatsApp Chat</div>
-              <div class="text-[9px] text-emerald-100">Quick Support & Inquiries</div>
+              <div class="text-xs font-bold leading-tight">Chat on WhatsApp</div>
+              <div class="text-[9.5px] text-emerald-100">Instant Support & Inquiries</div>
             </div>
           </div>
-          <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-emerald-200"></i>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-200"></i>
         </a>
       </div>
 
-      <div class="mt-4 pt-3 border-t border-slate-800">
+      <div class="mt-5 pt-3 border-t border-slate-800">
         <span class="text-[9px] text-slate-500 tracking-wider uppercase font-semibold">Powered by TapSpot NFC</span>
       </div>
     </div>
@@ -216,7 +217,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 3. ACTIVATION & SETUP SCREEN -->
+  <!-- 3. ACTIVATION & SETUP SCREEN (NO AI TOGGLE HERE) -->
   <!-- ========================================== -->
   <div id="view-activation" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
@@ -227,7 +228,7 @@
           </div>
           <div>
             <h1 class="text-sm font-bold text-white">TapSpot Setup</h1>
-            <p class="text-[11px] text-slate-400">Configure Card Links & AI</p>
+            <p class="text-[11px] text-slate-400">Configure Card Links</p>
           </div>
         </div>
         <span id="act-card-id" class="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold rounded-lg">TAP001</span>
@@ -239,7 +240,7 @@
       </div>
 
       <form id="form-activation" onsubmit="handleActivationSubmit(event)" class="space-y-3.5">
-        <!-- Business Name (AI Context) -->
+        <!-- Business Name -->
         <div id="act-group-bizname">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
             Shop / Business Name <span class="text-rose-400">*</span>
@@ -254,7 +255,7 @@
         <!-- Category Dropdown -->
         <div id="act-group-category">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-            Business Category <span class="text-indigo-400 text-[10px]">(For AI Reviews)</span>
+            Business Category
           </label>
           <div class="relative">
             <i data-lucide="layers" class="w-4 h-4 absolute left-3.5 top-3 text-slate-500"></i>
@@ -284,7 +285,7 @@
           </div>
         </div>
 
-        <!-- Instagram Profile (Review mode only) -->
+        <!-- Instagram Profile -->
         <div id="act-group-insta">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
             Instagram Handle or Link <span class="text-slate-500 text-[10px]">(Optional)</span>
@@ -296,7 +297,7 @@
           </div>
         </div>
 
-        <!-- WhatsApp Number (Review mode only) -->
+        <!-- WhatsApp Number -->
         <div id="act-group-wp">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
             WhatsApp Number <span class="text-slate-500 text-[10px]">(Optional - 10 Digits)</span>
@@ -308,7 +309,7 @@
           </div>
         </div>
 
-        <!-- Card Security PIN (Mandatory) -->
+        <!-- Card Security PIN -->
         <div id="act-group-pin">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
             Card Security PIN <span class="text-rose-400">*</span>
@@ -361,7 +362,7 @@
                 <span>SYNCED</span>
               </span>
             </div>
-            <p class="text-[11px] text-slate-400">Review Hubs & Digital Table Menus</p>
+            <p class="text-[11px] text-slate-400">Basic & AI Pro Standee Control</p>
           </div>
         </div>
 
@@ -414,7 +415,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl font-bold text-white">Review & Social Standees (TAP Series)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Supports AI Suggestions, instant review redirect & 3-in-1 Hub with Triple-Tap edit.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">AI Plan</strong> badge to enable/disable AI reviews for paying clients.</p>
           </div>
           <button onclick="setReviewBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -428,8 +429,8 @@
               <thead class="bg-slate-950/80 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
                 <tr>
                   <th class="py-3 px-4">Card ID</th>
-                  <th class="py-3 px-4">Business Name & Category</th>
-                  <th class="py-3 px-4">Mode</th>
+                  <th class="py-3 px-4">Business & Category</th>
+                  <th class="py-3 px-4">AI Plan (Click to Toggle)</th>
                   <th class="py-3 px-4">Secret PIN</th>
                   <th class="py-3 px-4 text-center">Taps</th>
                   <th class="py-3 px-4 text-right">Actions</th>
@@ -484,7 +485,7 @@
             <div>
               <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production</span>
               <h3 class="text-xl font-black text-white mt-0.5">Batch Generator & Print Sheets</h3>
-              <p class="text-xs text-slate-400 mt-1">Review Cards (Blue/White) ya Menu Tiles (Dark Gold) select karke generate karein.</p>
+              <p class="text-xs text-slate-400 mt-1">All new Review Standees start as <strong>Basic (AI OFF)</strong> by default.</p>
             </div>
             <div class="flex items-center gap-2">
               <select id="gen-type" onchange="handleGenTypeChange(this.value)" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
@@ -543,10 +544,22 @@
 
       <div class="mb-4">
         <span id="edit-modal-id" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-mono text-xs font-bold">TAP001</span>
-        <h4 class="text-base font-bold mt-2">Edit Destinations</h4>
+        <h4 class="text-base font-bold mt-2">Edit Destinations & Plan</h4>
       </div>
 
       <form onsubmit="handleEditSubmit(event)" class="space-y-3">
+        <!-- Admin AI Feature Toggle -->
+        <div id="edit-group-ai" class="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>AI Auto-Reviews (Pro)</span>
+            </div>
+            <div class="text-[10px] text-slate-400">Enable 5 smart AI review options</div>
+          </div>
+          <input type="checkbox" id="edit-input-ai" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
+        </div>
+
         <div id="edit-group-bizname">
           <label class="block text-[11px] font-bold text-slate-400 uppercase">Business Name</label>
           <input type="text" id="edit-input-name" placeholder="Business Name" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-sans">
@@ -746,6 +759,18 @@
     }
 
     // ==========================================
+    // QUICK ONE-CLICK AI PLAN TOGGLE (ADMIN)
+    // ==========================================
+    function toggleAiPlan(cardId, currentStatus) {
+      const nextStatus = !currentStatus;
+      db.collection(COLLECTION_NAME).doc(cardId).update({
+        aiEnabled: nextStatus
+      }).then(() => {
+        showToast(nextStatus ? `${cardId}: AI Pro Activated!` : `${cardId}: Switched to Basic Plan`);
+      }).catch(err => alert("Toggle failed: " + err.message));
+    }
+
+    // ==========================================
     // SECRET TRIPLE TAP DETECTOR (FOR MERCHANT EDIT)
     // ==========================================
     function handleSecretTripleTap() {
@@ -781,7 +806,7 @@
         
         document.getElementById('act-card-id').innerText = activeCardDoc.id;
         document.getElementById('act-screen-title').innerText = "Update Your Standee Links";
-        document.getElementById('act-input-name').value = activeCardDoc.title || "";
+        document.getElementById('act-input-name').value = (activeCardDoc.title && activeCardDoc.title !== activeCardDoc.id) ? activeCardDoc.title : "";
         document.getElementById('act-input-category').value = activeCardDoc.category || "Auto-detect from Business Name";
         document.getElementById('act-input-url').value = activeCardDoc.url || "";
         document.getElementById('act-input-insta').value = activeCardDoc.insta || "";
@@ -793,7 +818,7 @@
     }
 
     // ==========================================
-    // ROUTING & SMART AI HUB
+    // ROUTING & BASIC vs AI PRO ENGINE
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
@@ -823,6 +848,17 @@
               return;
             }
 
+            const isAiPro = card.aiEnabled === true;
+            const hasInsta = card.insta && card.insta.trim() !== "";
+            const hasWp = card.whatsapp && card.whatsapp.trim() !== "";
+
+            // Agar AI OFF hai aur sirf Google Review link hai (Insta/WA nahi hai) -> Direct Google open karo
+            if (!isAiPro && !hasInsta && !hasWp) {
+              window.location.replace(card.url);
+              return;
+            }
+
+            // Warna Hub render karo (AI OFF hai toh normal 3-in-1 Hub dikhega, AI ON hai toh AI reviews dikhenge)
             renderSmartHub(card);
           } else {
             document.getElementById('view-activation').classList.remove('hidden');
@@ -920,7 +956,6 @@
 
     function pickDistinctRandomReviews(categoryKey, count) {
       const pool = dynamicReviewPool[categoryKey] || dynamicReviewPool.general;
-      // Filter out previously shown items so "Generate More" always shows fresh lines
       let freshCandidates = pool.filter(item => !lastShownBatch.includes(item));
       if (freshCandidates.length < count) {
         freshCandidates = [...pool];
@@ -941,7 +976,6 @@
       const container = document.getElementById('ai-reviews-container');
       const moreBox = document.getElementById('ai-more-box');
 
-      // Clear previous 5 options immediately
       container.classList.add('hidden');
       container.innerHTML = "";
       if (moreBox) moreBox.classList.add('hidden');
@@ -1030,13 +1064,28 @@
       if (card.title && card.title !== card.id) {
         document.getElementById('hub-business-title').innerText = card.title;
       } else {
-        document.getElementById('hub-business-title').innerText = "Rate Your Experience";
+        document.getElementById('hub-business-title').innerText = "Connect With Us";
       }
 
       document.getElementById('hub-btn-google').href = card.url;
 
-      // Load initial 5 AI reviews
-      loadGeminiAiReviews(card);
+      const isAiPro = card.aiEnabled === true;
+      const aiWrapper = document.getElementById('ai-feature-wrapper');
+      const hubSubtitle = document.getElementById('hub-subtitle');
+      const googleBtnTitle = document.getElementById('hub-google-title');
+
+      if (isAiPro) {
+        // AI PRO MODE ON
+        aiWrapper.classList.remove('hidden');
+        hubSubtitle.innerText = "Tap any AI suggestion to copy & post to Google instantly:";
+        googleBtnTitle.innerText = "Write Your Own Review";
+        loadGeminiAiReviews(card);
+      } else {
+        // BASIC MODE (AI OFF)
+        aiWrapper.classList.add('hidden');
+        hubSubtitle.innerText = "Choose an action below to connect instantly";
+        googleBtnTitle.innerText = "Rate on Google";
+      }
 
       const btnInsta = document.getElementById('hub-btn-insta');
       if (card.insta && card.insta.trim() !== "") {
@@ -1151,12 +1200,19 @@
 
       reviewTags.forEach(tag => {
         const isLinked = tag.url && tag.url.trim() !== "";
+        const isAiPro = tag.aiEnabled === true;
         const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
 
-        let modeBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">UNLINKED</span>`;
-        if (isLinked) {
-          modeBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-500/10 text-violet-300 border border-violet-500/20">AI SMART HUB</span>`;
-        }
+        // Clickable AI Toggle Button
+        const aiButtonHtml = isAiPro
+          ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF AI" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+              <span>AI PRO (ON)</span>
+             </button>`
+          : `<button onclick="toggleAiPlan('${tag.id}', false)" title="Click to turn ON AI" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+              <span>BASIC (OFF)</span>
+             </button>`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
@@ -1166,10 +1222,10 @@
             <span>${tag.id}</span>
           </td>
           <td class="py-3 px-4 max-w-[200px] truncate text-slate-300">
-            <div class="font-bold text-white truncate">${tag.title && tag.title !== tag.id ? tag.title : 'Not set'}</div>
-            <div class="text-[10px] text-indigo-400 truncate">${tag.category || 'Auto-detect'}</div>
+            <div class="font-bold text-white truncate">${tag.title && tag.title !== tag.id ? tag.title : 'Not Linked'}</div>
+            <div class="text-[10px] text-slate-400 truncate">${tag.category || 'Auto-detect'}</div>
           </td>
-          <td class="py-3 px-4">${modeBadge}</td>
+          <td class="py-3 px-4">${aiButtonHtml}</td>
           <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
           <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
           <td class="py-3 px-4 text-right space-x-2">
@@ -1229,7 +1285,7 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR
+    // BATCH GENERATOR (DEFAULT AI OFF)
     // ==========================================
     function handleBatchGenerate(e) {
       e.preventDefault();
@@ -1258,6 +1314,7 @@
             whatsapp: "",
             title: id,
             category: "Auto-detect from Business Name",
+            aiEnabled: false,
             type: isMenu ? "menu" : "review",
             pin: pin,
             taps: 0,
@@ -1273,7 +1330,7 @@
       }
 
       batch.commit().then(() => {
-        showToast(`Batch of ${createdCount} cards generated!`);
+        showToast(`Batch of ${createdCount} Basic cards generated!`);
       }).catch(err => alert("Error: " + err.message));
     }
 
@@ -1404,19 +1461,22 @@
 
       const isMenu = card.id.startsWith('MNU');
       document.getElementById('edit-modal-id').innerText = card.id;
-      document.getElementById('edit-input-name').value = card.title || "";
+      document.getElementById('edit-input-ai').checked = card.aiEnabled === true;
+      document.getElementById('edit-input-name').value = (card.title && card.title !== card.id) ? card.title : "";
       document.getElementById('edit-input-category').value = card.category || "Auto-detect from Business Name";
       document.getElementById('edit-input-url').value = card.url || "";
       document.getElementById('edit-input-insta').value = card.insta || "";
       document.getElementById('edit-input-wp').value = card.whatsapp || "";
       document.getElementById('edit-input-pin').value = card.pin;
 
+      document.getElementById('edit-group-ai').style.display = isMenu ? 'none' : 'flex';
       document.getElementById('edit-group-bizname').style.display = isMenu ? 'none' : 'block';
       document.getElementById('edit-group-category').style.display = isMenu ? 'none' : 'block';
       document.getElementById('edit-group-insta').style.display = isMenu ? 'none' : 'block';
       document.getElementById('edit-group-wp').style.display = isMenu ? 'none' : 'block';
 
       document.getElementById('modal-edit').classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function closeEditModal() {
@@ -1428,6 +1488,7 @@
       if (!currentEditingId) return;
 
       db.collection(COLLECTION_NAME).doc(currentEditingId).update({
+        aiEnabled: document.getElementById('edit-input-ai').checked,
         title: document.getElementById('edit-input-name').value.trim() || currentEditingId,
         category: document.getElementById('edit-input-category').value,
         url: document.getElementById('edit-input-url').value.trim(),
@@ -1446,7 +1507,8 @@
       db.collection(COLLECTION_NAME).doc(currentEditingId).update({
         url: "",
         insta: "",
-        whatsapp: ""
+        whatsapp: "",
+        aiEnabled: false
       }).then(() => {
         closeEditModal();
         showToast("Card reset to setup mode.");
