@@ -113,14 +113,23 @@
       <p class="text-[11px] text-slate-400 mt-0.5 mb-4">Tap any AI suggestion to copy & post to Google instantly:</p>
 
       <!-- AI LOADING INDICATOR -->
-      <div id="ai-loading-box" class="py-4 text-center">
+      <div id="ai-loading-box" class="py-6 text-center">
         <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-        <span class="text-[11px] text-indigo-300 font-medium" id="ai-loading-status">Generating review ideas...</span>
+        <span class="text-[11px] text-indigo-300 font-medium" id="ai-loading-status">Generating fresh review ideas...</span>
       </div>
 
       <!-- AI GENERATED REVIEW CHIPS -->
-      <div id="ai-reviews-container" class="space-y-2 mb-4 hidden text-left">
+      <div id="ai-reviews-container" class="space-y-2 mb-3 hidden text-left">
         <!-- Rendered by JS -->
+      </div>
+
+      <!-- GENERATE MORE REVIEWS BUTTON -->
+      <div id="ai-more-box" class="hidden mb-4">
+        <button type="button" onclick="handleGenerateMore()" 
+          class="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 hover:border-indigo-500 rounded-xl text-[11px] font-bold text-indigo-300 hover:text-white transition flex items-center justify-center gap-2 active:scale-98 shadow-sm">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Generate More Reviews</span>
+        </button>
       </div>
 
       <!-- DIRECT ACTIONS CONTAINER -->
@@ -621,6 +630,7 @@
     let tags = [];
     let baseDomain = "";
     let activeCardDoc = null;
+    let lastShownBatch = [];
 
     // Triple Tap Tracker Variables
     let tapCount = 0;
@@ -813,7 +823,6 @@
               return;
             }
 
-            // Review card khulte hi Smart AI Hub open karo
             renderSmartHub(card);
           } else {
             document.getElementById('view-activation').classList.remove('hidden');
@@ -835,87 +844,152 @@
     }
 
     // ==========================================
-    // GEMINI AI INTEGRATION (AUTO BUSINESS-AWARE REVIEWS)
+    // GEMINI AI + MULTI-CATEGORY DYNAMIC POOL
     // ==========================================
-    function getFallbackReviews(bizName, category) {
-      const lower = `${bizName} ${category}`.toLowerCase();
-      if (lower.includes("gym") || lower.includes("fitness") || lower.includes("workout")) {
-        return [
-          "State-of-the-art workout machines, highly motivating trainers and spotless hygiene!",
-          "Great energetic environment with very knowledgeable instructors. Best gym in the area!",
-          "Top-notch workout atmosphere! Equipment is always clean and well maintained.",
-          "Super supportive staff and amazing personal training guidance. 5 stars!",
-          "Spacious gym, reasonable membership fees and excellent vibes for fitness enthusiasts."
-        ];
-      } else if (lower.includes("cafe") || lower.includes("food") || lower.includes("restro") || lower.includes("restaurant") || lower.includes("chai")) {
-        return [
-          "Absolutely delicious food with quick service and warm, welcoming hospitality!",
-          "Amazing ambiance and mouth-watering taste! A perfect hangout spot with friends.",
-          "Super fresh preparation, reasonable prices and polite staff. Loved the experience!",
-          "Great seating vibes and prompt service. One of the best food spots in town!",
-          "10/10 dining experience! High quality hygiene and top-tier presentation."
-        ];
-      } else if (lower.includes("salon") || lower.includes("beauty") || lower.includes("hair") || lower.includes("spa")) {
-        return [
-          "Very professional styling and polite staff. Highly satisfied with their service!",
-          "Hygienic setup, sanitized tools and skillful haircut styling. Will visit again!",
-          "Relaxing ambiance and expert grooming advice. Totally worth the price!",
-          "Friendly staff and prompt appointment management. Best salon experience nearby!",
-          "Exceptional customer care and very gentle, professional artists. 5 stars!"
-        ];
-      } else {
-        return [
-          "Extremely polite staff, quick turnaround and top-notch experience!",
-          "Superb quality and great hospitality. 10/10 highly recommended!",
-          "Affordable pricing with genuine, courteous team. Definitely coming back!",
-          "Clean, modern setup and seamless customer service.",
-          "One of the finest places in town. Very professional and reliable!"
-        ];
+    const dynamicReviewPool = {
+      gym: [
+        "State-of-the-art workout machines, motivating trainers and spotless hygiene!",
+        "Great energetic environment with very knowledgeable instructors. Best gym in the area!",
+        "Top-notch workout atmosphere! Equipment is always clean and well maintained.",
+        "Super supportive staff and amazing personal training guidance. 5 stars!",
+        "Spacious gym, reasonable membership fees and excellent vibes for fitness enthusiasts.",
+        "High quality weights, plenty of cardio machines and very disciplined crowd.",
+        "Transformed my fitness routine here. Trainers pay attention to your form and diet.",
+        "Air-conditioned, modern setup with top quality dumbbells and machines. Loved it!",
+        "Best place for daily workouts. Helpful management and positive energy all around.",
+        "Great community, professional coaching and clean changing rooms. 10/10 recommended!",
+        "Amazing workout vibe! Trainers really care about proper form and results.",
+        "Plenty of squat racks and clean mats. Never feels overly crowded."
+      ],
+      cafe: [
+        "Delicious fresh food with quick service and warm, welcoming hospitality!",
+        "Amazing ambiance and mouth-watering taste! A perfect hangout spot with friends.",
+        "Super fresh preparation, reasonable prices and polite staff. Loved the experience!",
+        "Great seating vibes and prompt service. One of the best food spots in town!",
+        "10/10 dining experience! High quality hygiene and top-tier presentation.",
+        "Loved the cold coffee and snacks. Perfect place to relax after college.",
+        "Quick service, Instagrammable cafe decor and delicious food. Highly recommended!",
+        "Very courteous staff and peaceful sitting area. Will definitely visit again.",
+        "Every item on the menu tastes super fresh and authentic. Worth every rupee!",
+        "Best coffee and snacks in the locality. Super friendly staff!"
+      ],
+      salon: [
+        "Very professional styling and polite staff. Highly satisfied with their service!",
+        "Hygienic setup, sanitized tools and skillful haircut styling. Will visit again!",
+        "Relaxing ambiance and expert grooming advice. Totally worth the price!",
+        "Friendly staff and prompt appointment management. Best salon experience nearby!",
+        "Exceptional customer care and very gentle, professional artists. 5 stars!",
+        "Loved my new haircut! The stylist understood exact requirements without rushing.",
+        "Clean salon with branded grooming products and very polite staff."
+      ],
+      clinic: [
+        "Very caring doctor and cooperative staff. Treatment was smooth and painless.",
+        "Clean, hygienic clinic with proper diagnosis and honest medical advice.",
+        "Zero unnecessary waiting time and very polite nursing team. Highly recommended!",
+        "Modern equipment and very reassuring consultation. Best healthcare center around.",
+        "Doctor explained everything clearly and treatment worked quickly. 5 stars!"
+      ],
+      auto: [
+        "Super clean foam wash and detailing! Car looks brand new inside out.",
+        "Honest mechanics, genuine spare parts and quick delivery. Very reliable!",
+        "Great attention to detail and fair pricing. Best auto service center in town.",
+        "Polite staff and thorough inspection before starting the work. 5 stars!"
+      ],
+      general: [
+        "Extremely polite staff, quick turnaround and top-notch experience!",
+        "Superb quality and great hospitality. 10/10 highly recommended!",
+        "Affordable pricing with genuine, courteous team. Definitely coming back!",
+        "Clean, modern setup and seamless customer service.",
+        "One of the finest places in town. Very professional and reliable!",
+        "Fast response and hassle-free assistance. 5 stars from my side!",
+        "Genuine pricing and authentic quality. Best in this locality!",
+        "Great collection and very patient staff while showing options.",
+        "Smooth experience from start to finish. Totally satisfied with their service."
+      ]
+    };
+
+    function detectCategoryKey(bizName, category) {
+      const combined = `${bizName} ${category}`.toLowerCase();
+      if (combined.includes("gym") || combined.includes("fitness") || combined.includes("workout") || combined.includes("crossfit")) return "gym";
+      if (combined.includes("cafe") || combined.includes("food") || combined.includes("restaurant") || combined.includes("restro") || combined.includes("chai") || combined.includes("bake")) return "cafe";
+      if (combined.includes("salon") || combined.includes("spa") || combined.includes("beauty") || combined.includes("hair") || combined.includes("parlour")) return "salon";
+      if (combined.includes("clinic") || combined.includes("dental") || combined.includes("doctor") || combined.includes("hospital")) return "clinic";
+      if (combined.includes("car") || combined.includes("wash") || combined.includes("garage") || combined.includes("auto") || combined.includes("detailing")) return "auto";
+      return "general";
+    }
+
+    function pickDistinctRandomReviews(categoryKey, count) {
+      const pool = dynamicReviewPool[categoryKey] || dynamicReviewPool.general;
+      // Filter out previously shown items so "Generate More" always shows fresh lines
+      let freshCandidates = pool.filter(item => !lastShownBatch.includes(item));
+      if (freshCandidates.length < count) {
+        freshCandidates = [...pool];
       }
+      const shuffled = freshCandidates.sort(() => 0.5 - Math.random());
+      const picked = shuffled.slice(0, count);
+      lastShownBatch = picked;
+      return picked;
+    }
+
+    function handleGenerateMore() {
+      if (!activeCardDoc) return;
+      loadGeminiAiReviews(activeCardDoc);
     }
 
     async function loadGeminiAiReviews(card) {
       const loader = document.getElementById('ai-loading-box');
       const container = document.getElementById('ai-reviews-container');
+      const moreBox = document.getElementById('ai-more-box');
+
+      // Clear previous 5 options immediately
+      container.classList.add('hidden');
+      container.innerHTML = "";
+      if (moreBox) moreBox.classList.add('hidden');
+      if (loader) loader.classList.remove('hidden');
 
       const bizName = card.title && card.title !== card.id ? card.title : "Local Store";
       let contextCategory = card.category || "Auto-detect from Business Name";
+      const catKey = detectCategoryKey(bizName, contextCategory);
 
-      let promptContext = `Business Name: "${bizName}". `;
-      if (contextCategory && !contextCategory.startsWith("Auto-detect")) {
-        promptContext += `Category: "${contextCategory}". `;
-      } else {
-        promptContext += `Understand the business type from its name (e.g. gym, cafe, salon, clinic, retail). `;
-      }
+      const randomAngles = [
+        "staff behavior and hospitality",
+        "quality of service and equipment",
+        "cleanliness, hygiene and ambiance",
+        "affordable pricing and value for money"
+      ];
+      const angle = randomAngles[Math.floor(Math.random() * randomAngles.length)];
 
-      const promptText = `You are a real happy customer in India writing a 5-star Google review. Context: ${promptContext}. Generate exactly 5 short, authentic, distinct positive reviews (1 single sentence each, 10-18 words max). Focus specifically on appropriate qualities like staff behavior, equipment/food/work quality, hygiene, and pricing. Return ONLY a valid JSON array of 5 plain strings. No markdown, no backticks, no markdown code block.`;
+      const promptText = `Write exactly 5 short, realistic, fresh positive 5-star Google reviews (1 sentence each, 10-18 words) for "${bizName}" (${catKey}). Focus on ${angle}. Return ONLY a raw JSON array of 5 plain strings without markdown or backticks.`;
 
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: promptText }] }],
             generationConfig: {
-              responseMimeType: "application/json",
-              temperature: 0.85
+              temperature: 1.0
             }
           })
         });
 
-        if (!response.ok) throw new Error("API call failed");
+        if (!response.ok) throw new Error("API call failed: " + response.status);
 
         const data = await response.json();
-        const jsonText = data.candidates[0].content.parts[0].text;
-        const reviews = JSON.parse(jsonText);
+        const rawText = data.candidates[0].content.parts[0].text.trim();
+        const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const reviews = JSON.parse(cleaned);
+        lastShownBatch = reviews;
         renderAiChips(reviews, card.url);
       } catch (err) {
-        console.warn("Using smart fallback reviews due to API limit/network:", err);
-        const fallbacks = getFallbackReviews(bizName, contextCategory);
-        renderAiChips(fallbacks, card.url);
+        console.warn("Using randomized category pool:", err);
+        const randomPicks = pickDistinctRandomReviews(catKey, 5);
+        renderAiChips(randomPicks, card.url);
       } finally {
-        loader.classList.add('hidden');
-        container.classList.remove('hidden');
+        if (loader) loader.classList.add('hidden');
+        if (container) container.classList.remove('hidden');
+        if (moreBox) moreBox.classList.remove('hidden');
+        lucide.createIcons();
       }
     }
 
@@ -961,7 +1035,7 @@
 
       document.getElementById('hub-btn-google').href = card.url;
 
-      // Start loading Gemini AI Reviews specifically tailored to this card
+      // Load initial 5 AI reviews
       loadGeminiAiReviews(card);
 
       const btnInsta = document.getElementById('hub-btn-insta');
