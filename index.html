@@ -26,7 +26,7 @@
       font-family: 'Playfair Display', serif;
     }
 
-    /* Print sheet formatting - Optimized for Laser Cutting */
+    /* Print sheet formatting - Optimized for Laser Cutting & UV Print */
     @media print {
       @page {
         size: auto;
@@ -59,7 +59,7 @@
         display: inline-block !important;
         vertical-align: top !important;
         width: 45% !important;
-        min-height: 310px !important;
+        min-height: 320px !important;
         margin: 8px 2% !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -104,7 +104,7 @@
       
       <!-- SECRET TRIPLE TAP ZONE (FOR OWNER EDIT) -->
       <div onclick="handleSecretTripleTap()" class="cursor-pointer group">
-        <div class="w-13 h-13 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white mb-2 shadow-lg shadow-indigo-600/30 transition-transform active:scale-95">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white mb-2 shadow-lg shadow-indigo-600/30 transition-transform active:scale-95">
           <i data-lucide="sparkles" class="w-6 h-6"></i>
         </div>
         <h2 id="hub-business-title" class="text-base font-black text-white transition group-active:text-indigo-400">Connect With Us</h2>
@@ -852,13 +852,11 @@
             const hasInsta = card.insta && card.insta.trim() !== "";
             const hasWp = card.whatsapp && card.whatsapp.trim() !== "";
 
-            // Agar AI OFF hai aur sirf Google Review link hai (Insta/WA nahi hai) -> Direct Google open karo
             if (!isAiPro && !hasInsta && !hasWp) {
               window.location.replace(card.url);
               return;
             }
 
-            // Warna Hub render karo (AI OFF hai toh normal 3-in-1 Hub dikhega, AI ON hai toh AI reviews dikhenge)
             renderSmartHub(card);
           } else {
             document.getElementById('view-activation').classList.remove('hidden');
@@ -1075,13 +1073,11 @@
       const googleBtnTitle = document.getElementById('hub-google-title');
 
       if (isAiPro) {
-        // AI PRO MODE ON
         aiWrapper.classList.remove('hidden');
         hubSubtitle.innerText = "Tap any AI suggestion to copy & post to Google instantly:";
         googleBtnTitle.innerText = "Write Your Own Review";
         loadGeminiAiReviews(card);
       } else {
-        // BASIC MODE (AI OFF)
         aiWrapper.classList.add('hidden');
         hubSubtitle.innerText = "Choose an action below to connect instantly";
         googleBtnTitle.innerText = "Rate on Google";
@@ -1203,7 +1199,6 @@
         const isAiPro = tag.aiEnabled === true;
         const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
 
-        // Clickable AI Toggle Button
         const aiButtonHtml = isAiPro
           ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF AI" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
@@ -1335,7 +1330,7 @@
     }
 
     // ==========================================
-    // STANDEE PRINT RENDERER (EXACT PHOTO REPLICA)
+    // STANDEE PRINT RENDERER (EXACT REFERENCE REPLICA + PRINT CIRCLE FIX)
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -1373,22 +1368,33 @@
             </div>
           `;
         } else {
-          card.className = "standee-card bg-white text-slate-900 rounded-[28px] border-2 border-slate-200 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
-          card.style.width = "270px";
-          card.style.minHeight = "320px";
+          // EXACT REPLICA OF YOUR REFERENCE STANDEE (DOUBLE WAVE + HAND ICON + FRAMED QR + BOTTOM TAGLINE)
+          card.className = "standee-card bg-[#f8fafc] text-slate-900 rounded-[26px] border border-slate-300 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
+          card.style.width = "276px";
+          card.style.minHeight = "330px";
 
           card.innerHTML = `
-            <div class="w-full bg-[#1e2f97] pt-4 pb-7 px-4 text-white relative flex flex-col items-center" style="border-radius: 26px 26px 50% 50% / 26px 26px 26px 26px;">
-              <div class="flex items-center gap-1 text-[#f59e0b] text-base mb-1">
+            <!-- TOP CURVED DOUBLE-WAVE HEADER -->
+            <div class="w-full relative overflow-hidden pt-4 pb-9 px-3 text-white flex flex-col items-center">
+              <!-- Light Blue Ribbon Wave Layer -->
+              <svg viewBox="0 0 280 115" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none">
+                <path d="M0,0 L280,0 L280,82 Q140,122 0,88 Z" fill="#3b82f6"/>
+                <path d="M0,0 L280,0 L280,73 Q140,112 0,79 Z" fill="#1e2a78"/>
+              </svg>
+
+              <!-- 5 Yellow Stars -->
+              <div class="relative z-10 flex items-center gap-1.5 text-[#facc15] text-[15px] leading-none mb-1.5 drop-shadow-sm">
                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
               </div>
-              <p class="text-[11px] font-black tracking-wider uppercase leading-tight">
+              <p class="relative z-10 text-[11px] font-extrabold tracking-wide uppercase leading-snug text-white">
                 WE WOULD APPRECIATE<br>YOUR GOOGLE REVIEW
               </p>
             </div>
 
-            <div class="relative -mt-6 z-10 w-13 h-13 bg-white rounded-full p-2 shadow-md border border-slate-100 flex items-center justify-center">
-              <svg class="w-8 h-8" viewBox="0 0 48 48">
+            <!-- PERFECT ROUND GOOGLE 'G' BADGE (FIXED WIDTH/HEIGHT FOR PRINT PDF) -->
+            <div style="width: 58px; height: 58px; min-width: 58px; min-height: 58px; border-radius: 9999px;"
+                 class="relative -mt-8 z-20 mx-auto bg-white shadow-md border border-slate-200 flex items-center justify-center">
+              <svg class="w-9 h-9" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                 <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -1396,29 +1402,49 @@
               </svg>
             </div>
 
-            <div class="w-full px-4 py-2 flex items-center justify-between">
+            <!-- MIDDLE ACTION ROW: HAND TAP + OR + FRAMED QR -->
+            <div class="w-full px-3 pt-2 pb-1 flex items-center justify-between">
+              <!-- Left: Hand Holding Phone with NFC Waves -->
               <div class="flex-1 flex flex-col items-center">
-                <svg class="w-9 h-9 text-[#1e2f97] mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M5 2a10 10 0 0 1 0 14"/>
-                  <path d="M8 5a6 6 0 0 1 0 8"/>
-                  <rect x="9" y="5" width="10" height="15" rx="2"/>
+                <svg class="w-12 h-12 text-[#1e293b] mb-1" viewBox="0 0 64 64" fill="none">
+                  <!-- Blue NFC Signal Arcs -->
+                  <path d="M14 23C14 16 19 11 26 11" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M18 24C18 19 21 16 26 16" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M22 25C22 22 24 21 26 21" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                  <!-- Smartphone Outline -->
+                  <rect x="26" y="19" width="16" height="26" rx="2.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.3"/>
+                  <line x1="32" y1="22" x2="36" y2="22" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round"/>
+                  <!-- Fingers & Hand Holding Phone -->
+                  <path d="M25 26H23C21.8 26 21 26.8 21 28C21 29.2 21.8 30 23 30H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+                  <path d="M25 31H22.5C21.3 31 20.5 31.8 20.5 33C20.5 34.2 21.3 35 22.5 35H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+                  <path d="M25 36H23C21.8 36 21 36.8 21 38C21 39.2 21.8 40 23 40H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
+                  <!-- Wrist / Cuff -->
+                  <path d="M26 43L31 53L43 48L41 34" stroke="#1e293b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span class="text-[9px] font-black uppercase text-[#1e2f97] leading-tight">TAP<br><span class="text-slate-600 font-semibold text-[8px]">phone</span></span>
+                <div class="text-[11px] font-black uppercase text-[#0f172a] leading-none tracking-tight">TAP</div>
+                <div class="text-[9.5px] font-semibold text-slate-700 leading-tight mt-0.5">your phone</div>
+                <div class="w-6 h-[2.5px] bg-[#1e2a78] rounded-full mt-1"></div>
               </div>
 
-              <span class="text-[9px] font-bold text-slate-400 px-1">OR</span>
+              <!-- Center OR -->
+              <span class="text-[10px] font-extrabold text-slate-600 px-1">OR</span>
 
+              <!-- Right: Framed QR Code -->
               <div class="flex-1 flex flex-col items-center">
-                <div class="p-1 border border-slate-300 rounded-lg bg-white shadow-sm">
-                  <div id="${qrId}" class="w-[78px] h-[78px]"></div>
+                <div class="p-1.5 border-[1.8px] border-[#1e2a78] rounded-xl bg-white shadow-sm">
+                  <div id="${qrId}" class="w-[74px] h-[74px]"></div>
                 </div>
-                <span class="text-[9px] font-black uppercase text-[#1e2f97] leading-tight mt-1">SCAN<br><span class="text-slate-600 font-semibold text-[8px]">QR code</span></span>
+                <div class="text-[11px] font-black uppercase text-[#0f172a] leading-none tracking-tight mt-1.5">SCAN</div>
+                <div class="text-[9.5px] font-semibold text-slate-700 leading-tight mt-0.5">the QR code</div>
+                <div class="w-6 h-[2.5px] bg-[#1e2a78] rounded-full mt-1"></div>
               </div>
             </div>
 
-            <div class="w-full pb-2.5 pt-0.5 flex flex-col items-center">
-              <span class="text-[10px] font-mono font-bold text-slate-700 uppercase tracking-widest">${item.id}</span>
-              <span class="text-[7.5px] font-semibold tracking-wider text-slate-500 uppercase mt-0.5">Powered by Yashh</span>
+            <!-- FOOTER: CARD ID + TAGLINE + BRANDING -->
+            <div class="w-full pb-2.5 pt-1 px-3 flex flex-col items-center">
+              <span class="text-[9.5px] font-mono font-extrabold text-slate-800 uppercase tracking-widest">${item.id}</span>
+              <p class="text-[9.5px] font-black uppercase tracking-wide text-[#0f172a] mt-0.5">TAP TO RATE YOUR EXPERIENCE</p>
+              <span class="text-[7px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Powered by Yashh</span>
             </div>
           `;
         }
@@ -1436,17 +1462,17 @@
       try {
         new QRCode(container, {
           text: text,
-          width: 80,
-          height: 80,
-          colorDark: "#000000",
+          width: 74,
+          height: 74,
+          colorDark: "#0f172a",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
       } catch (err) {
         const encoded = encodeURIComponent(text);
         const img = document.createElement("img");
-        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encoded}&margin=1`;
-        img.className = "w-[80px] h-[80px] object-contain";
+        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=74x74&data=${encoded}&margin=1`;
+        img.className = "w-[74px] h-[74px] object-contain";
         container.appendChild(img);
       }
     }
