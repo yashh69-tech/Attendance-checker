@@ -112,7 +112,7 @@
 
       <p id="hub-subtitle" class="text-[11px] text-slate-400 mt-0.5 mb-5">Choose an action below to connect instantly</p>
 
-      <!-- AI SECTION WRAPPER (ONLY VISIBLE WHEN AI IS ENABLED BY ADMIN) -->
+      <!-- AI SECTION WRAPPER (ONLY VISIBLE WHEN AI IS ENABLED BY ADMIN & API SUCCEEDS) -->
       <div id="ai-feature-wrapper" class="hidden">
         <!-- AI LOADING INDICATOR -->
         <div id="ai-loading-box" class="py-6 text-center">
@@ -181,6 +181,20 @@
           </div>
           <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-200"></i>
         </a>
+
+        <!-- One-Tap Save Contact (vCard) Button -->
+        <button type="button" id="hub-btn-save-contact" onclick="downloadShopVCard()" class="hidden w-full p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-2xl flex items-center justify-between shadow-md transition active:scale-98">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <div class="text-xs font-bold leading-tight">Save Shop Contact</div>
+              <div class="text-[9.5px] text-slate-400">1-Tap Save Number to Phonebook</div>
+            </div>
+          </div>
+          <i data-lucide="download" class="w-4 h-4 text-slate-400"></i>
+        </button>
       </div>
 
       <div class="mt-5 pt-3 border-t border-slate-800">
@@ -217,7 +231,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 3. ACTIVATION & SETUP SCREEN (NO AI TOGGLE HERE) -->
+  <!-- 3. ACTIVATION & SETUP SCREEN -->
   <!-- ========================================== -->
   <div id="view-activation" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
@@ -297,10 +311,10 @@
           </div>
         </div>
 
-        <!-- WhatsApp Number -->
+        <!-- WhatsApp / Contact Number -->
         <div id="act-group-wp">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
-            WhatsApp Number <span class="text-slate-500 text-[10px]">(Optional - 10 Digits)</span>
+            WhatsApp & Contact Number <span class="text-slate-500 text-[10px]">(Optional - 10 Digits)</span>
           </label>
           <div class="relative">
             <i data-lucide="phone" class="w-4 h-4 absolute left-3.5 top-3 text-emerald-500"></i>
@@ -555,7 +569,7 @@
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
               <span>AI Auto-Reviews (Pro)</span>
             </div>
-            <div class="text-[10px] text-slate-400">Enable 5 smart AI review options</div>
+            <div class="text-[10px] text-slate-400">Enable smart AI review options</div>
           </div>
           <input type="checkbox" id="edit-input-ai" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
         </div>
@@ -586,7 +600,7 @@
           <input type="text" id="edit-input-insta" placeholder="username or URL" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
         </div>
         <div id="edit-group-wp">
-          <label class="block text-[11px] font-bold text-slate-400 uppercase">WhatsApp Number</label>
+          <label class="block text-[11px] font-bold text-slate-400 uppercase">WhatsApp & Contact Number</label>
           <input type="tel" id="edit-input-wp" placeholder="10-digit number" class="w-full mt-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono">
         </div>
         <div>
@@ -643,7 +657,6 @@
     let tags = [];
     let baseDomain = "";
     let activeCardDoc = null;
-    let lastShownBatch = [];
 
     // Triple Tap Tracker Variables
     let tapCount = 0;
@@ -671,6 +684,44 @@
 
       lucide.createIcons();
     });
+
+    // ==========================================
+    // ONE-TAP SAVE CONTACT (VCARD GENERATOR)
+    // ==========================================
+    function downloadShopVCard() {
+      if (!activeCardDoc || !activeCardDoc.whatsapp) return;
+
+      const bizName = (activeCardDoc.title && activeCardDoc.title !== activeCardDoc.id)
+        ? activeCardDoc.title.trim()
+        : "Business Contact";
+
+      let cleanNum = activeCardDoc.whatsapp.replace(/[^0-9]/g, '');
+      if (cleanNum.length === 10) cleanNum = "+91" + cleanNum;
+      else if (!cleanNum.startsWith('+')) cleanNum = "+" + cleanNum;
+
+      const websiteUrl = activeCardDoc.url || "";
+
+      const vcardLines = [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN:${bizName}`,
+        `ORG:${bizName}`,
+        `TEL;TYPE=CELL,VOICE:${cleanNum}`,
+        websiteUrl ? `URL:${websiteUrl}` : "",
+        "END:VCARD"
+      ].filter(Boolean).join("\r\n");
+
+      const blob = new Blob([vcardLines], { type: "text/vcard;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      const safeFileName = bizName.replace(/[^a-zA-Z0-9]/g, "_") || "Contact";
+      link.download = `${safeFileName}.vcf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast("Contact card ready! Tap to save.");
+    }
 
     // ==========================================
     // ADMIN AUTHENTICATION
@@ -878,120 +929,39 @@
     }
 
     // ==========================================
-    // GEMINI AI + MULTI-CATEGORY DYNAMIC POOL
+    // LIVE GEMINI AI ENGINE (NO HARDCODED SPAM POOL)
     // ==========================================
-    const dynamicReviewPool = {
-      gym: [
-        "State-of-the-art workout machines, motivating trainers and spotless hygiene!",
-        "Great energetic environment with very knowledgeable instructors. Best gym in the area!",
-        "Top-notch workout atmosphere! Equipment is always clean and well maintained.",
-        "Super supportive staff and amazing personal training guidance. 5 stars!",
-        "Spacious gym, reasonable membership fees and excellent vibes for fitness enthusiasts.",
-        "High quality weights, plenty of cardio machines and very disciplined crowd.",
-        "Transformed my fitness routine here. Trainers pay attention to your form and diet.",
-        "Air-conditioned, modern setup with top quality dumbbells and machines. Loved it!",
-        "Best place for daily workouts. Helpful management and positive energy all around.",
-        "Great community, professional coaching and clean changing rooms. 10/10 recommended!",
-        "Amazing workout vibe! Trainers really care about proper form and results.",
-        "Plenty of squat racks and clean mats. Never feels overly crowded."
-      ],
-      cafe: [
-        "Delicious fresh food with quick service and warm, welcoming hospitality!",
-        "Amazing ambiance and mouth-watering taste! A perfect hangout spot with friends.",
-        "Super fresh preparation, reasonable prices and polite staff. Loved the experience!",
-        "Great seating vibes and prompt service. One of the best food spots in town!",
-        "10/10 dining experience! High quality hygiene and top-tier presentation.",
-        "Loved the cold coffee and snacks. Perfect place to relax after college.",
-        "Quick service, Instagrammable cafe decor and delicious food. Highly recommended!",
-        "Very courteous staff and peaceful sitting area. Will definitely visit again.",
-        "Every item on the menu tastes super fresh and authentic. Worth every rupee!",
-        "Best coffee and snacks in the locality. Super friendly staff!"
-      ],
-      salon: [
-        "Very professional styling and polite staff. Highly satisfied with their service!",
-        "Hygienic setup, sanitized tools and skillful haircut styling. Will visit again!",
-        "Relaxing ambiance and expert grooming advice. Totally worth the price!",
-        "Friendly staff and prompt appointment management. Best salon experience nearby!",
-        "Exceptional customer care and very gentle, professional artists. 5 stars!",
-        "Loved my new haircut! The stylist understood exact requirements without rushing.",
-        "Clean salon with branded grooming products and very polite staff."
-      ],
-      clinic: [
-        "Very caring doctor and cooperative staff. Treatment was smooth and painless.",
-        "Clean, hygienic clinic with proper diagnosis and honest medical advice.",
-        "Zero unnecessary waiting time and very polite nursing team. Highly recommended!",
-        "Modern equipment and very reassuring consultation. Best healthcare center around.",
-        "Doctor explained everything clearly and treatment worked quickly. 5 stars!"
-      ],
-      auto: [
-        "Super clean foam wash and detailing! Car looks brand new inside out.",
-        "Honest mechanics, genuine spare parts and quick delivery. Very reliable!",
-        "Great attention to detail and fair pricing. Best auto service center in town.",
-        "Polite staff and thorough inspection before starting the work. 5 stars!"
-      ],
-      general: [
-        "Extremely polite staff, quick turnaround and top-notch experience!",
-        "Superb quality and great hospitality. 10/10 highly recommended!",
-        "Affordable pricing with genuine, courteous team. Definitely coming back!",
-        "Clean, modern setup and seamless customer service.",
-        "One of the finest places in town. Very professional and reliable!",
-        "Fast response and hassle-free assistance. 5 stars from my side!",
-        "Genuine pricing and authentic quality. Best in this locality!",
-        "Great collection and very patient staff while showing options.",
-        "Smooth experience from start to finish. Totally satisfied with their service."
-      ]
-    };
-
-    function detectCategoryKey(bizName, category) {
-      const combined = `${bizName} ${category}`.toLowerCase();
-      if (combined.includes("gym") || combined.includes("fitness") || combined.includes("workout") || combined.includes("crossfit")) return "gym";
-      if (combined.includes("cafe") || combined.includes("food") || combined.includes("restaurant") || combined.includes("restro") || combined.includes("chai") || combined.includes("bake")) return "cafe";
-      if (combined.includes("salon") || combined.includes("spa") || combined.includes("beauty") || combined.includes("hair") || combined.includes("parlour")) return "salon";
-      if (combined.includes("clinic") || combined.includes("dental") || combined.includes("doctor") || combined.includes("hospital")) return "clinic";
-      if (combined.includes("car") || combined.includes("wash") || combined.includes("garage") || combined.includes("auto") || combined.includes("detailing")) return "auto";
-      return "general";
-    }
-
-    function pickDistinctRandomReviews(categoryKey, count) {
-      const pool = dynamicReviewPool[categoryKey] || dynamicReviewPool.general;
-      let freshCandidates = pool.filter(item => !lastShownBatch.includes(item));
-      if (freshCandidates.length < count) {
-        freshCandidates = [...pool];
-      }
-      const shuffled = freshCandidates.sort(() => 0.5 - Math.random());
-      const picked = shuffled.slice(0, count);
-      lastShownBatch = picked;
-      return picked;
-    }
-
     function handleGenerateMore() {
       if (!activeCardDoc) return;
       loadGeminiAiReviews(activeCardDoc);
     }
 
     async function loadGeminiAiReviews(card) {
+      const aiWrapper = document.getElementById('ai-feature-wrapper');
       const loader = document.getElementById('ai-loading-box');
       const container = document.getElementById('ai-reviews-container');
       const moreBox = document.getElementById('ai-more-box');
+      const hubSubtitle = document.getElementById('hub-subtitle');
+      const googleBtnTitle = document.getElementById('hub-google-title');
 
+      aiWrapper.classList.remove('hidden');
       container.classList.add('hidden');
       container.innerHTML = "";
       if (moreBox) moreBox.classList.add('hidden');
       if (loader) loader.classList.remove('hidden');
 
-      const bizName = card.title && card.title !== card.id ? card.title : "Local Store";
-      let contextCategory = card.category || "Auto-detect from Business Name";
-      const catKey = detectCategoryKey(bizName, contextCategory);
+      const bizName = card.title && card.title !== card.id ? card.title : "Local Business";
+      const contextCategory = card.category || "Auto-detect from Business Name";
 
       const randomAngles = [
         "staff behavior and hospitality",
-        "quality of service and equipment",
+        "quality of service and experience",
         "cleanliness, hygiene and ambiance",
         "affordable pricing and value for money"
       ];
       const angle = randomAngles[Math.floor(Math.random() * randomAngles.length)];
 
-      const promptText = `Write exactly 5 short, realistic, fresh positive 5-star Google reviews (1 sentence each, 10-18 words) for "${bizName}" (${catKey}). Focus on ${angle}. Return ONLY a raw JSON array of 5 plain strings without markdown or backticks.`;
+      const promptText = `Write exactly 5 short, realistic, fresh positive 5-star Google reviews (1 sentence each, 10-18 words) for "${bizName}" (${contextCategory}). Focus on ${angle}. Return ONLY a raw JSON array of 5 plain strings without markdown or backticks.`;
 
       try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -1005,22 +975,28 @@
           })
         });
 
-        if (!response.ok) throw new Error("API call failed: " + response.status);
+        if (!response.ok) throw new Error("API unavailable: " + response.status);
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text.trim();
         const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
         const reviews = JSON.parse(cleaned);
-        lastShownBatch = reviews;
-        renderAiChips(reviews, card.url);
-      } catch (err) {
-        console.warn("Using randomized category pool:", err);
-        const randomPicks = pickDistinctRandomReviews(catKey, 5);
-        renderAiChips(randomPicks, card.url);
-      } finally {
+
+        if (!Array.isArray(reviews) || reviews.length === 0) {
+          throw new Error("Invalid AI response");
+        }
+
         if (loader) loader.classList.add('hidden');
-        if (container) container.classList.remove('hidden');
+        renderAiChips(reviews, card.url);
+        container.classList.remove('hidden');
         if (moreBox) moreBox.classList.remove('hidden');
+      } catch (err) {
+        // Safe fallback: hide AI box completely so no repeated hardcoded text is ever posted
+        console.warn("AI skipped safely:", err);
+        aiWrapper.classList.add('hidden');
+        hubSubtitle.innerText = "Choose an action below to connect instantly";
+        googleBtnTitle.innerText = "Rate on Google";
+      } finally {
         lucide.createIcons();
       }
     }
@@ -1073,7 +1049,6 @@
       const googleBtnTitle = document.getElementById('hub-google-title');
 
       if (isAiPro) {
-        aiWrapper.classList.remove('hidden');
         hubSubtitle.innerText = "Tap any AI suggestion to copy & post to Google instantly:";
         googleBtnTitle.innerText = "Write Your Own Review";
         loadGeminiAiReviews(card);
@@ -1096,13 +1071,16 @@
       }
 
       const btnWp = document.getElementById('hub-btn-whatsapp');
+      const btnSaveContact = document.getElementById('hub-btn-save-contact');
       if (card.whatsapp && card.whatsapp.trim() !== "") {
         let cleanNum = card.whatsapp.replace(/[^0-9]/g, '');
         if (cleanNum.length === 10) cleanNum = "91" + cleanNum;
         btnWp.href = `https://wa.me/${cleanNum}?text=Hello!`;
         btnWp.classList.remove('hidden');
+        btnSaveContact.classList.remove('hidden');
       } else {
         btnWp.classList.add('hidden');
+        btnSaveContact.classList.add('hidden');
       }
 
       lucide.createIcons();
@@ -1330,7 +1308,7 @@
     }
 
     // ==========================================
-    // STANDEE PRINT RENDERER (EXACT REFERENCE REPLICA + PRINT CIRCLE FIX)
+    // STANDEE PRINT RENDERER
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
@@ -1368,7 +1346,6 @@
             </div>
           `;
         } else {
-          // EXACT REPLICA OF YOUR REFERENCE STANDEE (DOUBLE WAVE + HAND ICON + FRAMED QR + BOTTOM TAGLINE)
           card.className = "standee-card bg-[#f8fafc] text-slate-900 rounded-[26px] border border-slate-300 shadow-xl relative inline-flex flex-col justify-between items-center text-center overflow-hidden m-2";
           card.style.width = "276px";
           card.style.minHeight = "330px";
@@ -1376,13 +1353,11 @@
           card.innerHTML = `
             <!-- TOP CURVED DOUBLE-WAVE HEADER -->
             <div class="w-full relative overflow-hidden pt-4 pb-9 px-3 text-white flex flex-col items-center">
-              <!-- Light Blue Ribbon Wave Layer -->
               <svg viewBox="0 0 280 115" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none">
                 <path d="M0,0 L280,0 L280,82 Q140,122 0,88 Z" fill="#3b82f6"/>
                 <path d="M0,0 L280,0 L280,73 Q140,112 0,79 Z" fill="#1e2a78"/>
               </svg>
 
-              <!-- 5 Yellow Stars -->
               <div class="relative z-10 flex items-center gap-1.5 text-[#facc15] text-[15px] leading-none mb-1.5 drop-shadow-sm">
                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
               </div>
@@ -1391,7 +1366,7 @@
               </p>
             </div>
 
-            <!-- PERFECT ROUND GOOGLE 'G' BADGE (FIXED WIDTH/HEIGHT FOR PRINT PDF) -->
+            <!-- PERFECT ROUND GOOGLE 'G' BADGE -->
             <div style="width: 58px; height: 58px; min-width: 58px; min-height: 58px; border-radius: 9999px;"
                  class="relative -mt-8 z-20 mx-auto bg-white shadow-md border border-slate-200 flex items-center justify-center">
               <svg class="w-9 h-9" viewBox="0 0 48 48">
@@ -1402,23 +1377,18 @@
               </svg>
             </div>
 
-            <!-- MIDDLE ACTION ROW: HAND TAP + OR + FRAMED QR -->
+            <!-- MIDDLE ACTION ROW -->
             <div class="w-full px-3 pt-2 pb-1 flex items-center justify-between">
-              <!-- Left: Hand Holding Phone with NFC Waves -->
               <div class="flex-1 flex flex-col items-center">
                 <svg class="w-12 h-12 text-[#1e293b] mb-1" viewBox="0 0 64 64" fill="none">
-                  <!-- Blue NFC Signal Arcs -->
                   <path d="M14 23C14 16 19 11 26 11" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
                   <path d="M18 24C18 19 21 16 26 16" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
                   <path d="M22 25C22 22 24 21 26 21" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
-                  <!-- Smartphone Outline -->
                   <rect x="26" y="19" width="16" height="26" rx="2.5" fill="#ffffff" stroke="#1e293b" stroke-width="2.3"/>
                   <line x1="32" y1="22" x2="36" y2="22" stroke="#1e293b" stroke-width="1.8" stroke-linecap="round"/>
-                  <!-- Fingers & Hand Holding Phone -->
                   <path d="M25 26H23C21.8 26 21 26.8 21 28C21 29.2 21.8 30 23 30H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
                   <path d="M25 31H22.5C21.3 31 20.5 31.8 20.5 33C20.5 34.2 21.3 35 22.5 35H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
                   <path d="M25 36H23C21.8 36 21 36.8 21 38C21 39.2 21.8 40 23 40H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
-                  <!-- Wrist / Cuff -->
                   <path d="M26 43L31 53L43 48L41 34" stroke="#1e293b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <div class="text-[11px] font-black uppercase text-[#0f172a] leading-none tracking-tight">TAP</div>
@@ -1426,10 +1396,8 @@
                 <div class="w-6 h-[2.5px] bg-[#1e2a78] rounded-full mt-1"></div>
               </div>
 
-              <!-- Center OR -->
               <span class="text-[10px] font-extrabold text-slate-600 px-1">OR</span>
 
-              <!-- Right: Framed QR Code -->
               <div class="flex-1 flex flex-col items-center">
                 <div class="p-1.5 border-[1.8px] border-[#1e2a78] rounded-xl bg-white shadow-sm">
                   <div id="${qrId}" class="w-[74px] h-[74px]"></div>
@@ -1440,7 +1408,7 @@
               </div>
             </div>
 
-            <!-- FOOTER: CARD ID + TAGLINE + BRANDING -->
+            <!-- FOOTER -->
             <div class="w-full pb-2.5 pt-1 px-3 flex flex-col items-center">
               <span class="text-[9.5px] font-mono font-extrabold text-slate-800 uppercase tracking-widest">${item.id}</span>
               <p class="text-[9.5px] font-black uppercase tracking-wide text-[#0f172a] mt-0.5">TAP TO RATE YOUR EXPERIENCE</p>
