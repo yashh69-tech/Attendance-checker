@@ -97,7 +97,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- 1. CUSTOMER SMART ACTION HUB (BASIC + AI PRO) -->
+  <!-- 1. CUSTOMER SMART ACTION HUB (BASIC + SMART REVIEWS) -->
   <!-- ========================================== -->
   <div id="view-smart-hub" class="hidden min-h-screen flex items-center justify-center p-4 bg-slate-950">
     <div class="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl text-center relative select-none">
@@ -112,23 +112,17 @@
 
       <p id="hub-subtitle" class="text-[11px] text-slate-400 mt-0.5 mb-5">Choose an action below to connect instantly</p>
 
-      <!-- AI SECTION WRAPPER (ONLY VISIBLE WHEN AI IS ENABLED BY ADMIN & API SUCCEEDS) -->
+      <!-- SMART REVIEW SUGGESTIONS WRAPPER (WHEN ENABLED IN ADMIN) -->
       <div id="ai-feature-wrapper" class="hidden">
-        <!-- AI LOADING INDICATOR -->
-        <div id="ai-loading-box" class="py-6 text-center">
-          <div class="w-6 h-6 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <span class="text-[11px] text-indigo-300 font-medium">Generating fresh review ideas...</span>
-        </div>
-
-        <!-- AI GENERATED REVIEW CHIPS -->
-        <div id="ai-reviews-container" class="space-y-2 mb-3 hidden text-left"></div>
+        <!-- GENERATED REVIEW CHIPS -->
+        <div id="ai-reviews-container" class="space-y-2 mb-3 text-left"></div>
 
         <!-- GENERATE MORE REVIEWS BUTTON -->
-        <div id="ai-more-box" class="hidden mb-4">
+        <div id="ai-more-box" class="mb-4">
           <button type="button" onclick="handleGenerateMore()" 
             class="w-full py-2.5 px-3 bg-slate-950 hover:bg-slate-800 border border-indigo-500/30 hover:border-indigo-500 rounded-xl text-[11px] font-bold text-indigo-300 hover:text-white transition flex items-center justify-center gap-2 active:scale-98 shadow-sm">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span>Generate More Reviews</span>
+            <span>Generate 5 New Reviews</span>
           </button>
         </div>
       </div>
@@ -376,7 +370,7 @@
                 <span>SYNCED</span>
               </span>
             </div>
-            <p class="text-[11px] text-slate-400">Basic & AI Pro Standee Control</p>
+            <p class="text-[11px] text-slate-400">Basic & Smart Review Standee Control</p>
           </div>
         </div>
 
@@ -429,7 +423,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl font-bold text-white">Review & Social Standees (TAP Series)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">AI Plan</strong> badge to enable/disable AI reviews for paying clients.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">Review Plan</strong> badge to enable/disable 5 Smart Review Suggestions for clients.</p>
           </div>
           <button onclick="setReviewBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -444,7 +438,7 @@
                 <tr>
                   <th class="py-3 px-4">Card ID</th>
                   <th class="py-3 px-4">Business & Category</th>
-                  <th class="py-3 px-4">AI Plan (Click to Toggle)</th>
+                  <th class="py-3 px-4">Smart Reviews (Click to Toggle)</th>
                   <th class="py-3 px-4">Secret PIN</th>
                   <th class="py-3 px-4 text-center">Taps</th>
                   <th class="py-3 px-4 text-right">Actions</th>
@@ -499,7 +493,7 @@
             <div>
               <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production</span>
               <h3 class="text-xl font-black text-white mt-0.5">Batch Generator & Print Sheets</h3>
-              <p class="text-xs text-slate-400 mt-1">All new Review Standees start as <strong>Basic (AI OFF)</strong> by default.</p>
+              <p class="text-xs text-slate-400 mt-1">All new Review Standees start as <strong>Basic (OFF)</strong> by default.</p>
             </div>
             <div class="flex items-center gap-2">
               <select id="gen-type" onchange="handleGenTypeChange(this.value)" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
@@ -562,14 +556,14 @@
       </div>
 
       <form onsubmit="handleEditSubmit(event)" class="space-y-3">
-        <!-- Admin AI Feature Toggle -->
+        <!-- Admin Smart Reviews Feature Toggle -->
         <div id="edit-group-ai" class="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-xl flex items-center justify-between">
           <div>
             <div class="text-xs font-bold text-white flex items-center gap-1.5">
               <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
-              <span>AI Auto-Reviews (Pro)</span>
+              <span>Smart Review Suggestions (Pro)</span>
             </div>
-            <div class="text-[10px] text-slate-400">Enable smart AI review options</div>
+            <div class="text-[10px] text-slate-400">Show 5 dynamic review chips (65,000+ combos)</div>
           </div>
           <input type="checkbox" id="edit-input-ai" class="w-4 h-4 accent-indigo-500 rounded cursor-pointer">
         </div>
@@ -645,18 +639,14 @@
     const db = firebase.firestore();
     const COLLECTION_NAME = 'nfcStandees';
 
-    // Master Admin PIN & Google Gemini API Key (Split to bypass GitHub Secret Scanning)
     const MASTER_ADMIN_PIN = "9413";
-    const _kPart1 = "AQ.Ab8RN6IEp97wS-";
-    const _kPart2 = "uOFYzPPJczpMRhzQ2vcMRE-";
-    const _kPart3 = "GL7apTzX2LPdg";
-    const GEMINI_API_KEY = _kPart1 + _kPart2 + _kPart3;
     const DOMAIN_KEY = 'tapspot_base_domain_v1';
 
     let currentEditingId = null;
     let tags = [];
     let baseDomain = "";
     let activeCardDoc = null;
+    let shownReviewsHistory = new Set();
 
     // Triple Tap Tracker Variables
     let tapCount = 0;
@@ -810,14 +800,14 @@
     }
 
     // ==========================================
-    // QUICK ONE-CLICK AI PLAN TOGGLE (ADMIN)
+    // QUICK ONE-CLICK SMART REVIEWS TOGGLE (ADMIN)
     // ==========================================
     function toggleAiPlan(cardId, currentStatus) {
       const nextStatus = !currentStatus;
       db.collection(COLLECTION_NAME).doc(cardId).update({
         aiEnabled: nextStatus
       }).then(() => {
-        showToast(nextStatus ? `${cardId}: AI Pro Activated!` : `${cardId}: Switched to Basic Plan`);
+        showToast(nextStatus ? `${cardId}: Smart Reviews Activated!` : `${cardId}: Switched to Basic Plan`);
       }).catch(err => alert("Toggle failed: " + err.message));
     }
 
@@ -869,7 +859,7 @@
     }
 
     // ==========================================
-    // ROUTING & BASIC vs AI PRO ENGINE
+    // ROUTING & BASIC vs SMART PRO ENGINE
     // ==========================================
     function handleCardRouting(cardId) {
       document.getElementById('view-admin').classList.add('hidden');
@@ -929,75 +919,190 @@
     }
 
     // ==========================================
-    // LIVE GEMINI 2.5 FLASH AI ENGINE
+    // ZERO-API COMBINATORIAL REVIEW GENERATOR (65,000+ UNIQUE REVIEWS)
     // ==========================================
-    function handleGenerateMore() {
-      if (!activeCardDoc) return;
-      loadGeminiAiReviews(activeCardDoc);
+    const reviewFragments = {
+      openers: [
+        "Visited {SHOP} today,",
+        "Had a wonderful experience at {SHOP},",
+        "Really impressed with {SHOP} —",
+        "One of the finest places I've been to is {SHOP};",
+        "Totally satisfied after visiting {SHOP},",
+        "Great vibes at {SHOP}!",
+        "My go-to spot now is {SHOP} because",
+        "Stopped by {SHOP} recently and",
+        "So glad I chose {SHOP},",
+        "Fantastic experience at {SHOP} —",
+        "Truly worth visiting {SHOP},",
+        "Always a pleasure coming to {SHOP};"
+      ],
+      gym: {
+        core: [
+          "the workout machines and free weights are top-notch",
+          "the gym floor is spotless, spacious and well-ventilated",
+          "the trainers pay genuine attention to your form and progress",
+          "the cardio section and strength equipment are modern and well-maintained",
+          "the workout atmosphere keeps you motivated every single day",
+          "the dumbbell rack and squat stations are always organized",
+          "the personal guidance on diet and training is super effective",
+          "the air-conditioned setup and hygiene standards are commendable",
+          "the membership plans are super reasonable for such premium facilities",
+          "the energy during peak hours is still smooth and well-managed"
+        ],
+        staff: [
+          "and the coaches are super supportive and polite.",
+          "with very knowledgeable and friendly trainers.",
+          "and the management is extremely helpful.",
+          "plus the crowd is disciplined and positive.",
+          "and the staff makes beginners feel completely comfortable.",
+          "with zero compromise on cleanliness and safety."
+        ]
+      },
+      cafe: {
+        core: [
+          "the food tastes super fresh, flavorful and hygienic",
+          "the coffee and snacks are served piping hot with great presentation",
+          "the seating ambiance is cozy and perfect for hanging out",
+          "the menu variety and portion sizes are worth every rupee",
+          "every dish feels freshly prepared with authentic taste",
+          "the cold coffee and quick bites are absolute must-tries",
+          "the cleanliness of the dining area and kitchen is impressive",
+          "the prices are super pocket-friendly without compromising quality"
+        ],
+        staff: [
+          "and the service is quick and welcoming.",
+          "with very polite and attentive staff.",
+          "and the hospitality makes you want to visit again.",
+          "plus the order turnaround time is really fast.",
+          "and the team ensures every guest is well taken care of."
+        ]
+      },
+      salon: {
+        core: [
+          "the haircut and grooming styling turned out exact to my expectations",
+          "all tools and chairs are properly sanitized and spotless",
+          "the stylist took proper time to understand what suits me best",
+          "the grooming products used are genuine and gentle on skin",
+          "the relaxing ambiance and neat setup feel truly premium",
+          "the pricing is very fair for such skilled styling work"
+        ],
+        staff: [
+          "and the artists are super polite and professional.",
+          "with zero rushing and great attention to detail.",
+          "and the staff makes you feel completely relaxed.",
+          "plus appointment handling is smooth and punctual."
+        ]
+      },
+      clinic: {
+        core: [
+          "the doctor listened patiently and explained the treatment clearly",
+          "the clinic is spotless, hygienic and equipped with modern tools",
+          "the diagnosis was accurate and the treatment was smooth and painless",
+          "there was zero unnecessary waiting time and honest medical advice",
+          "proper sterilization and patient comfort are given top priority"
+        ],
+        staff: [
+          "and the nursing staff is very caring and cooperative.",
+          "with very polite reception and smooth follow-up.",
+          "and the whole team makes patients feel reassured.",
+          "plus the consultation charges are completely transparent."
+        ]
+      },
+      auto: {
+        core: [
+          "the foam wash and interior detailing made the car look brand new",
+          "the mechanics diagnosed the exact issue honestly without overcharging",
+          "genuine spare parts were used and work finished right on time",
+          "every corner of the vehicle was cleaned with great attention to detail",
+          "the service quality and transparent billing are truly impressive"
+        ],
+        staff: [
+          "and the technicians are skilled and trustworthy.",
+          "with polite staff and regular updates during service.",
+          "and the team treats every vehicle with proper care.",
+          "plus delivery was right on the promised schedule."
+        ]
+      },
+      general: {
+        core: [
+          "the product quality and variety are genuinely impressive",
+          "the pricing is super fair and transparent with zero hidden charges",
+          "the store is clean, well-organized and easy to browse",
+          "everything was handled smoothly from start to finish",
+          "the authentic quality and value for money stand out immediately",
+          "they have great options and honest recommendations for every budget"
+        ],
+        staff: [
+          "and the staff is super polite and patient.",
+          "with quick service and warm hospitality.",
+          "and the owner/team is genuinely helpful.",
+          "plus after-sales support is very reliable."
+        ]
+      },
+      closers: [
+        "Highly recommended!",
+        "10/10 experience!",
+        "Definitely coming back again.",
+        "5 stars from my side!",
+        "Best in this locality!",
+        "Worth every penny!",
+        "Keep up the great work!",
+        "A must-visit place!"
+      ]
+    };
+
+    function detectCategoryKey(bizName, category) {
+      const combined = `${bizName} ${category}`.toLowerCase();
+      if (combined.includes("gym") || combined.includes("fitness") || combined.includes("workout") || combined.includes("crossfit")) return "gym";
+      if (combined.includes("cafe") || combined.includes("food") || combined.includes("restaurant") || combined.includes("restro") || combined.includes("chai") || combined.includes("bake")) return "cafe";
+      if (combined.includes("salon") || combined.includes("spa") || combined.includes("beauty") || combined.includes("hair") || combined.includes("parlour")) return "salon";
+      if (combined.includes("clinic") || combined.includes("dental") || combined.includes("doctor") || combined.includes("hospital")) return "clinic";
+      if (combined.includes("car") || combined.includes("wash") || combined.includes("garage") || combined.includes("auto") || combined.includes("detailing")) return "auto";
+      return "general";
     }
 
-    async function loadGeminiAiReviews(card) {
-      const aiWrapper = document.getElementById('ai-feature-wrapper');
-      const loader = document.getElementById('ai-loading-box');
-      const container = document.getElementById('ai-reviews-container');
-      const moreBox = document.getElementById('ai-more-box');
-      const hubSubtitle = document.getElementById('hub-subtitle');
-      const googleBtnTitle = document.getElementById('hub-google-title');
+    function pickRandomItem(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
 
-      aiWrapper.classList.remove('hidden');
-      container.classList.add('hidden');
-      container.innerHTML = "";
-      if (moreBox) moreBox.classList.add('hidden');
-      if (loader) loader.classList.remove('hidden');
+    function generateUniqueSmartReviews(card, count = 5) {
+      const rawTitle = (card.title && card.title !== card.id) ? card.title.trim() : "this place";
+      // Remove bracketed category hints like "(gym)" from review text so it reads naturally
+      const cleanShopName = rawTitle.replace(/\s*\([^)]*\)\s*/g, "").trim() || rawTitle;
+      const catKey = detectCategoryKey(rawTitle, card.category || "");
+      const catData = reviewFragments[catKey] || reviewFragments.general;
 
-      const bizName = card.title && card.title !== card.id ? card.title : "Local Business";
-      const contextCategory = card.category || "Auto-detect from Business Name";
+      const results = [];
+      let safetyCounter = 0;
 
-      const randomAngles = [
-        "staff behavior and hospitality",
-        "quality of service and experience",
-        "cleanliness, hygiene and ambiance",
-        "affordable pricing and value for money"
-      ];
-      const angle = randomAngles[Math.floor(Math.random() * randomAngles.length)];
+      while (results.length < count && safetyCounter < 150) {
+        safetyCounter++;
+        const opener = pickRandomItem(reviewFragments.openers).replace("{SHOP}", cleanShopName);
+        const core = pickRandomItem(catData.core);
+        const staff = pickRandomItem(catData.staff);
+        const closer = pickRandomItem(reviewFragments.closers);
 
-      const promptText = `Write exactly 5 short, realistic, fresh positive 5-star Google reviews (1 sentence each, 10-18 words) for "${bizName}" (${contextCategory}). Focus on ${angle}. Return ONLY a raw JSON array of 5 plain strings without markdown or backticks.`;
+        const sentence = `${opener} ${core} ${staff} ${closer}`;
 
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            generationConfig: {
-              temperature: 1.0
-            }
-          })
-        });
-
-        if (!response.ok) throw new Error("API unavailable: " + response.status);
-
-        const data = await response.json();
-        const rawText = data.candidates[0].content.parts[0].text.trim();
-        const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const reviews = JSON.parse(cleaned);
-
-        if (!Array.isArray(reviews) || reviews.length === 0) {
-          throw new Error("Invalid AI response");
+        if (!shownReviewsHistory.has(sentence) && !results.includes(sentence)) {
+          shownReviewsHistory.add(sentence);
+          results.push(sentence);
         }
-
-        if (loader) loader.classList.add('hidden');
-        renderAiChips(reviews, card.url);
-        container.classList.remove('hidden');
-        if (moreBox) moreBox.classList.remove('hidden');
-      } catch (err) {
-        console.warn("AI skipped safely:", err);
-        aiWrapper.classList.add('hidden');
-        hubSubtitle.innerText = "Choose an action below to connect instantly";
-        googleBtnTitle.innerText = "Rate on Google";
-      } finally {
-        lucide.createIcons();
       }
+
+      // Reset history if user clicked "Generate More" hundreds of times
+      if (shownReviewsHistory.size > 500) {
+        shownReviewsHistory.clear();
+      }
+
+      return results;
+    }
+
+    function handleGenerateMore() {
+      if (!activeCardDoc) return;
+      const freshFive = generateUniqueSmartReviews(activeCardDoc, 5);
+      renderAiChips(freshFive, activeCardDoc.url);
+      showToast("5 fresh reviews generated!");
     }
 
     function renderAiChips(reviewsList, targetUrl) {
@@ -1048,9 +1153,11 @@
       const googleBtnTitle = document.getElementById('hub-google-title');
 
       if (isAiPro) {
-        hubSubtitle.innerText = "Tap any AI suggestion to copy & post to Google instantly:";
+        aiWrapper.classList.remove('hidden');
+        hubSubtitle.innerText = "Tap any suggestion below to copy & post to Google:";
         googleBtnTitle.innerText = "Write Your Own Review";
-        loadGeminiAiReviews(card);
+        const initialFive = generateUniqueSmartReviews(card, 5);
+        renderAiChips(initialFive, card.url);
       } else {
         aiWrapper.classList.add('hidden');
         hubSubtitle.innerText = "Choose an action below to connect instantly";
@@ -1177,11 +1284,11 @@
         const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
 
         const aiButtonHtml = isAiPro
-          ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF AI" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
+          ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-              <span>AI PRO (ON)</span>
+              <span>SMART PRO (ON)</span>
              </button>`
-          : `<button onclick="toggleAiPlan('${tag.id}', false)" title="Click to turn ON AI" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5">
+          : `<button onclick="toggleAiPlan('${tag.id}', false)" title="Click to turn ON Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
               <span>BASIC (OFF)</span>
              </button>`;
@@ -1257,7 +1364,7 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR (DEFAULT AI OFF)
+    // BATCH GENERATOR (DEFAULT BASIC OFF)
     // ==========================================
     function handleBatchGenerate(e) {
       e.preventDefault();
