@@ -430,7 +430,7 @@
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl font-bold text-white">Review & Social Standees (TAP Series)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">Review Plan</strong> badge to enable/disable 5 Smart Review Suggestions for clients.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">Review Plan</strong> badge to enable/disable Smart Reviews, or use <strong class="text-emerald-400">WA</strong> buttons for 1-click WhatsApp Welcome & 7-Day Check-in.</p>
           </div>
           <button onclick="setReviewBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
@@ -448,7 +448,7 @@
                   <th class="py-3 px-4">Smart Reviews (Click to Toggle)</th>
                   <th class="py-3 px-4">Secret PIN</th>
                   <th class="py-3 px-4 text-center">Taps</th>
-                  <th class="py-3 px-4 text-right">Actions</th>
+                  <th class="py-3 px-4 text-right">Actions & WhatsApp</th>
                 </tr>
               </thead>
               <tbody id="tags-table-body" class="divide-y divide-slate-800/60 font-mono">
@@ -681,6 +681,74 @@
 
       lucide.createIcons();
     });
+
+    // ==========================================
+    // ONE-CLICK WHATSAPP WELCOME & 7-DAY CHECK-IN
+    // ==========================================
+    function formatWhatsAppNumber(rawPhone) {
+      if (!rawPhone) return null;
+      let cleanNum = rawPhone.replace(/[^0-9]/g, '');
+      if (cleanNum.length === 10) cleanNum = "91" + cleanNum;
+      return cleanNum.length >= 10 ? cleanNum : null;
+    }
+
+    function isSevenDaysDue(tag) {
+      if (!tag.url || tag.url.trim() === "" || tag.checkinSent === true) return false;
+      const ts = tag.activatedAt || tag.createdAt;
+      if (!ts || typeof ts.toDate !== 'function') return false;
+      const diffMs = Date.now() - ts.toDate().getTime();
+      return diffMs >= 7 * 24 * 60 * 60 * 1000;
+    }
+
+    function sendClientWhatsApp(cardId, msgType) {
+      const tag = tags.find(t => t.id === cardId);
+      if (!tag) return;
+
+      const cleanNum = formatWhatsAppNumber(tag.whatsapp);
+      if (!cleanNum) {
+        showToast("WhatsApp number missing! Edit card first.");
+        openEditModal(cardId);
+        return;
+      }
+
+      const shopLabel = (tag.title && tag.title !== tag.id) ? tag.title.trim() : "aapki shop";
+      let msg = "";
+
+      if (msgType === 'welcome') {
+        msg = [
+          "*Welcome to TapSpot!* 🚀",
+          "",
+          `Namaste Bhaiya, *${shopLabel}* ka *TapSpot NFC Google Review Card* (${tag.id}) ab active aur ready to use hai.`,
+          "",
+          "*Kaise use karein:*",
+          "1. Billing ke time customer ke phone ke peeche (ya upar) card touch karwayein.",
+          "2. 3 second mein aapka Google Review page khul jayega.",
+          "3. Agar kisi phone mein NFC off ho, toh card ke peeche wala QR scan kar sakte hain.",
+          "",
+          "*Support & Updates:*",
+          "Kabhi bhi link update karwana ho (Instagram, WhatsApp ya Google link) ya naye cards chahiye hon, toh bas isi number pe message kar dein.",
+          "",
+          "Aapke business ki growth ke liye all the best!",
+          "— *Yash | TapSpot*"
+        ].join("\n");
+      } else {
+        msg = [
+          `Namaste Bhaiya, Yash bol raha hoon TapSpot se! *${shopLabel}* ke card ko lage hue 1 hafta ho gaya hai—kaisa chal raha hai? Customers tap kar rahe hain na, aur reviews badhne shuru hue?`,
+          "",
+          "Agar sab badhiya chal raha ho aur aapke kisi jaankar shop owner ko bhi yeh card chahiye ho, toh mera number zaroor share kijiyega. Koi bhi help chahiye ho toh batana!"
+        ].join("\n");
+      }
+
+      window.open(`https://wa.me/${cleanNum}?text=${encodeURIComponent(msg)}`, '_blank');
+
+      const updatePayload = msgType === 'welcome'
+        ? { welcomeSent: true, welcomeSentAt: firebase.firestore.FieldValue.serverTimestamp() }
+        : { checkinSent: true, checkinSentAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+      db.collection(COLLECTION_NAME).doc(cardId).update(updatePayload)
+        .then(() => showToast(msgType === 'welcome' ? `${cardId}: Welcome opened!` : `${cardId}: 7-Day Check-in opened!`))
+        .catch(err => console.warn(err));
+    }
 
     // ==========================================
     // ONE-TAP SAVE CONTACT (VCARD GENERATOR)
@@ -1287,6 +1355,8 @@
         const isLinked = tag.url && tag.url.trim() !== "";
         const isAiPro = tag.aiEnabled === true;
         const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
+        const hasWp = Boolean(formatWhatsAppNumber(tag.whatsapp));
+        const due7d = isSevenDaysDue(tag);
 
         const aiButtonHtml = isAiPro
           ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
@@ -1297,6 +1367,20 @@
               <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
               <span>BASIC (OFF)</span>
              </button>`;
+
+        const welcomeBtnHtml = isLinked
+          ? `<button onclick="sendClientWhatsApp('${tag.id}', 'welcome')" title="${hasWp ? 'Send 1-Click Welcome WhatsApp' : 'Add WhatsApp number first'}" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 transition ${tag.welcomeSent ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}">
+              <i data-lucide="message-circle" class="w-3 h-3"></i>
+              <span>${tag.welcomeSent ? 'WA ✓' : 'Welcome'}</span>
+             </button>`
+          : '';
+
+        const checkinBtnHtml = (isLinked && due7d)
+          ? `<button onclick="sendClientWhatsApp('${tag.id}', 'checkin')" title="Send 7-Day Check-in on WhatsApp" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-950 transition">
+              <i data-lucide="clock" class="w-3 h-3"></i>
+              <span>7d Due</span>
+             </button>`
+          : '';
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/40 transition";
@@ -1312,14 +1396,16 @@
           <td class="py-3 px-4">${aiButtonHtml}</td>
           <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
           <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
-          <td class="py-3 px-4 text-right space-x-2">
-            <a href="${tagRouteUrl}" target="_blank" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 inline-block">
+          <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+            ${welcomeBtnHtml}
+            ${checkinBtnHtml}
+            <a href="${tagRouteUrl}" target="_blank" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 inline-block align-middle">
               <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
             </a>
-            <button onclick="openEditModal('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-indigo-300">
+            <button onclick="openEditModal('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-indigo-300 align-middle">
               <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
             </button>
-            <button onclick="deleteTag('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-rose-900/50 rounded-lg text-rose-400">
+            <button onclick="deleteTag('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-rose-900/50 rounded-lg text-rose-400 align-middle">
               <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
             </button>
           </td>
@@ -1615,7 +1701,9 @@
         url: "",
         insta: "",
         whatsapp: "",
-        aiEnabled: false
+        aiEnabled: false,
+        welcomeSent: false,
+        checkinSent: false
       }).then(() => {
         closeEditModal();
         showToast("Card reset to setup mode.");
