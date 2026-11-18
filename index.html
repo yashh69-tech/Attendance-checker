@@ -39,7 +39,7 @@
         padding: 0 !important;
         width: 100% !important;
       }
-      .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal, #modal-merchant-pin, #tab-tags, #tab-menu-tags {
+      .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal, #modal-merchant-pin, #tab-tags, #tab-hub-tags, #tab-menu-tags {
         display: none !important;
       }
       #tab-batch, #print-area {
@@ -55,7 +55,7 @@
         text-align: center !important;
       }
       
-      .standee-card, .menu-card {
+      .standee-card, .hub-card, .menu-card {
         display: flex !important;
         width: 4.1in !important;
         height: 4.35in !important;
@@ -71,7 +71,7 @@
       }
 
       /* Force clean page break after every 2nd card */
-      .standee-card:nth-child(2n), .menu-card:nth-child(2n) {
+      .standee-card:nth-child(2n), .hub-card:nth-child(2n), .menu-card:nth-child(2n) {
         page-break-after: always !important;
         break-after: page !important;
       }
@@ -377,16 +377,19 @@
                 <span>SYNCED</span>
               </span>
             </div>
-            <p class="text-[11px] text-slate-400">Basic & Smart Review Standee Control</p>
+            <p class="text-[11px] text-slate-400">TAP Review • HUB 3-in-1 • MNU Menu Control</p>
           </div>
         </div>
 
         <nav class="hidden md:flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
           <button onclick="switchTab('tags')" id="nav-btn-tags" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-slate-800 transition">
-            Review Standees
+            Review Standees (TAP)
+          </button>
+          <button onclick="switchTab('hub-tags')" id="nav-btn-hub-tags" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+            Connect Hub (HUB)
           </button>
           <button onclick="switchTab('menu-tags')" id="nav-btn-menu-tags" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
-            Menu Tiles
+            Menu Tiles (MNU)
           </button>
           <button onclick="switchTab('batch')" id="nav-btn-batch" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
             Bulk Generator & Print
@@ -402,6 +405,13 @@
             <i data-lucide="lock" class="w-4 h-4"></i>
           </button>
         </div>
+      </div>
+      <!-- Mobile Tab Bar -->
+      <div class="flex md:hidden items-center gap-1 px-4 pb-2 overflow-x-auto">
+        <button onclick="switchTab('tags')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-800 text-white whitespace-nowrap">TAP Standees</button>
+        <button onclick="switchTab('hub-tags')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-sky-300 whitespace-nowrap">HUB 3-in-1</button>
+        <button onclick="switchTab('menu-tags')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-amber-300 whitespace-nowrap">MNU Tiles</button>
+        <button onclick="switchTab('batch')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-emerald-300 whitespace-nowrap">Bulk & Print</button>
       </div>
     </header>
 
@@ -425,16 +435,16 @@
     <!-- Main Admin Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
 
-      <!-- TAB 1: REVIEW STANDEES -->
+      <!-- TAB 1: REVIEW STANDEES (TAP SERIES ONLY) -->
       <section id="tab-tags" class="space-y-6">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold text-white">Review & Social Standees (TAP Series)</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Click the <strong class="text-indigo-400">Review Plan</strong> badge to enable/disable Smart Reviews, or use <strong class="text-emerald-400">WA</strong> buttons for 1-click WhatsApp Welcome & 7-Day Check-in.</p>
+            <h2 class="text-xl font-bold text-white">Review Standees (TAP Series)</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Isolated list of <strong class="text-indigo-400">TAP</strong> Google Review cards. Includes 1-click WhatsApp Welcome & 7-Day Check-in.</p>
           </div>
-          <button onclick="setReviewBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+          <button onclick="setBatchDefaults('review'); switchTab('batch');" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Add Review Batch</span>
+            <span>Add TAP Batch</span>
           </button>
         </div>
 
@@ -459,16 +469,50 @@
         </div>
       </section>
 
-      <!-- TAB 2: MENU TILES -->
+      <!-- TAB 2: CONNECT HUB 3-IN-1 CARDS (HUB SERIES ONLY) -->
+      <section id="tab-hub-tags" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-xl font-bold text-sky-300">Connect With Us 3-in-1 Cards (HUB Series)</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Isolated list of <strong class="text-sky-400">HUB</strong> cards (Google Review + WhatsApp + Instagram 3-in-1 front design).</p>
+          </div>
+          <button onclick="setBatchDefaults('hub'); switchTab('batch');" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Add HUB Batch</span>
+          </button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-sky-400/80 font-bold uppercase tracking-wider border-b border-slate-800">
+                <tr>
+                  <th class="py-3 px-4">Card ID</th>
+                  <th class="py-3 px-4">Business & Category</th>
+                  <th class="py-3 px-4">Smart Reviews (Click to Toggle)</th>
+                  <th class="py-3 px-4">Secret PIN</th>
+                  <th class="py-3 px-4 text-center">Taps</th>
+                  <th class="py-3 px-4 text-right">Actions & WhatsApp</th>
+                </tr>
+              </thead>
+              <tbody id="hub-table-body" class="divide-y divide-slate-800/60 font-mono">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: MENU TILES (MNU SERIES ONLY) -->
       <section id="tab-menu-tags" class="hidden space-y-6">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-xl font-bold text-amber-300">Digital Menu Tiles (MNU Series)</h2>
             <p class="text-xs text-slate-400 mt-0.5">Direct PDF / Zomato / Swiggy menu tiles for dining tables.</p>
           </div>
-          <button onclick="setMenuBatchDefaults(); switchTab('batch');" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+          <button onclick="setBatchDefaults('menu'); switchTab('batch');" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Add Menu Batch</span>
+            <span>Add MNU Batch</span>
           </button>
         </div>
 
@@ -493,18 +537,19 @@
         </div>
       </section>
 
-      <!-- TAB 3: BATCH GENERATOR & PRINT -->
+      <!-- TAB 4: BATCH GENERATOR & PRINT -->
       <section id="tab-batch" class="hidden space-y-6">
         <div class="no-print bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
             <div>
-              <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production</span>
+              <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">Fast Production (Strictly Isolated Batches)</span>
               <h3 class="text-xl font-black text-white mt-0.5">Batch Generator & Print Sheets</h3>
-              <p class="text-xs text-slate-400 mt-1">All new Review Standees start as <strong>Basic (OFF)</strong> by default.</p>
+              <p class="text-xs text-slate-400 mt-1">Select card type below to generate and preview only that series (no mixing).</p>
             </div>
             <div class="flex items-center gap-2">
               <select id="gen-type" onchange="handleGenTypeChange(this.value)" class="bg-slate-950 border border-indigo-500/50 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none">
                 <option value="review">Review Standees (TAP)</option>
+                <option value="hub">Connect Hub 3-in-1 (HUB)</option>
                 <option value="menu">Digital Menu Tiles (MNU)</option>
               </select>
             </div>
@@ -513,7 +558,7 @@
           <form onsubmit="handleBatchGenerate(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Prefix</label>
-              <input type="text" id="gen-prefix" value="TAP" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white uppercase focus:outline-none focus:border-indigo-500">
+              <input type="text" id="gen-prefix" value="TAP" readonly class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-indigo-300 uppercase focus:outline-none">
             </div>
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Start Number</label>
@@ -536,7 +581,7 @@
           <div class="no-print flex items-center justify-between">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-400"></i>
-              <span>Large Hand-Size Print Sheet (2 Stacked Cards per A4 Page — Zero Cut)</span>
+              <span id="print-sheet-label">Print Sheet: Review Standees (TAP)</span>
             </h4>
             <span class="text-xs text-slate-500">Print on <strong>A4</strong> at <strong>100% Scale</strong></span>
           </div>
@@ -718,12 +763,12 @@
         msg = [
           "*Welcome to TapSpot!* 🚀",
           "",
-          `Namaste Bhaiya, *${shopLabel}* ka *TapSpot NFC Google Review Card* (${tag.id}) ab active aur ready to use hai.`,
+          `Namaste Bhaiya, *${shopLabel}* ka *TapSpot NFC Card* (${tag.id}) ab active aur ready to use hai.`,
           "",
           "*Kaise use karein:*",
           "1. Billing ke time customer ke phone ke peeche (ya upar) card touch karwayein.",
-          "2. 3 second mein aapka Google Review page khul jayega.",
-          "3. Agar kisi phone mein NFC off ho, toh card ke peeche wala QR scan kar sakte hain.",
+          "2. 3 second mein aapka Google Review / Connect Hub page khul jayega.",
+          "3. Agar kisi phone mein NFC off ho, toh card par diya QR scan kar sakte hain.",
           "",
           "*Support & Updates:*",
           "Kabhi bhi link update karwana ho (Instagram, WhatsApp ya Google link) ya naye cards chahiye hon, toh bas isi number pe message kar dein.",
@@ -840,6 +885,7 @@
         tags.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: 'base' }));
 
         renderTagsTable();
+        renderHubTable();
         renderMenuTable();
         renderStandees();
       }, (error) => {
@@ -852,6 +898,7 @@
       localStorage.setItem(DOMAIN_KEY, baseDomain);
       renderStandees();
       renderTagsTable();
+      renderHubTable();
       renderMenuTable();
       showToast("Domain updated!");
     }
@@ -862,6 +909,7 @@
       localStorage.setItem(DOMAIN_KEY, baseDomain);
       renderStandees();
       renderTagsTable();
+      renderHubTable();
       renderMenuTable();
       showToast("Domain reset to current URL.");
     }
@@ -941,6 +989,7 @@
       document.getElementById('admin-auth-modal').classList.add('hidden');
 
       const isMenuCard = cardId.startsWith('MNU');
+      const isHubCard = cardId.startsWith('HUB');
 
       db.collection(COLLECTION_NAME).doc(cardId).get()
         .then((doc) => {
@@ -968,7 +1017,7 @@
             const hasInsta = card.insta && card.insta.trim() !== "";
             const hasWp = card.whatsapp && card.whatsapp.trim() !== "";
 
-            if (!isAiPro && !hasInsta && !hasWp) {
+            if (!isHubCard && !isAiPro && !hasInsta && !hasWp) {
               window.location.replace(card.url);
               return;
             }
@@ -1303,10 +1352,10 @@
     }
 
     // ==========================================
-    // ADMIN UI MANAGEMENT
+    // ADMIN UI MANAGEMENT (STRICTLY ISOLATED TABS)
     // ==========================================
     function switchTab(tab) {
-      ['tags', 'menu-tags', 'batch'].forEach(t => {
+      ['tags', 'hub-tags', 'menu-tags', 'batch'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
         const navBtn = document.getElementById(`nav-btn-${t}`);
         if (navBtn) navBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
@@ -1320,98 +1369,117 @@
       lucide.createIcons();
     }
 
-    function setReviewBatchDefaults() {
-      document.getElementById('gen-type').value = 'review';
-      document.getElementById('gen-prefix').value = 'TAP';
-    }
-
-    function setMenuBatchDefaults() {
-      document.getElementById('gen-type').value = 'menu';
-      document.getElementById('gen-prefix').value = 'MNU';
+    function setBatchDefaults(type) {
+      document.getElementById('gen-type').value = type;
+      handleGenTypeChange(type);
     }
 
     function handleGenTypeChange(val) {
       const prefixInput = document.getElementById('gen-prefix');
+      const printLabel = document.getElementById('print-sheet-label');
+
       if (val === 'menu') {
         prefixInput.value = 'MNU';
+        if (printLabel) printLabel.innerText = 'Print Sheet: Digital Menu Tiles (MNU)';
+      } else if (val === 'hub') {
+        prefixInput.value = 'HUB';
+        if (printLabel) printLabel.innerText = 'Print Sheet: Connect With Us 3-in-1 (HUB)';
       } else {
         prefixInput.value = 'TAP';
+        if (printLabel) printLabel.innerText = 'Print Sheet: Review Standees (TAP)';
       }
       renderStandees();
+    }
+
+    function buildStandardCardRow(tag) {
+      const isLinked = tag.url && tag.url.trim() !== "";
+      const isAiPro = tag.aiEnabled === true;
+      const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
+      const hasWp = Boolean(formatWhatsAppNumber(tag.whatsapp));
+      const due7d = isSevenDaysDue(tag);
+
+      const aiButtonHtml = isAiPro
+        ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span>SMART PRO (ON)</span>
+           </button>`
+        : `<button onclick="toggleAiPlan('${tag.id}', false)" title="Click to turn ON Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+            <span>BASIC (OFF)</span>
+           </button>`;
+
+      const welcomeBtnHtml = isLinked
+        ? `<button onclick="sendClientWhatsApp('${tag.id}', 'welcome')" title="${hasWp ? 'Send 1-Click Welcome WhatsApp' : 'Add WhatsApp number first'}" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 transition ${tag.welcomeSent ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}">
+            <i data-lucide="message-circle" class="w-3 h-3"></i>
+            <span>${tag.welcomeSent ? 'WA ✓' : 'Welcome'}</span>
+           </button>`
+        : '';
+
+      const checkinBtnHtml = (isLinked && due7d)
+        ? `<button onclick="sendClientWhatsApp('${tag.id}', 'checkin')" title="Send 7-Day Check-in on WhatsApp" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-950 transition">
+            <i data-lucide="clock" class="w-3 h-3"></i>
+            <span>7d Due</span>
+           </button>`
+        : '';
+
+      const tr = document.createElement('tr');
+      tr.className = "hover:bg-slate-800/40 transition";
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-bold text-white flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full ${isLinked ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+          <span>${tag.id}</span>
+        </td>
+        <td class="py-3 px-4 max-w-[200px] truncate text-slate-300">
+          <div class="font-bold text-white truncate">${tag.title && tag.title !== tag.id ? tag.title : 'Not Linked'}</div>
+          <div class="text-[10px] text-slate-400 truncate">${tag.category || 'Auto-detect'}</div>
+        </td>
+        <td class="py-3 px-4">${aiButtonHtml}</td>
+        <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
+        <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
+        <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+          ${welcomeBtnHtml}
+          ${checkinBtnHtml}
+          <a href="${tagRouteUrl}" target="_blank" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 inline-block align-middle">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+          <button onclick="openEditModal('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-indigo-300 align-middle">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="deleteTag('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-rose-900/50 rounded-lg text-rose-400 align-middle">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </td>
+      `;
+      return tr;
     }
 
     function renderTagsTable() {
       const tbody = document.getElementById('tags-table-body');
       tbody.innerHTML = "";
 
-      const reviewTags = tags.filter(t => !t.id.startsWith('MNU'));
+      const reviewTags = tags.filter(t => !t.id.startsWith('MNU') && !t.id.startsWith('HUB'));
 
       if (reviewTags.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">No review standees registered yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">No TAP review standees registered yet.</td></tr>`;
         return;
       }
 
-      reviewTags.forEach(tag => {
-        const isLinked = tag.url && tag.url.trim() !== "";
-        const isAiPro = tag.aiEnabled === true;
-        const tagRouteUrl = `${baseDomain}?card=${tag.id}`;
-        const hasWp = Boolean(formatWhatsAppNumber(tag.whatsapp));
-        const due7d = isSevenDaysDue(tag);
+      reviewTags.forEach(tag => tbody.appendChild(buildStandardCardRow(tag)));
+      lucide.createIcons();
+    }
 
-        const aiButtonHtml = isAiPro
-          ? `<button onclick="toggleAiPlan('${tag.id}', true)" title="Click to turn OFF Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30 transition flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
-              <span>SMART PRO (ON)</span>
-             </button>`
-          : `<button onclick="toggleAiPlan('${tag.id}', false)" title="Click to turn ON Smart Reviews" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-              <span>BASIC (OFF)</span>
-             </button>`;
+    function renderHubTable() {
+      const tbody = document.getElementById('hub-table-body');
+      tbody.innerHTML = "";
 
-        const welcomeBtnHtml = isLinked
-          ? `<button onclick="sendClientWhatsApp('${tag.id}', 'welcome')" title="${hasWp ? 'Send 1-Click Welcome WhatsApp' : 'Add WhatsApp number first'}" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 transition ${tag.welcomeSent ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-600 hover:bg-emerald-500 text-white'}">
-              <i data-lucide="message-circle" class="w-3 h-3"></i>
-              <span>${tag.welcomeSent ? 'WA ✓' : 'Welcome'}</span>
-             </button>`
-          : '';
+      const hubTags = tags.filter(t => t.id.startsWith('HUB'));
 
-        const checkinBtnHtml = (isLinked && due7d)
-          ? `<button onclick="sendClientWhatsApp('${tag.id}', 'checkin')" title="Send 7-Day Check-in on WhatsApp" class="px-2 py-1 rounded-lg text-[10px] font-sans font-bold inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-400 text-slate-950 transition">
-              <i data-lucide="clock" class="w-3 h-3"></i>
-              <span>7d Due</span>
-             </button>`
-          : '';
+      if (hubTags.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">No HUB 3-in-1 cards generated yet. Click 'Add HUB Batch' above.</td></tr>`;
+        return;
+      }
 
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-800/40 transition";
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-bold text-white flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full ${isLinked ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
-            <span>${tag.id}</span>
-          </td>
-          <td class="py-3 px-4 max-w-[200px] truncate text-slate-300">
-            <div class="font-bold text-white truncate">${tag.title && tag.title !== tag.id ? tag.title : 'Not Linked'}</div>
-            <div class="text-[10px] text-slate-400 truncate">${tag.category || 'Auto-detect'}</div>
-          </td>
-          <td class="py-3 px-4">${aiButtonHtml}</td>
-          <td class="py-3 px-4 font-mono text-emerald-400 font-bold bg-slate-950/40 rounded">${tag.pin}</td>
-          <td class="py-3 px-4 text-center font-bold text-slate-200">${tag.taps || 0}</td>
-          <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-            ${welcomeBtnHtml}
-            ${checkinBtnHtml}
-            <a href="${tagRouteUrl}" target="_blank" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300 inline-block align-middle">
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-            <button onclick="openEditModal('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-indigo-300 align-middle">
-              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-            </button>
-            <button onclick="deleteTag('${tag.id}')" class="p-1.5 bg-slate-800 hover:bg-rose-900/50 rounded-lg text-rose-400 align-middle">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      hubTags.forEach(tag => tbody.appendChild(buildStandardCardRow(tag)));
       lucide.createIcons();
     }
 
@@ -1455,16 +1523,14 @@
     }
 
     // ==========================================
-    // BATCH GENERATOR (DEFAULT BASIC OFF)
+    // BATCH GENERATOR (STRICTLY ISOLATED BY TYPE)
     // ==========================================
     function handleBatchGenerate(e) {
       e.preventDefault();
       const typeSelect = document.getElementById('gen-type').value;
-      const prefix = (document.getElementById('gen-prefix').value.trim().toUpperCase()) || (typeSelect === 'menu' ? "MNU" : "TAP");
+      const prefix = typeSelect === 'menu' ? 'MNU' : (typeSelect === 'hub' ? 'HUB' : 'TAP');
       const startNum = parseInt(document.getElementById('gen-start').value, 10) || 1;
       const count = parseInt(document.getElementById('gen-qty').value, 10) || 20;
-
-      const isMenu = prefix.startsWith('MNU') || typeSelect === 'menu';
 
       const batch = db.batch();
       let createdCount = 0;
@@ -1485,7 +1551,7 @@
             title: id,
             category: "Auto-detect from Business Name",
             aiEnabled: false,
-            type: isMenu ? "menu" : "review",
+            type: typeSelect,
             pin: pin,
             taps: 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1500,23 +1566,33 @@
       }
 
       batch.commit().then(() => {
-        showToast(`Batch of ${createdCount} Basic cards generated!`);
+        showToast(`Batch of ${createdCount} ${prefix} cards generated!`);
       }).catch(err => alert("Error: " + err.message));
     }
 
     // ==========================================
-    // STANDEE PRINT RENDERER (ZERO CUT + PERFECT PROPORTION + CLEAN QR)
+    // STANDEE PRINT RENDERER (ISOLATED TAP vs HUB vs MNU)
     // ==========================================
     function renderStandees() {
       const container = document.getElementById('standees-grid');
       container.innerHTML = "";
 
       const currentType = document.getElementById('gen-type') ? document.getElementById('gen-type').value : 'review';
-      const itemsToPrint = tags.filter(t => currentType === 'menu' ? t.id.startsWith('MNU') : !t.id.startsWith('MNU'));
+      const itemsToPrint = tags.filter(t => {
+        if (currentType === 'menu') return t.id.startsWith('MNU');
+        if (currentType === 'hub') return t.id.startsWith('HUB');
+        return !t.id.startsWith('MNU') && !t.id.startsWith('HUB');
+      });
+
+      if (itemsToPrint.length === 0) {
+        container.innerHTML = `<div class="no-print py-10 text-xs text-slate-500">No cards generated in this series yet. Generate a batch above to preview & print.</div>`;
+        return;
+      }
 
       itemsToPrint.forEach(item => {
         const qrId = `qr-${item.id}`;
         const isMenu = item.id.startsWith('MNU');
+        const isHub = item.id.startsWith('HUB');
         const scanUrl = `${baseDomain}?${isMenu ? 'menu' : 'card'}=${item.id}`;
 
         const card = document.createElement('div');
@@ -1539,7 +1615,106 @@
             <div class="w-full pb-5 pt-1 px-4 flex flex-col items-center">
               <span class="text-[15px] font-mono font-black text-amber-400 tracking-widest uppercase">${item.id}</span>
               <p class="text-[11px] text-slate-400 mt-1">Tap or Scan camera to browse food & drinks</p>
-              <span class="text-[9px] font-semibold tracking-wider text-amber-500/80 uppercase mt-1">Powered by Yashh</span>
+              <span class="text-[9px] font-semibold tracking-wider text-amber-500/80 uppercase mt-1">Powered by TapSpot</span>
+            </div>
+          `;
+        } else if (isHub) {
+          card.className = "hub-card bg-white text-slate-900 rounded-[24px] border border-slate-300 shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden my-3 mx-auto";
+          card.style.width = "4.1in";
+          card.style.height = "4.35in";
+
+          card.innerHTML = `
+            <!-- TOP ROYAL BLUE CURVED HEADER WITH SOFT SKY UNDER-WAVE -->
+            <div class="w-full relative overflow-hidden pt-3 pb-7 px-3 text-white flex flex-col items-center">
+              <svg viewBox="0 0 280 105" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none">
+                <defs>
+                  <linearGradient id="hub-sky-${item.id}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.55"/>
+                    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0,0 L280,0 L280,82 Q140,108 0,86 Z" fill="url(#hub-sky-${item.id})"/>
+                <path d="M0,0 L280,0 L280,74 Q140,100 0,78 Z" fill="#17469e"/>
+              </svg>
+              <div class="relative z-10 flex items-center gap-2.5 text-[#facc15] text-[20px] leading-none mb-1.5 drop-shadow-sm">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <h3 class="relative z-10 text-[25px] font-black tracking-wide uppercase leading-none text-white">CONNECT WITH US</h3>
+              <p class="relative z-10 text-[12px] font-semibold text-blue-50 mt-1.5 tracking-tight">Leave a Review • Message Us • Follow Us</p>
+              <p class="relative z-10 text-[10.5px] font-medium text-blue-100 mt-0.5">— Your support helps us grow! —</p>
+            </div>
+
+            <!-- 3-IN-1 LARGE SOCIAL & REVIEW ICONS ROW -->
+            <div class="w-full px-3 py-1 grid grid-cols-3 items-start">
+              <div class="flex flex-col items-center border-r border-sky-200 px-1.5">
+                <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-1.5">
+                  <svg class="w-11 h-11" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                  </svg>
+                </div>
+                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">Google Review</span>
+                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Share your<br>experience</span>
+              </div>
+
+              <div class="flex flex-col items-center border-r border-sky-200 px-1.5">
+                <div class="w-14 h-14 rounded-full bg-[#22c55e] shadow-sm flex items-center justify-center mb-1.5">
+                  <svg class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.03 2C6.5 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.15-1.33A9.96 9.96 0 0 0 12.03 22C17.55 22 22 17.52 22 12S17.55 2 12.03 2zm5.78 14.12c-.24.68-1.41 1.3-1.95 1.38-.5.08-1.13.11-1.82-.11-.42-.14-.96-.32-1.65-.62-2.9-1.26-4.79-4.18-4.93-4.37-.14-.19-1.18-1.57-1.18-3s.74-2.12 1-2.41c.26-.29.58-.36.77-.36h.55c.18 0 .42-.07.65.5.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.19-.14.31-.29.48-.14.17-.3.38-.43.51-.14.14-.29.3-.12.59.17.29.75 1.24 1.61 2.01 1.11.99 2.04 1.3 2.33 1.45.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.38-.24.65-.14.27.1 1.71.81 2 .95.29.14.48.22.55.34.07.12.07.69-.17 1.37z"/>
+                  </svg>
+                </div>
+                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">WhatsApp</span>
+                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Chat with us<br>instantly</span>
+              </div>
+
+              <div class="flex flex-col items-center px-1.5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white shadow-sm flex items-center justify-center mb-1.5">
+                  <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                    <circle cx="12" cy="12" r="4.2"/>
+                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+                  </svg>
+                </div>
+                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">Instagram</span>
+                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Follow for<br>updates & offers</span>
+              </div>
+            </div>
+
+            <!-- BOTTOM TAP NFC + QR ROW (ALIGNED BASELINE) -->
+            <div class="w-full px-5 pb-3 pt-1 flex items-start justify-between gap-2">
+              <div class="flex-1 flex flex-col items-center">
+                <span class="text-[12.5px] font-black uppercase text-slate-900 tracking-tight mb-2">TAP YOUR PHONE HERE</span>
+                <div class="flex items-center justify-center gap-2">
+                  <div class="w-16 h-16 rounded-full border-[3px] border-slate-900 flex items-center justify-center">
+                    <svg class="w-9 h-9 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+                      <path d="M5.5 8.5a5.5 5.5 0 0 1 0 7"/>
+                      <path d="M9.5 6a9 9 0 0 1 0 12"/>
+                      <path d="M13.5 3.5a12.5 12.5 0 0 1 0 17"/>
+                    </svg>
+                  </div>
+                  <svg class="w-20 h-20 text-slate-900 -ml-1" viewBox="0 0 64 64" fill="none">
+                    <rect x="23" y="7" width="24" height="40" rx="3.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.6"/>
+                    <line x1="32" y1="11.5" x2="38" y2="11.5" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M31 23a5.5 5.5 0 0 1 8 0" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M33 26a3 3 0 0 1 4 0" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+                    <text x="35" y="36" font-size="8.5" font-weight="900" text-anchor="middle" fill="#0f172a">NFC</text>
+                    <path d="M22 20H18.5C17 20 16 21 16 22.5C16 24 17 25 18.5 25H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
+                    <path d="M22 26.5H18C16.5 26.5 15.5 27.5 15.5 29C15.5 30.5 16.5 31.5 18 31.5H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
+                    <path d="M22 33H18.5C17 33 16 34 16 35.5C16 37 17 38 18.5 38H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
+                    <path d="M23 45L29 58L44 52L42 37" stroke="#0f172a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-center">
+                <span class="text-[12.5px] font-black uppercase text-slate-900 tracking-tight mb-1.5">OR SCAN QR</span>
+                <div class="bg-white">
+                  <div id="${qrId}" class="w-[104px] h-[104px]"></div>
+                </div>
+                <span class="text-[10.5px] font-mono font-extrabold text-slate-800 mt-1">${item.id}</span>
+              </div>
             </div>
           `;
         } else {
@@ -1579,7 +1754,7 @@
             <!-- MIDDLE ACTION ROW (CLEAN QR WITHOUT BORDER) -->
             <div class="w-full px-5 py-1 flex items-center justify-between">
               <div class="flex-1 flex flex-col items-center">
-                <svg class="w-15 h-15 text-[#1e293b] mb-1" viewBox="0 0 64 64" fill="none">
+                <svg class="w-16 h-16 text-[#1e293b] mb-1" viewBox="0 0 64 64" fill="none">
                   <path d="M14 23C14 16 19 11 26 11" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
                   <path d="M18 24C18 19 21 16 26 16" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
                   <path d="M22 25C22 22 24 21 26 21" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
@@ -1617,11 +1792,11 @@
         }
 
         container.appendChild(card);
-        renderQR(qrId, scanUrl);
+        renderQR(qrId, scanUrl, isHub ? 104 : 108);
       });
     }
 
-    function renderQR(elementId, text) {
+    function renderQR(elementId, text, size = 108) {
       const container = document.getElementById(elementId);
       if (!container) return;
       container.innerHTML = "";
@@ -1629,8 +1804,8 @@
       try {
         new QRCode(container, {
           text: text,
-          width: 108,
-          height: 108,
+          width: size,
+          height: size,
           colorDark: "#0f172a",
           colorLight: "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
@@ -1638,8 +1813,10 @@
       } catch (err) {
         const encoded = encodeURIComponent(text);
         const img = document.createElement("img");
-        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=108x108&data=${encoded}&margin=1`;
-        img.className = "w-[108px] h-[108px] object-contain";
+        img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=1`;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        img.className = "object-contain";
         container.appendChild(img);
       }
     }
