@@ -575,6 +575,22 @@
               </button>
             </div>
           </form>
+
+          <!-- PRINT CUSTOMIZATION: BLACK/WHITE THEME + CUSTOM TEXT -->
+          <div class="pt-4 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Card Theme (Print Color)</label>
+              <select id="print-theme" onchange="renderStandees()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-indigo-500">
+                <option value="white">White Card (Clean Light)</option>
+                <option value="black">Black Card (Dark Luxury)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Custom Text on Card (Optional)</label>
+              <input type="text" id="print-custom-text" oninput="renderStandees()" placeholder="e.g. Powered by TapSpot or Shop Name"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            </div>
+          </div>
         </div>
 
         <div id="print-area" class="space-y-4">
@@ -1578,6 +1594,9 @@
       container.innerHTML = "";
 
       const currentType = document.getElementById('gen-type') ? document.getElementById('gen-type').value : 'review';
+      const printTheme = document.getElementById('print-theme') ? document.getElementById('print-theme').value : 'white';
+      const isDarkCard = printTheme === 'black';
+      const customTextVal = document.getElementById('print-custom-text') ? document.getElementById('print-custom-text').value.trim() : '';
       const itemsToPrint = tags.filter(t => {
         if (currentType === 'menu') return t.id.startsWith('MNU');
         if (currentType === 'hub') return t.id.startsWith('HUB');
@@ -1615,17 +1634,30 @@
             <div class="w-full pb-5 pt-1 px-4 flex flex-col items-center">
               <span class="text-[15px] font-mono font-black text-amber-400 tracking-widest uppercase">${item.id}</span>
               <p class="text-[11px] text-slate-400 mt-1">Tap or Scan camera to browse food & drinks</p>
-              <span class="text-[9px] font-semibold tracking-wider text-amber-500/80 uppercase mt-1">Powered by TapSpot</span>
+              <span class="text-[9px] font-semibold tracking-wider text-amber-500/80 uppercase mt-1">${customTextVal || 'Powered by TapSpot'}</span>
             </div>
           `;
         } else if (isHub) {
-          card.className = "hub-card bg-white text-slate-900 rounded-[24px] border border-slate-300 shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden my-3 mx-auto";
+          card.className = `hub-card ${isDarkCard ? 'bg-[#111318] text-white border-[#d4af37]/50' : 'bg-white text-slate-900 border-slate-300'} rounded-[24px] border shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden my-3 mx-auto`;
           card.style.width = "4.1in";
           card.style.height = "4.35in";
 
+          const handStroke = isDarkCard ? "#e5c158" : "#0f172a";
+          const phoneFill = isDarkCard ? "#111318" : "#ffffff";
+
           card.innerHTML = `
-            <!-- TOP ROYAL BLUE CURVED HEADER WITH SOFT SKY UNDER-WAVE -->
-            <div class="w-full relative overflow-hidden pt-3 pb-7 px-3 text-white flex flex-col items-center">
+            ${isDarkCard ? `
+              <svg viewBox="0 0 100 100" class="absolute top-0 right-0 w-16 h-16 pointer-events-none opacity-60">
+                <path d="M 35 0 A 65 65 0 0 0 100 65" fill="none" stroke="#d4af37" stroke-width="1.5"/>
+              </svg>
+              <svg viewBox="0 0 100 100" class="absolute bottom-0 left-0 w-16 h-16 pointer-events-none opacity-60">
+                <path d="M 0 35 A 65 65 0 0 1 65 100" fill="none" stroke="#d4af37" stroke-width="1.5"/>
+              </svg>
+            ` : ''}
+
+            <!-- TOP HEADER -->
+            <div class="w-full relative overflow-hidden pt-3.5 ${isDarkCard ? 'pb-2' : 'pb-7'} px-3 text-white flex flex-col items-center">
+              ${isDarkCard ? '' : `
               <svg viewBox="0 0 280 105" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none">
                 <defs>
                   <linearGradient id="hub-sky-${item.id}" x1="0" y1="0" x2="0" y2="1">
@@ -1633,92 +1665,108 @@
                     <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
                   </linearGradient>
                 </defs>
-                <path d="M0,0 L280,0 L280,82 Q140,108 0,86 Z" fill="url(#hub-sky-${item.id})"/>
-                <path d="M0,0 L280,0 L280,74 Q140,100 0,78 Z" fill="#17469e"/>
-              </svg>
+                <path d="M0,0 L280,0 L280,96 Q140,114 0,98 Z" fill="url(#hub-sky-${item.id})"/>
+                <path d="M0,0 L280,0 L280,88 Q140,106 0,90 Z" fill="#17469e"/>
+              </svg>`}
               <div class="relative z-10 flex items-center gap-2.5 text-[#facc15] text-[20px] leading-none mb-1.5 drop-shadow-sm">
                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
               </div>
-              <h3 class="relative z-10 text-[25px] font-black tracking-wide uppercase leading-none text-white">CONNECT WITH US</h3>
-              <p class="relative z-10 text-[12px] font-semibold text-blue-50 mt-1.5 tracking-tight">Leave a Review • Message Us • Follow Us</p>
-              <p class="relative z-10 text-[10.5px] font-medium text-blue-100 mt-0.5">— Your support helps us grow! —</p>
+              <h3 class="relative z-10 text-[25px] font-black tracking-wide uppercase leading-none text-white">
+                ${isDarkCard ? 'CONNECT <span class="text-[#e5c158]">WITH US</span>' : 'CONNECT WITH US'}
+              </h3>
+              <p class="relative z-10 text-[11.5px] font-semibold ${isDarkCard ? 'text-slate-200' : 'text-blue-50'} mt-1.5 tracking-tight">Leave a Review • Message Us • Follow Us</p>
+              <p class="relative z-10 text-[10px] font-medium ${isDarkCard ? 'text-slate-400' : 'text-blue-100'} mt-0.5">— Your support helps us grow! —</p>
             </div>
 
             <!-- 3-IN-1 LARGE SOCIAL & REVIEW ICONS ROW -->
             <div class="w-full px-3 py-1 grid grid-cols-3 items-start">
-              <div class="flex flex-col items-center border-r border-sky-200 px-1.5">
-                <div class="w-14 h-14 rounded-full bg-white shadow-sm flex items-center justify-center mb-1.5">
-                  <svg class="w-11 h-11" viewBox="0 0 48 48">
+              <div class="flex flex-col items-center border-r ${isDarkCard ? 'border-slate-700' : 'border-sky-200'} px-1.5">
+                <div class="w-14 h-14 rounded-full ${isDarkCard ? 'bg-slate-900/80 ring-1 ring-slate-600/70' : 'bg-white shadow-sm'} flex items-center justify-center mb-1.5">
+                  <svg class="w-10 h-10" viewBox="0 0 48 48">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                   </svg>
                 </div>
-                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">Google Review</span>
-                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Share your<br>experience</span>
+                <span class="text-[12px] font-extrabold ${isDarkCard ? 'text-white' : 'text-slate-900'} leading-tight">Google Review</span>
+                <span class="text-[9.5px] ${isDarkCard ? 'text-slate-400' : 'text-slate-500'} leading-tight mt-0.5">Share your<br>experience</span>
               </div>
 
-              <div class="flex flex-col items-center border-r border-sky-200 px-1.5">
-                <div class="w-14 h-14 rounded-full bg-[#22c55e] shadow-sm flex items-center justify-center mb-1.5">
+              <div class="flex flex-col items-center border-r ${isDarkCard ? 'border-slate-700' : 'border-sky-200'} px-1.5">
+                <div class="w-14 h-14 rounded-full ${isDarkCard ? 'bg-[#22c55e]/90 ring-1 ring-emerald-400/50' : 'bg-[#22c55e] shadow-sm'} flex items-center justify-center mb-1.5">
                   <svg class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12.03 2C6.5 2 2 6.48 2 12c0 1.82.49 3.53 1.35 5L2 22l5.15-1.33A9.96 9.96 0 0 0 12.03 22C17.55 22 22 17.52 22 12S17.55 2 12.03 2zm5.78 14.12c-.24.68-1.41 1.3-1.95 1.38-.5.08-1.13.11-1.82-.11-.42-.14-.96-.32-1.65-.62-2.9-1.26-4.79-4.18-4.93-4.37-.14-.19-1.18-1.57-1.18-3s.74-2.12 1-2.41c.26-.29.58-.36.77-.36h.55c.18 0 .42-.07.65.5.24.58.82 2 .89 2.15.07.14.12.31.02.5-.1.19-.14.31-.29.48-.14.17-.3.38-.43.51-.14.14-.29.3-.12.59.17.29.75 1.24 1.61 2.01 1.11.99 2.04 1.3 2.33 1.45.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.38-.24.65-.14.27.1 1.71.81 2 .95.29.14.48.22.55.34.07.12.07.69-.17 1.37z"/>
                   </svg>
                 </div>
-                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">WhatsApp</span>
-                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Chat with us<br>instantly</span>
+                <span class="text-[12px] font-extrabold ${isDarkCard ? 'text-white' : 'text-slate-900'} leading-tight">WhatsApp</span>
+                <span class="text-[9.5px] ${isDarkCard ? 'text-slate-400' : 'text-slate-500'} leading-tight mt-0.5">Chat with us<br>instantly</span>
               </div>
 
               <div class="flex flex-col items-center px-1.5">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white shadow-sm flex items-center justify-center mb-1.5">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white ${isDarkCard ? 'ring-1 ring-pink-400/40' : 'shadow-sm'} flex items-center justify-center mb-1.5">
                   <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                     <circle cx="12" cy="12" r="4.2"/>
                     <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
                   </svg>
                 </div>
-                <span class="text-[12px] font-extrabold text-slate-900 leading-tight">Instagram</span>
-                <span class="text-[9.5px] text-slate-500 leading-tight mt-0.5">Follow for<br>updates & offers</span>
+                <span class="text-[12px] font-extrabold ${isDarkCard ? 'text-white' : 'text-slate-900'} leading-tight">Instagram</span>
+                <span class="text-[9.5px] ${isDarkCard ? 'text-slate-400' : 'text-slate-500'} leading-tight mt-0.5">Follow for<br>updates & offers</span>
               </div>
             </div>
 
-            <!-- BOTTOM TAP NFC + QR ROW (ALIGNED BASELINE) -->
-            <div class="w-full px-5 pb-3 pt-1 flex items-start justify-between gap-2">
+            <!-- BOTTOM TAP NFC + QR ROW -->
+            <div class="w-full px-5 pb-2 pt-1 flex items-start justify-between gap-2">
               <div class="flex-1 flex flex-col items-center">
-                <span class="text-[12.5px] font-black uppercase text-slate-900 tracking-tight mb-2">TAP YOUR PHONE HERE</span>
-                <div class="flex items-center justify-center gap-2">
-                  <div class="w-16 h-16 rounded-full border-[3px] border-slate-900 flex items-center justify-center">
-                    <svg class="w-9 h-9 text-slate-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-                      <path d="M5.5 8.5a5.5 5.5 0 0 1 0 7"/>
-                      <path d="M9.5 6a9 9 0 0 1 0 12"/>
-                      <path d="M13.5 3.5a12.5 12.5 0 0 1 0 17"/>
+                <span class="text-[12px] font-black uppercase ${isDarkCard ? 'text-slate-100' : 'text-slate-900'} tracking-tight mb-1.5">TAP YOUR PHONE HERE</span>
+                <div class="flex items-center justify-center">
+                  <div class="w-[68px] h-[68px] rounded-full border-[2.5px] ${isDarkCard ? 'border-[#e5c158]' : 'border-slate-900'} flex items-center justify-center shrink-0">
+                    <svg class="w-10 h-10 ${isDarkCard ? 'text-[#e5c158]' : 'text-slate-900'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                      <path d="M4.5 9.5a4.5 4.5 0 0 1 0 5"/>
+                      <path d="M8 7.5a7.5 7.5 0 0 1 0 9"/>
+                      <path d="M11.5 5.5a10.5 10.5 0 0 1 0 13"/>
+                      <path d="M15 3.5a13.5 13.5 0 0 1 0 17"/>
                     </svg>
                   </div>
-                  <svg class="w-20 h-20 text-slate-900 -ml-1" viewBox="0 0 64 64" fill="none">
-                    <rect x="23" y="7" width="24" height="40" rx="3.5" fill="#ffffff" stroke="#0f172a" stroke-width="2.6"/>
-                    <line x1="32" y1="11.5" x2="38" y2="11.5" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M31 23a5.5 5.5 0 0 1 8 0" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M33 26a3 3 0 0 1 4 0" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
-                    <text x="35" y="36" font-size="8.5" font-weight="900" text-anchor="middle" fill="#0f172a">NFC</text>
-                    <path d="M22 20H18.5C17 20 16 21 16 22.5C16 24 17 25 18.5 25H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
-                    <path d="M22 26.5H18C16.5 26.5 15.5 27.5 15.5 29C15.5 30.5 16.5 31.5 18 31.5H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
-                    <path d="M22 33H18.5C17 33 16 34 16 35.5C16 37 17 38 18.5 38H22" stroke="#0f172a" stroke-width="2.4" stroke-linecap="round"/>
-                    <path d="M23 45L29 58L44 52L42 37" stroke="#0f172a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <svg class="w-[88px] h-[88px] -ml-3.5 relative z-10" viewBox="0 0 80 80" fill="none">
+                    <!-- Hand palm/wrist behind & right -->
+                    <path d="M26 52 L34 68 L56 60 L50 38" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Phone body -->
+                    <rect x="22" y="8" width="28" height="46" rx="4.5" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.6"/>
+                    <!-- Top speaker -->
+                    <line x1="32" y1="13" x2="40" y2="13" stroke="${handStroke}" stroke-width="2.2" stroke-linecap="round"/>
+                    <!-- NFC waves inside phone -->
+                    <path d="M30 24a8 8 0 0 1 12 0" stroke="${handStroke}" stroke-width="2.1" stroke-linecap="round"/>
+                    <path d="M32.5 27.5a5 5 0 0 1 7 0" stroke="${handStroke}" stroke-width="2.1" stroke-linecap="round"/>
+                    <text x="36" y="39" font-size="9.5" font-weight="900" text-anchor="middle" fill="${handStroke}">NFC</text>
+                    <!-- 4 fingers gripping left edge -->
+                    <path d="M22 20H17.5C15.8 20 14.5 21.3 14.5 23C14.5 24.7 15.8 26 17.5 26H22" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.3" stroke-linecap="round"/>
+                    <path d="M22 26.5H17C15.3 26.5 14 27.8 14 29.5C14 31.2 15.3 32.5 17 32.5H22" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.3" stroke-linecap="round"/>
+                    <path d="M22 33H17.5C15.8 33 14.5 34.3 14.5 36C14.5 37.7 15.8 39 17.5 39H22" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.3" stroke-linecap="round"/>
+                    <path d="M22 39.5H18.5C17 39.5 15.8 40.7 15.8 42.2C15.8 43.7 17 44.8 18.5 44.8H22" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.3" stroke-linecap="round"/>
+                    <!-- Thumb wrapping from right -->
+                    <path d="M50 38 C53 35 52 29 47 29 C44 29 42 32 45 36 L50 44" fill="${phoneFill}" stroke="${handStroke}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
               </div>
 
               <div class="flex flex-col items-center">
-                <span class="text-[12.5px] font-black uppercase text-slate-900 tracking-tight mb-1.5">OR SCAN QR</span>
-                <div class="bg-white">
+                <span class="text-[12px] font-black uppercase ${isDarkCard ? 'text-slate-100' : 'text-slate-900'} tracking-tight mb-1.5">OR SCAN QR</span>
+                <div class="${isDarkCard ? 'bg-[#111318]' : 'bg-white'}">
                   <div id="${qrId}" class="w-[104px] h-[104px]"></div>
                 </div>
-                <span class="text-[10.5px] font-mono font-extrabold text-slate-800 mt-1">${item.id}</span>
+                <span class="text-[10px] font-mono font-extrabold ${isDarkCard ? 'text-slate-300' : 'text-slate-800'} mt-1">${item.id}</span>
               </div>
+            </div>
+
+            <!-- WHITE LABEL / CUSTOM TEXT AT BOTTOM -->
+            <div class="w-full pb-2 text-center">
+              <span class="text-[9.5px] font-bold tracking-wider ${isDarkCard ? 'text-slate-400' : 'text-slate-500'}">${customTextVal || 'Powered by TapSpot'}</span>
             </div>
           `;
         } else {
-          card.className = "standee-card bg-[#f8fafc] text-slate-900 rounded-[30px] border border-slate-300 shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden my-3 mx-auto";
+          card.className = `standee-card ${isDarkCard ? 'bg-slate-950 text-white border-amber-500/40' : 'bg-[#f8fafc] text-slate-900 border-slate-300'} rounded-[30px] border shadow-xl relative flex flex-col justify-between items-center text-center overflow-hidden my-3 mx-auto`;
           card.style.width = "4.1in";
           card.style.height = "4.35in";
 
@@ -1765,8 +1813,8 @@
                   <path d="M25 36H23C21.8 36 21 36.8 21 38C21 39.2 21.8 40 23 40H25" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"/>
                   <path d="M26 43L31 53L43 48L41 34" stroke="#1e293b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <div class="text-[13.5px] font-black uppercase text-[#0f172a] leading-none tracking-tight">TAP</div>
-                <div class="text-[11.5px] font-semibold text-slate-700 leading-tight mt-0.5">your phone</div>
+                <div class="text-[13.5px] font-black uppercase ${isDarkCard ? 'text-white' : 'text-[#0f172a]'} leading-none tracking-tight">TAP</div>
+                <div class="text-[11.5px] font-semibold ${isDarkCard ? 'text-slate-300' : 'text-slate-700'} leading-tight mt-0.5">your phone</div>
                 <div class="w-8 h-[3px] bg-[#1e2a78] rounded-full mt-1"></div>
               </div>
 
@@ -1776,27 +1824,27 @@
                 <div class="p-1 bg-white rounded-xl">
                   <div id="${qrId}" class="w-[108px] h-[108px]"></div>
                 </div>
-                <div class="text-[13.5px] font-black uppercase text-[#0f172a] leading-none tracking-tight mt-1">SCAN</div>
-                <div class="text-[11.5px] font-semibold text-slate-700 leading-tight mt-0.5">the QR code</div>
+                <div class="text-[13.5px] font-black uppercase ${isDarkCard ? 'text-white' : 'text-[#0f172a]'} leading-none tracking-tight mt-1">SCAN</div>
+                <div class="text-[11.5px] font-semibold ${isDarkCard ? 'text-slate-300' : 'text-slate-700'} leading-tight mt-0.5">the QR code</div>
                 <div class="w-8 h-[3px] bg-[#1e2a78] rounded-full mt-1"></div>
               </div>
             </div>
 
             <!-- FOOTER -->
             <div class="w-full pb-3.5 pt-1 px-4 flex flex-col items-center">
-              <span class="text-[11.5px] font-mono font-extrabold text-slate-800 uppercase tracking-widest">${item.id}</span>
-              <p class="text-[11.5px] font-black uppercase tracking-wide text-[#0f172a] mt-0.5">TAP TO RATE YOUR EXPERIENCE</p>
-              <span class="text-[8px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Powered by Yashh</span>
+              <span class="text-[11.5px] font-mono font-extrabold ${isDarkCard ? 'text-amber-400' : 'text-slate-800'} uppercase tracking-widest">${item.id}</span>
+              <p class="text-[11.5px] font-black uppercase tracking-wide ${isDarkCard ? 'text-white' : 'text-[#0f172a]'} mt-0.5">TAP TO RATE YOUR EXPERIENCE</p>
+              <span class="text-[8.5px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">${customTextVal || 'Powered by TapSpot'}</span>
             </div>
           `;
         }
 
         container.appendChild(card);
-        renderQR(qrId, scanUrl, isHub ? 104 : 108);
+        renderQR(qrId, scanUrl, isHub ? 104 : 108, isHub && isDarkCard);
       });
     }
 
-    function renderQR(elementId, text, size = 108) {
+    function renderQR(elementId, text, size = 108, invertDark = false) {
       const container = document.getElementById(elementId);
       if (!container) return;
       container.innerHTML = "";
@@ -1806,8 +1854,8 @@
           text: text,
           width: size,
           height: size,
-          colorDark: "#0f172a",
-          colorLight: "#ffffff",
+          colorDark: invertDark ? "#ffffff" : "#0f172a",
+          colorLight: invertDark ? "#111318" : "#ffffff",
           correctLevel: QRCode.CorrectLevel.M
         });
       } catch (err) {
