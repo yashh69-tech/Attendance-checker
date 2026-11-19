@@ -42,20 +42,32 @@
       .no-print, header, nav, #admin-controls, .toast, #modal-edit, #admin-auth-modal, #modal-merchant-pin, #tab-tags, #tab-hub-tags, #tab-menu-tags {
         display: none !important;
       }
-      #tab-batch, #print-area {
+      body:not(.printing-qr-studio) #tab-qr-studio {
+        display: none !important;
+      }
+      body:not(.printing-qr-studio) #tab-batch, body:not(.printing-qr-studio) #print-area {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      body.printing-qr-studio #tab-batch {
+        display: none !important;
+      }
+      body.printing-qr-studio #tab-qr-studio, body.printing-qr-studio #qr-studio-print-area {
         display: block !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
       }
       
-      #standees-grid {
+      #standees-grid, #qr-studio-grid {
         display: block !important;
         width: 100% !important;
         text-align: center !important;
       }
       
-      .standee-card, .hub-card, .menu-card {
+      .standee-card, .hub-card, .menu-card, .custom-qr-card {
         display: flex !important;
         width: 4.1in !important;
         height: 4.35in !important;
@@ -71,7 +83,7 @@
       }
 
       /* Force clean page break after every 2nd card */
-      .standee-card:nth-child(2n), .hub-card:nth-child(2n), .menu-card:nth-child(2n) {
+      .standee-card:nth-child(2n), .hub-card:nth-child(2n), .menu-card:nth-child(2n), .custom-qr-card:nth-child(2n) {
         page-break-after: always !important;
         break-after: page !important;
       }
@@ -399,6 +411,9 @@
           <button onclick="switchTab('batch')" id="nav-btn-batch" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
             Bulk Generator & Print
           </button>
+          <button onclick="switchTab('qr-studio')" id="nav-btn-qr-studio" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition">
+            Custom QR Studio
+          </button>
         </nav>
 
         <div class="flex items-center gap-2">
@@ -417,6 +432,7 @@
         <button onclick="switchTab('hub-tags')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-sky-300 whitespace-nowrap">HUB 3-in-1</button>
         <button onclick="switchTab('menu-tags')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-amber-300 whitespace-nowrap">MNU Tiles</button>
         <button onclick="switchTab('batch')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-emerald-300 whitespace-nowrap">Bulk & Print</button>
+        <button onclick="switchTab('qr-studio')" class="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-950 text-pink-300 whitespace-nowrap">QR Studio</button>
       </div>
     </header>
 
@@ -609,6 +625,91 @@
 
           <div id="standees-grid" class="w-full text-center">
             <!-- Standee Badges injected here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: CUSTOM DESIGN + QR STUDIO -->
+      <section id="tab-qr-studio" class="hidden space-y-6">
+        <div class="no-print bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <span class="text-xs font-bold uppercase text-pink-400 tracking-wider">Your Own Canva / Photoshop Design</span>
+              <h3 class="text-xl font-black text-white mt-0.5">Custom QR Studio</h3>
+              <p class="text-xs text-slate-400 mt-1">Apna card design image upload karo aur uspe live QR code ki position & size set karke print nikaalo.</p>
+            </div>
+            <button type="button" onclick="printQrStudio()" class="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-pink-600/20 transition">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>Print Custom Cards</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">1. Upload Your Design Image</label>
+              <input type="file" id="qr-bg-upload" accept="image/*" onchange="handleQrBgUpload(event)"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-600 file:text-white hover:file:bg-pink-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">2. Select Card Series</label>
+              <select id="qr-studio-series" onchange="renderQrStudio()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none focus:border-pink-500">
+                <option value="review">TAP Series (Review Standees)</option>
+                <option value="hub">HUB Series (Connect 3-in-1)</option>
+                <option value="menu">MNU Series (Menu Tiles)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">3. QR Color & ID Label</label>
+              <div class="flex items-center gap-2">
+                <select id="qr-studio-color" onchange="renderQrStudio()" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none">
+                  <option value="dark">Black QR (White Box)</option>
+                  <option value="dark-transparent">Black QR (Transparent)</option>
+                  <option value="white-transparent">White QR (Transparent)</option>
+                </select>
+                <label class="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-950 border border-slate-700 px-2.5 py-2 rounded-xl cursor-pointer">
+                  <input type="checkbox" id="qr-show-id" checked onchange="renderQrStudio()" class="accent-pink-500">
+                  <span>ID</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                <span>Left / Right (X)</span>
+                <span id="qr-val-x" class="text-pink-400 font-mono">62%</span>
+              </div>
+              <input type="range" id="qr-pos-x" min="5" max="90" value="62" oninput="renderQrStudio()" class="w-full accent-pink-500">
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                <span>Top / Bottom (Y)</span>
+                <span id="qr-val-y" class="text-pink-400 font-mono">54%</span>
+              </div>
+              <input type="range" id="qr-pos-y" min="5" max="90" value="54" oninput="renderQrStudio()" class="w-full accent-pink-500">
+            </div>
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                <span>QR Size</span>
+                <span id="qr-val-size" class="text-pink-400 font-mono">105px</span>
+              </div>
+              <input type="range" id="qr-size" min="60" max="170" value="105" oninput="renderQrStudio()" class="w-full accent-pink-500">
+            </div>
+          </div>
+        </div>
+
+        <div id="qr-studio-print-area" class="space-y-4">
+          <div class="no-print flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <i data-lucide="image" class="w-4 h-4 text-pink-400"></i>
+              <span>Custom Design Preview (2 Cards per A4 Page)</span>
+            </h4>
+            <span class="text-xs text-slate-500">Print on <strong>A4</strong> at <strong>100% Scale</strong></span>
+          </div>
+
+          <div id="qr-studio-grid" class="w-full text-center">
+            <!-- Custom QR Cards injected here -->
           </div>
         </div>
       </section>
@@ -909,6 +1010,7 @@
         renderHubTable();
         renderMenuTable();
         renderStandees();
+        renderQrStudio();
       }, (error) => {
         console.error("Firestore Error: ", error);
       });
@@ -936,6 +1038,7 @@
     }
 
     function triggerPrintSheet() {
+      document.body.classList.remove('printing-qr-studio');
       switchTab('batch');
       renderStandees();
       setTimeout(() => {
@@ -1376,7 +1479,7 @@
     // ADMIN UI MANAGEMENT (STRICTLY ISOLATED TABS)
     // ==========================================
     function switchTab(tab) {
-      ['tags', 'hub-tags', 'menu-tags', 'batch'].forEach(t => {
+      ['tags', 'hub-tags', 'menu-tags', 'batch', 'qr-studio'].forEach(t => {
         document.getElementById(`tab-${t}`).classList.add('hidden');
         const navBtn = document.getElementById(`nav-btn-${t}`);
         if (navBtn) navBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition';
@@ -1387,6 +1490,7 @@
       if (activeBtn) activeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-slate-800 transition';
 
       if (tab === 'batch') renderStandees();
+      if (tab === 'qr-studio') renderQrStudio();
       lucide.createIcons();
     }
 
@@ -1946,6 +2050,118 @@
       db.collection(COLLECTION_NAME).doc(cardId).delete().then(() => {
         showToast("Card deleted.");
       }).catch(err => alert(err.message));
+    }
+
+
+    // ==========================================
+    // CUSTOM DESIGN + QR STUDIO
+    // ==========================================
+    let customQrBgDataUrl = "";
+
+    function handleQrBgUpload(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        customQrBgDataUrl = ev.target.result;
+        renderQrStudio();
+        showToast("Design loaded! Adjust X, Y & Size sliders.");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function printQrStudio() {
+      document.body.classList.add('printing-qr-studio');
+      renderQrStudio();
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => document.body.classList.remove('printing-qr-studio'), 500);
+      }, 350);
+    }
+
+    function renderQrStudio() {
+      const grid = document.getElementById('qr-studio-grid');
+      if (!grid) return;
+      grid.innerHTML = "";
+
+      const series = document.getElementById('qr-studio-series') ? document.getElementById('qr-studio-series').value : 'review';
+      const colorMode = document.getElementById('qr-studio-color') ? document.getElementById('qr-studio-color').value : 'dark';
+      const showId = document.getElementById('qr-show-id') ? document.getElementById('qr-show-id').checked : true;
+      const posX = document.getElementById('qr-pos-x') ? document.getElementById('qr-pos-x').value : 62;
+      const posY = document.getElementById('qr-pos-y') ? document.getElementById('qr-pos-y').value : 54;
+      const qrSize = parseInt(document.getElementById('qr-size') ? document.getElementById('qr-size').value : 105, 10);
+
+      if (document.getElementById('qr-val-x')) document.getElementById('qr-val-x').innerText = `${posX}%`;
+      if (document.getElementById('qr-val-y')) document.getElementById('qr-val-y').innerText = `${posY}%`;
+      if (document.getElementById('qr-val-size')) document.getElementById('qr-val-size').innerText = `${qrSize}px`;
+
+      const items = tags.filter(t => {
+        if (series === 'menu') return t.id.startsWith('MNU');
+        if (series === 'hub') return t.id.startsWith('HUB');
+        return !t.id.startsWith('MNU') && !t.id.startsWith('HUB');
+      });
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div class="no-print py-10 text-xs text-slate-500">No cards found in this series. Generate a batch first.</div>`;
+        return;
+      }
+
+      const isWhiteQr = colorMode === 'white-transparent';
+      const hasWhiteBox = colorMode === 'dark';
+
+      items.forEach(item => {
+        const qrId = `custom-qr-${item.id}`;
+        const isMenu = item.id.startsWith('MNU');
+        const scanUrl = `${baseDomain}?${isMenu ? 'menu' : 'card'}=${item.id}`;
+
+        const card = document.createElement('div');
+        card.className = "custom-qr-card bg-white rounded-[24px] border border-slate-300 shadow-xl relative overflow-hidden my-3 mx-auto flex items-center justify-center";
+        card.style.width = "4.1in";
+        card.style.height = "4.35in";
+
+        if (customQrBgDataUrl) {
+          card.style.backgroundImage = `url(${customQrBgDataUrl})`;
+          card.style.backgroundSize = "cover";
+          card.style.backgroundPosition = "center";
+        } else {
+          card.innerHTML = `<div class="no-print text-xs text-slate-400 font-semibold px-6">Upload your Canva/Photoshop card design above to preview</div>`;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.style.position = "absolute";
+        overlay.style.left = `${posX}%`;
+        overlay.style.top = `${posY}%`;
+        overlay.style.transform = "translate(-50%, -50%)";
+        overlay.className = `flex flex-col items-center ${hasWhiteBox ? 'bg-white p-1.5 rounded-xl shadow-sm' : ''}`;
+
+        const qrDiv = document.createElement('div');
+        qrDiv.id = qrId;
+        qrDiv.style.width = `${qrSize}px`;
+        qrDiv.style.height = `${qrSize}px`;
+        overlay.appendChild(qrDiv);
+
+        if (showId) {
+          const idTag = document.createElement('span');
+          idTag.className = `text-[10px] font-mono font-extrabold mt-1 ${isWhiteQr ? 'text-white' : 'text-slate-900'}`;
+          idTag.innerText = item.id;
+          overlay.appendChild(idTag);
+        }
+
+        card.appendChild(overlay);
+        grid.appendChild(card);
+
+        const qrContainer = document.getElementById(qrId);
+        if (qrContainer) {
+          new QRCode(qrContainer, {
+            text: scanUrl,
+            width: qrSize,
+            height: qrSize,
+            colorDark: isWhiteQr ? "#ffffff" : "#0f172a",
+            colorLight: hasWhiteBox ? "#ffffff" : "rgba(0,0,0,0)",
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      });
     }
 
     function showToast(msg) {
