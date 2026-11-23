@@ -263,7 +263,10 @@
             <p class="text-[11px] text-slate-400">Configure Card Links</p>
           </div>
         </div>
-        <span id="act-card-id" class="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold rounded-lg">TAP001</span>
+        <div class="flex items-center gap-2">
+          <span id="act-taps-badge" class="hidden px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-bold rounded-lg">0 Taps</span>
+          <span id="act-card-id" class="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono font-bold rounded-lg">TAP001</span>
+        </div>
       </div>
 
       <div class="my-4">
@@ -299,6 +302,8 @@
               <option value="Salon, Spa & Beauty Parlour">Salon & Beauty Parlour</option>
               <option value="Dental Clinic, Hospital & Doctors">Clinic & Healthcare</option>
               <option value="Car Detailing, Wash & Automobile Garage">Car Detailing & Garage</option>
+              <option value="Jewellery, Gold, Silver & Bridal">Jewellery & Showroom</option>
+              <option value="Optical & Eyewear Store">Optical & Eyewear Store</option>
               <option value="Fashion, Clothing & Boutique">Clothing & Retail Store</option>
               <option value="General Store & Local Business">General Local Store</option>
             </select>
@@ -731,7 +736,13 @@
       </button>
 
       <div class="mb-4">
-        <span id="edit-modal-id" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-mono text-xs font-bold">TAP001</span>
+        <div class="flex items-center justify-between pr-7">
+          <span id="edit-modal-id" class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded font-mono text-xs font-bold">TAP001</span>
+          <div class="flex items-center gap-1.5">
+            <span id="edit-modal-taps" class="px-2 py-0.5 bg-emerald-500/15 text-emerald-300 rounded text-[11px] font-bold">0 Taps</span>
+            <button type="button" onclick="resetCardTaps()" class="px-2 py-0.5 bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded text-[10px] font-bold transition" title="Reset test taps to 0">Reset 0</button>
+          </div>
+        </div>
         <h4 class="text-base font-bold mt-2">Edit Destinations & Plan</h4>
       </div>
 
@@ -761,6 +772,8 @@
             <option value="Salon, Spa & Beauty Parlour">Salon & Beauty Parlour</option>
             <option value="Dental Clinic, Hospital & Doctors">Clinic & Healthcare</option>
             <option value="Car Detailing, Wash & Automobile Garage">Car Detailing & Garage</option>
+            <option value="Jewellery, Gold, Silver & Bridal">Jewellery & Showroom</option>
+            <option value="Optical & Eyewear Store">Optical & Eyewear Store</option>
             <option value="Fashion, Clothing & Boutique">Clothing & Retail Store</option>
             <option value="General Store & Local Business">General Local Store</option>
           </select>
@@ -1099,6 +1112,11 @@
         document.getElementById('view-activation').classList.remove('hidden');
         
         document.getElementById('act-card-id').innerText = activeCardDoc.id;
+        const tapsBadge = document.getElementById('act-taps-badge');
+        if (tapsBadge) {
+          tapsBadge.innerText = `${activeCardDoc.taps || 0} Taps`;
+          tapsBadge.classList.remove('hidden');
+        }
         document.getElementById('act-screen-title').innerText = "Update Your Standee Links";
         document.getElementById('act-input-name').value = (activeCardDoc.title && activeCardDoc.title !== activeCardDoc.id) ? activeCardDoc.title : "";
         document.getElementById('act-input-category').value = activeCardDoc.category || "Auto-detect from Business Name";
@@ -1277,6 +1295,36 @@
           "plus delivery was right on the promised schedule."
         ]
       },
+      jewellery: {
+        core: [
+          "the gold and silver designs are super unique, hallmarked and finely crafted",
+          "the making charges and billing are 100% transparent with zero hidden fees",
+          "they have an amazing collection of bridal, daily-wear and custom jewellery",
+          "the purity assurance and craftsmanship truly stand out from other showrooms",
+          "every piece looks elegant and the finishing is genuinely top-notch"
+        ],
+        staff: [
+          "and the staff patiently shows every design without any rush.",
+          "with very trustworthy guidance and warm hospitality.",
+          "and the owners are completely honest about rates and purity.",
+          "plus custom orders and resizing were handled right on time."
+        ]
+      },
+      optical: {
+        core: [
+          "the eye check-up was thorough and the frame collection is super trendy",
+          "the lens quality and anti-glare coating are genuinely worth the price",
+          "they helped me pick the exact frame shape that suits my face",
+          "the pricing is very fair with genuine branded and budget options",
+          "the fitting and alignment of my spectacles turned out super comfortable"
+        ],
+        staff: [
+          "and the optometrist explained everything clearly and patiently.",
+          "with super fast delivery and polite staff.",
+          "and after-sales frame adjustments are always done with a smile.",
+          "plus zero pushy upselling, only honest advice."
+        ]
+      },
       general: {
         core: [
           "the product quality and variety are genuinely impressive",
@@ -1306,12 +1354,15 @@
     };
 
     function detectCategoryKey(bizName, category) {
-      const combined = `${bizName} ${category}`.toLowerCase();
-      if (combined.includes("gym") || combined.includes("fitness") || combined.includes("workout") || combined.includes("crossfit")) return "gym";
-      if (combined.includes("cafe") || combined.includes("food") || combined.includes("restaurant") || combined.includes("restro") || combined.includes("chai") || combined.includes("bake")) return "cafe";
-      if (combined.includes("salon") || combined.includes("spa") || combined.includes("beauty") || combined.includes("hair") || combined.includes("parlour")) return "salon";
-      if (combined.includes("clinic") || combined.includes("dental") || combined.includes("doctor") || combined.includes("hospital")) return "clinic";
-      if (combined.includes("car") || combined.includes("wash") || combined.includes("garage") || combined.includes("auto") || combined.includes("detailing")) return "auto";
+      const safeCat = (category || "").toLowerCase().includes("auto-detect") ? "" : (category || "");
+      const combined = `${bizName} ${safeCat}`.toLowerCase();
+      if (/\b(gym|fitness|workout|crossfit)\b/.test(combined)) return "gym";
+      if (/\b(cafe|coffee|food|restaurant|restro|chai|bake|bakery|dhaba|bistro)\b/.test(combined)) return "cafe";
+      if (/\b(salon|saloon|spa|beauty|hair|parlour|parlor|barber|makeup|unisex)\b/.test(combined)) return "salon";
+      if (/\b(clinic|dental|doctor|hospital|medical|physio|health)\b/.test(combined)) return "clinic";
+      if (/\b(car|wash|garage|auto|automobile|detailing|mechanic|motors|service center)\b/.test(combined)) return "auto";
+      if (/\b(jewel|jewelers|jewellers|jewellery|jewelry|gold|silver|diamond|bridal|ornament|sonar|saraf|abhooshan)\b/.test(combined)) return "jewellery";
+      if (/\b(optical|opticals|eyewear|eye|chashma|specs|spectacles|lens|lenskart|vision)\b/.test(combined)) return "optical";
       return "general";
     }
 
@@ -1987,6 +2038,20 @@
     // ==========================================
     // EDIT & DELETE (ADMIN)
     // ==========================================
+    async function resetCardTaps() {
+      if (!currentEditingId) return;
+      try {
+        await db.collection(COLLECTION_NAME).doc(currentEditingId).update({ taps: 0 });
+        const card = tags.find(t => t.id === currentEditingId);
+        if (card) card.taps = 0;
+        document.getElementById('edit-modal-taps').innerText = '0 Taps';
+        showToast("Taps reset to 0!");
+      } catch (err) {
+        console.error(err);
+        showToast("Failed to reset taps.");
+      }
+    }
+
     function openEditModal(cardId) {
       currentEditingId = cardId;
       const card = tags.find(t => t.id === cardId);
@@ -1994,6 +2059,7 @@
 
       const isMenu = card.id.startsWith('MNU');
       document.getElementById('edit-modal-id').innerText = card.id;
+      document.getElementById('edit-modal-taps').innerText = `${card.taps || 0} Taps`;
       document.getElementById('edit-input-ai').checked = card.aiEnabled === true;
       document.getElementById('edit-input-name').value = (card.title && card.title !== card.id) ? card.title : "";
       document.getElementById('edit-input-category').value = card.category || "Auto-detect from Business Name";
