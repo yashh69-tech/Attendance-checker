@@ -15,6 +15,7 @@
   <!-- Firebase Compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap');
@@ -103,15 +104,23 @@
       <h2 class="text-lg font-black text-white">TapSpot Admin Access</h2>
       <p class="text-xs text-slate-400 mt-1 mb-5">Master administrator panel to manage NFC batches and live routing.</p>
       
-      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-        <input type="password" id="input-admin-pin" placeholder="Enter Admin PIN" maxlength="6" autofocus
-          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-center text-lg font-mono tracking-widest text-white focus:outline-none focus:border-indigo-500">
-        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
-          <i data-lucide="key" class="w-4 h-4"></i>
-          <span>Unlock Admin Studio</span>
+      <form onsubmit="handleAdminLogin(event)" class="space-y-3 text-left">
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Admin Email</label>
+          <input type="email" id="input-admin-email" placeholder="admin@tapspot.in" required autofocus
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+          <input type="password" id="input-admin-password" placeholder="••••••••" required
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <button type="submit" id="btn-admin-login" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mt-2">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+          <span>Sign In to Admin Studio</span>
         </button>
       </form>
-      <p id="admin-pin-err" class="text-[11px] text-rose-400 mt-3 hidden">Incorrect PIN! Try again.</p>
+      <p id="admin-pin-err" class="text-[11px] text-rose-400 mt-3 hidden">Invalid email or password!</p>
     </div>
   </div>
 
@@ -830,9 +839,9 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
     const COLLECTION_NAME = 'nfcStandees';
-
-    const MASTER_ADMIN_PIN = "9413";
+    const ADMIN_UID = "uYbnVLVhokUhbkb8BLXDEazWpUw2";
     const DOMAIN_KEY = 'tapspot_base_domain_v1';
 
     let currentEditingId = null;
@@ -980,34 +989,54 @@
     // ==========================================
     // ADMIN AUTHENTICATION
     // ==========================================
+    function isAdminSession() {
+      return Boolean(auth.currentUser && auth.currentUser.uid === ADMIN_UID);
+    }
+
     function checkAdminAuth() {
-      const isAuthed = sessionStorage.getItem('tapspot_admin_unlocked');
-      if (isAuthed === 'true') {
-        showAdminView();
-      } else {
-        document.getElementById('admin-auth-modal').classList.remove('hidden');
+      auth.onAuthStateChanged((user) => {
+        const modal = document.getElementById('admin-auth-modal');
+        if (user && user.uid === ADMIN_UID) {
+          modal.classList.add('hidden');
+          showAdminView();
+        } else {
+          document.getElementById('view-admin').classList.add('hidden');
+          modal.classList.remove('hidden');
+          lucide.createIcons();
+        }
+      });
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('input-admin-email').value.trim();
+      const password = document.getElementById('input-admin-password').value;
+      const errEl = document.getElementById('admin-pin-err');
+      const btn = document.getElementById('btn-admin-login');
+
+      errEl.classList.add('hidden');
+      btn.disabled = true;
+      btn.innerText = "Signing in...";
+
+      try {
+        const cred = await auth.signInWithEmailAndPassword(email, password);
+        if (cred.user.uid !== ADMIN_UID) {
+          await auth.signOut();
+          throw new Error("Unauthorized account");
+        }
+      } catch (err) {
+        errEl.innerText = "Invalid email or password!";
+        errEl.classList.remove('hidden');
+        document.getElementById('input-admin-password').value = "";
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="lock" class="w-4 h-4"></i><span>Sign In to Admin Studio</span>';
         lucide.createIcons();
       }
     }
 
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const enteredPin = document.getElementById('input-admin-pin').value.trim();
-      const errEl = document.getElementById('admin-pin-err');
-
-      if (enteredPin === MASTER_ADMIN_PIN) {
-        sessionStorage.setItem('tapspot_admin_unlocked', 'true');
-        document.getElementById('admin-auth-modal').classList.add('hidden');
-        showAdminView();
-      } else {
-        errEl.classList.remove('hidden');
-        document.getElementById('input-admin-pin').value = "";
-      }
-    }
-
     function lockAdmin() {
-      sessionStorage.removeItem('tapspot_admin_unlocked');
-      location.reload();
+      auth.signOut().then(() => location.reload());
     }
 
     function showAdminView() {
@@ -1109,7 +1138,7 @@
       
       if (!activeCardDoc) return;
 
-      if (enteredPin === activeCardDoc.pin || enteredPin === MASTER_ADMIN_PIN) {
+      if (enteredPin === activeCardDoc.pin || isAdminSession()) {
         closeMerchantPinModal();
         document.getElementById('view-smart-hub').classList.add('hidden');
         document.getElementById('view-activation').classList.remove('hidden');
@@ -1509,7 +1538,7 @@
       const enteredInsta = document.getElementById('act-input-insta').value.trim();
       const enteredWp = document.getElementById('act-input-wp').value.trim();
 
-      if (enteredPin !== activeCardDoc.pin && enteredPin !== MASTER_ADMIN_PIN) {
+      if (enteredPin !== activeCardDoc.pin && !isAdminSession()) {
         alert("Galat PIN! Standee par diya hua 6-digit PIN dalein.");
         return;
       }
